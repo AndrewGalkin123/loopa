@@ -52,7 +52,7 @@ function trace(input: number[]): ArrayStep[] {
     // The largest remaining value has bubbled up to position n-1 and stays there.
     n--;
     sorted = [n, ...sorted];
-    record("pass-end", 9, [n]);
+    record("settle", 9, [n]);
   } while (swapped);
 
   // A pass without a single swap means the whole array is sorted.

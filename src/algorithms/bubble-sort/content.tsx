@@ -134,6 +134,8 @@ export const bubbleSort: AlgorithmContent = {
   ),
   // The bars of the design: a shuffled 1..15.
   initialInput: [4, 7, 2, 11, 9, 14, 6, 12, 3, 15, 1, 8, 13, 5, 10],
+  legend: ["default", "active", "compared", "sorted"],
+  datasetHints: { sorted: "nejlepší případ", reversed: "nejhorší případ" },
   compareWith: [
     { name: "Quick Sort", complexity: "O(n log n)", href: "/compare" },
     { name: "Merge Sort", complexity: "O(n log n)", href: "#" },

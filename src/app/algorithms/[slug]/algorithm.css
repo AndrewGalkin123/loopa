@@ -357,6 +357,15 @@
   background: var(--viz-sorted);
 }
 
+/* Quick Sort: the pivot, and bars outside the part being partitioned (not in the design). */
+.page-algorithm .viz-bars .bar.pivot {
+  background: var(--viz-pivot);
+}
+
+.page-algorithm .viz-bars .bar.dimmed {
+  opacity: 0.35;
+}
+
 .page-algorithm .viz-bars .bar .lab {
   position: absolute;
   bottom: -24px;
@@ -369,7 +378,8 @@
 }
 
 .page-algorithm .viz-bars .bar.compared .lab,
-.page-algorithm .viz-bars .bar.active .lab {
+.page-algorithm .viz-bars .bar.active .lab,
+.page-algorithm .viz-bars .bar.pivot .lab {
   color: var(--color-text);
 }
 

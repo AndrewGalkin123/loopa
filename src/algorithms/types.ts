@@ -7,14 +7,26 @@ import type { AlgorithmCardData } from "@/components/AlgorithmCard";
  * it knows nothing about the algorithm itself.
  */
 export interface ArrayStep {
-  kind: "start" | "pass" | "compare" | "swap" | "pass-end" | "done";
+  /**
+   * What happened:
+   * start / done — before the first and after the last step;
+   * pass — a new pass over the array begins (Bubble Sort);
+   * partition — partitioning of the part `range` around `pivot` begins (Quick Sort);
+   * compare, swap — the elements in `indices` are compared / swapped;
+   * settle — the element in `indices` reached its final place.
+   */
+  kind: "start" | "pass" | "partition" | "compare" | "swap" | "settle" | "done";
   /** The array after this step. */
   array: number[];
-  /** Indices the step works with: the compared or swapped pair, or the element that just settled. */
+  /** Indices the step works with: the compared or swapped elements, or the element that just settled. */
   indices: number[];
   /** Indices whose value is already in its final place. */
   sorted: number[];
-  /** Pseudocode line (1-based) executed by this step. */
+  /** Index of the pivot while a part is being partitioned (Quick Sort). */
+  pivot?: number;
+  /** The part of the array the algorithm works on now, [from, to] inclusive; the rest is dimmed. */
+  range?: [number, number];
+  /** Pseudocode line (1-based) executed by this step; 0 = no line. */
   line: number;
   /** Number of the current pass over the array (0 before the first one). */
   pass: number;
@@ -34,6 +46,12 @@ export interface AlgorithmTracer {
   lineAliases: Record<number, number>;
 }
 
+/** Colour states of the bars, as listed in the legend next to the player. */
+export type BarState = "default" | "active" | "compared" | "pivot" | "sorted" | "dimmed";
+
+/** Kinds of generated input arrays (the "array" button of the player). */
+export type DatasetKind = "random" | "nearly" | "sorted" | "reversed";
+
 /** Texts and code shown on the algorithm page (rendered on the server). */
 export interface AlgorithmContent {
   /** Part of the URL: /algorithms/<slug> */
@@ -48,6 +66,10 @@ export interface AlgorithmContent {
   lede: ReactNode;
   /** Array the player starts with. */
   initialInput: number[];
+  /** Bar states this algorithm uses (legend next to the player). */
+  legend: BarState[];
+  /** What each kind of input means for this algorithm, e.g. sorted → "nejlepší případ". */
+  datasetHints?: Partial<Record<DatasetKind, string>>;
   compareWith: { name: string; complexity: string; href: string }[];
   /** Body of the "01 / Popis" section. */
   description: ReactNode;

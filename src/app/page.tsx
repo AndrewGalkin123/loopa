@@ -41,6 +41,7 @@ const FEATURED: AlgorithmCardData[] = [
       "Rozděl a\u00a0panuj. Volí pivot a\u00a0rekurzivně třídí dvě poloviny. Mistr v\u00a0praxi, choulostivý v\u00a0nejhorším případě.",
     complexity: "O(n log n)",
     level: "intermediate",
+    href: "/algorithms/quick-sort",
   },
   {
     num: "03",

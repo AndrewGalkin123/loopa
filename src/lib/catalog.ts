@@ -14,6 +14,18 @@ import type { AlgorithmCardData } from "@/components/AlgorithmCard";
 /* Cards of the algorithm catalog (texts from design/Algorithms.html).
    The landing page has its own, slightly different texts. */
 
+export const BUBBLE_SORT: AlgorithmCardData = {
+  num: "01",
+  group: "sorting",
+  badge: { variant: "sorting", icon: ArrowUpNarrowWide, label: "sort" },
+  title: "Bubble Sort",
+  tagline: "simple",
+  description: "Jednoduchý algoritmus třídění. Porovnává a\u00a0vyměňuje sousední prvky, dokud není pole seřazené.",
+  complexity: "O(n²)",
+  level: "beginner",
+  href: "/algorithms/bubble-sort",
+};
+
 export const QUICK_SORT: AlgorithmCardData = {
   num: "02",
   group: "sorting",
@@ -23,6 +35,7 @@ export const QUICK_SORT: AlgorithmCardData = {
   description: "Rozděl a\u00a0panuj. Volí pivot a\u00a0rekurzivně třídí dvě poloviny pole.",
   complexity: "O(n log n)",
   level: "intermediate",
+  href: "/algorithms/quick-sort",
 };
 
 export const MERGE_SORT: AlgorithmCardData = {
@@ -37,17 +50,7 @@ export const MERGE_SORT: AlgorithmCardData = {
 };
 
 export const CATALOG: AlgorithmCardData[] = [
-  {
-    num: "01",
-    group: "sorting",
-    badge: { variant: "sorting", icon: ArrowUpNarrowWide, label: "sort" },
-    title: "Bubble Sort",
-    tagline: "simple",
-    description: "Jednoduchý algoritmus třídění. Porovnává a\u00a0vyměňuje sousední prvky, dokud není pole seřazené.",
-    complexity: "O(n²)",
-    level: "beginner",
-    href: "/algorithms/bubble-sort",
-  },
+  BUBBLE_SORT,
   QUICK_SORT,
   MERGE_SORT,
   {

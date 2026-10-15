@@ -1,5 +1,5 @@
-/** State class of one bar: "", "active", "compared", "sorted" or "pivot". */
-export type BarClass = "" | "active" | "compared" | "sorted" | "pivot";
+/** State class of one bar: "", "active", "compared", "sorted", "pivot" or "dimmed". */
+export type BarClass = "" | "active" | "compared" | "sorted" | "pivot" | "dimmed";
 
 interface VizBarsProps {
   values: number[];

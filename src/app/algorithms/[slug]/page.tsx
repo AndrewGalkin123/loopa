@@ -3,6 +3,7 @@ import { Activity, ArrowRight, BarChart2, ChevronDown, Clock, MousePointerClick 
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ALGORITHMS, getAlgorithm } from "@/algorithms";
+import type { BarState } from "@/algorithms/types";
 import { AiFab } from "@/components/AiFab";
 import { AlgorithmCard } from "@/components/AlgorithmCard";
 import { CodeTabs } from "@/components/algorithm/CodeTabs";
@@ -42,12 +43,15 @@ const CONTENT_TABS = [
   { id: "slozitost", label: "Složitost" },
 ];
 
-const LEGEND = [
-  { color: "var(--viz-default)", name: "default", desc: "neaktivní" },
-  { color: "var(--viz-active)", name: "active", desc: "právě teď" },
-  { color: "var(--viz-compared)", name: "compared", desc: "porovnání" },
-  { color: "var(--viz-sorted)", name: "sorted", desc: "hotovo" },
-];
+/** Legend entries for every bar state; each algorithm lists the states it uses. */
+const LEGEND: Record<BarState, { color: string; desc: string; dim?: boolean }> = {
+  default: { color: "var(--viz-default)", desc: "neaktivní" },
+  active: { color: "var(--viz-active)", desc: "právě teď" },
+  compared: { color: "var(--viz-compared)", desc: "porovnání" },
+  pivot: { color: "var(--viz-pivot)", desc: "pivot" },
+  sorted: { color: "var(--viz-sorted)", desc: "hotovo" },
+  dimmed: { color: "var(--viz-default)", desc: "mimo úsek", dim: true },
+};
 
 export default async function AlgorithmPage({ params }: Props) {
   const algorithm = getAlgorithm((await params).slug);
@@ -134,17 +138,20 @@ export default async function AlgorithmPage({ params }: Props) {
 
           {/* ───────── WORKSPACE ───────── */}
           <section className="workspace">
-            <Player name={algorithm.name} />
+            <Player name={algorithm.name} datasetHints={algorithm.datasetHints} />
 
             <aside className="side-panel">
               <InputPanel />
               <div className="panel-card">
                 <div className="panel-label">Color legend</div>
                 <div className="legend">
-                  {LEGEND.map((item) => (
-                    <div className="item" key={item.name}>
-                      <span className="sw" style={{ background: item.color }} /> {item.name}{" "}
-                      <span className="desc">{item.desc}</span>
+                  {algorithm.legend.map((state) => (
+                    <div className="item" key={state}>
+                      <span
+                        className="sw"
+                        style={{ background: LEGEND[state].color, opacity: LEGEND[state].dim ? 0.35 : undefined }}
+                      />{" "}
+                      {state} <span className="desc">{LEGEND[state].desc}</span>
                     </div>
                   ))}
                 </div>
