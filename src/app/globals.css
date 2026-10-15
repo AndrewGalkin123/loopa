@@ -1,0 +1,590 @@
+/* Loopa — global design system.
+   Ported from design/Design System.html: tokens, base styles and the
+   primitives shared by every page (header, buttons, badges, cards, footer).
+   Page-specific styles live next to each page, scoped by a .page-* class. */
+
+/* ───────── Tokens ───────── */
+:root,
+[data-theme="dark"] {
+  --color-bg: #0a0a0b;
+  --color-surface: #111113;
+  --color-surface-elevated: #18181b;
+  --color-border: #1f1f23;
+  --color-border-strong: #2a2a2f;
+  --color-border-bright: #3f3f46;
+  --color-text: #fafafa;
+  --color-text-muted: #a1a1aa;
+  --color-text-subtle: #71717a;
+  --color-text-dim: #52525b;
+  --color-accent: #a3e635;
+  --color-accent-dim: #65a30d;
+  --color-accent-glow: rgba(163, 230, 53, 0.15);
+  --viz-default: #3f3f46;
+  --viz-active: #a3e635;
+  --viz-compared: #fcd34d;
+  --viz-sorted: #67e8f9;
+  --viz-pivot: #f0abfc;
+  --viz-visited: #71717a;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  --grid-line: rgba(255, 255, 255, 0.02);
+  --grid-line-strong: rgba(255, 255, 255, 0.04);
+  --code-keyword: #f0abfc;
+  --code-string: #a3e635;
+  --code-number: #fcd34d;
+  --code-comment: #52525b;
+  --code-fn: #67e8f9;
+}
+
+[data-theme="light"] {
+  --color-bg: #fafaf9;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-border: #e7e5e4;
+  --color-border-strong: #d6d3d1;
+  --color-border-bright: #a8a29e;
+  --color-text: #1c1917;
+  --color-text-muted: #57534e;
+  --color-text-subtle: #78716c;
+  --color-text-dim: #a8a29e;
+  --color-accent: #65a30d;
+  --color-accent-dim: #4d7c0f;
+  --color-accent-glow: rgba(101, 163, 13, 0.12);
+  --viz-default: #d6d3d1;
+  --viz-active: #65a30d;
+  --viz-compared: #d97706;
+  --viz-sorted: #0891b2;
+  --viz-pivot: #c026d3;
+  --viz-visited: #a8a29e;
+  --grid-line: rgba(0, 0, 0, 0.03);
+  --code-keyword: #c026d3;
+  --code-string: #65a30d;
+  --code-number: #b45309;
+  --code-comment: #a8a29e;
+  --code-fn: #0e7490;
+}
+
+:root {
+  /* Font variables come from next/font in src/app/layout.tsx. */
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
+  --duration-slow: 400ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --max-w: 1200px;
+}
+
+/* ───────── Base ───────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  transition:
+    background-color var(--duration-normal) var(--ease-out),
+    color var(--duration-normal) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.serif-i {
+  font-family: var(--font-serif), serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* ───────── Header ───────── */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  height: 64px;
+  background: color-mix(in srgb, var(--color-bg) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.nav-inner {
+  max-width: var(--max-w);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+/* Loopa mark: a magnifying glass ("lupa") instead of the original triangle. */
+.brand-mark {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: inline-flex;
+  color: var(--color-accent);
+}
+
+.brand-mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+}
+
+.nav-links a {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.nav-links a.active {
+  color: var(--color-text);
+}
+
+.nav-links a:hover {
+  color: var(--color-text);
+}
+
+.nav-right {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Theme toggle (shown on the design system page) */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 4px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.theme-toggle button {
+  width: 28px;
+  height: 24px;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+}
+
+.theme-toggle button.is-on {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* ───────── Buttons ───────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 0 18px;
+  height: 40px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    filter var(--duration-fast) var(--ease-out);
+  text-decoration: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: #0a0a0b;
+  border-color: var(--color-accent);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 24px var(--color-accent-glow);
+}
+
+.btn-primary:active {
+  filter: brightness(0.95);
+}
+
+.btn-secondary {
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-border-bright);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  border-color: transparent;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 12px;
+}
+
+.btn-ghost:hover {
+  color: var(--color-text);
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.btn-lg {
+  height: 48px;
+  padding: 0 22px;
+  font-size: 15px;
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
+}
+
+.btn-icon.btn-sm {
+  width: 32px;
+  height: 32px;
+}
+
+.btn-icon.btn-lg {
+  width: 48px;
+  height: 48px;
+}
+
+.kbd-inline {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  padding: 3px 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 4px;
+  color: var(--color-text-subtle);
+}
+
+/* ───────── Eyebrow ───────── */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.eyebrow::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+/* ───────── Badges ───────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  text-transform: lowercase;
+  letter-spacing: 0.04em;
+  background: transparent;
+  border: 1px solid currentColor;
+}
+
+.badge .lucide {
+  width: 10px;
+  height: 10px;
+}
+
+.badge-sorting {
+  color: var(--color-accent);
+}
+
+.badge-search-sorted {
+  color: #60a5fa;
+}
+
+.badge-graph {
+  color: var(--viz-sorted);
+}
+
+.badge-shortest {
+  color: #c4b5fd;
+}
+
+.badge-optimization {
+  color: var(--viz-pivot);
+}
+
+/* ───────── Algorithm card ───────── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.card:hover {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-border-strong);
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-num {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+}
+
+.card-num b {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.card-title {
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  font-weight: 500;
+  margin: 0;
+}
+
+.card-title em {
+  font-family: var(--font-serif), serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.card-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.card-foot {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
+
+/* ───────── Floating AI button ───────── */
+.ai-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 70;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 18px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.ai-fab .spark {
+  color: var(--color-accent);
+}
+
+.ai-fab:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-accent);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    0 0 24px var(--color-accent-glow);
+}
+
+/* ───────── Footer ───────── */
+footer.page-foot {
+  border-top: 1px solid var(--color-border);
+  padding: 28px 0;
+}
+
+.foot-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
+
+.foot-inner a {
+  color: var(--color-text-subtle);
+  text-decoration: none;
+  margin-left: 20px;
+}
+
+.foot-inner a:hover {
+  color: var(--color-text);
+}
+
+.foot-left {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.foot-left .brand-mark {
+  width: 14px;
+  height: 14px;
+}
+
+.foot-left .ver {
+  color: var(--color-text-dim);
+}
+
+@media (max-width: 900px) {
+  .nav-links {
+    display: none;
+  }
+}
