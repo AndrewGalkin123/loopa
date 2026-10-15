@@ -12,10 +12,12 @@ export interface ArrayStep {
    * start / done — before the first and after the last step;
    * pass — a new pass over the array begins (Bubble Sort);
    * partition — partitioning of the part `range` around `pivot` begins (Quick Sort);
+   * split, merge — the part `range` is split at `mid` / its two halves start merging (Merge Sort);
    * compare, swap — the elements in `indices` are compared / swapped;
+   * write — values were written to the positions in `indices` (Merge Sort);
    * settle — the element in `indices` reached its final place.
    */
-  kind: "start" | "pass" | "partition" | "compare" | "swap" | "settle" | "done";
+  kind: "start" | "pass" | "partition" | "split" | "merge" | "compare" | "swap" | "write" | "settle" | "done";
   /** The array after this step. */
   array: number[];
   /** Indices the step works with: the compared or swapped elements, or the element that just settled. */
@@ -26,11 +28,13 @@ export interface ArrayStep {
   pivot?: number;
   /** The part of the array the algorithm works on now, [from, to] inclusive; the rest is dimmed. */
   range?: [number, number];
+  /** Last index of the left half of `range` (Merge Sort). */
+  mid?: number;
   /** Pseudocode line (1-based) executed by this step; 0 = no line. */
   line: number;
   /** Number of the current pass over the array (0 before the first one). */
   pass: number;
-  /** Comparisons and swaps made so far. */
+  /** Comparisons and swaps made so far (for Merge Sort: writes instead of swaps). */
   cmp: number;
   swp: number;
 }
@@ -44,6 +48,8 @@ export interface AlgorithmTracer {
    * Clicking such a line jumps to the step of the mapped line.
    */
   lineAliases: Record<number, number>;
+  /** Label of the second counter in the player head; "swp" by default (Merge Sort writes, it does not swap). */
+  swapLabel?: string;
 }
 
 /** Colour states of the bars, as listed in the legend next to the player. */

@@ -14,6 +14,8 @@ interface PlayerContextValue {
   /** Replaces the input array and records a new run of the algorithm on it. */
   load: (input: number[], dataset: Dataset) => void;
   lineAliases: Record<number, number>;
+  /** Label of the second counter: "swp", or "wrt" for algorithms that write instead of swapping. */
+  swapLabel: string;
 }
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
@@ -47,6 +49,7 @@ export function PlayerProvider({ slug, initialInput, children }: {
     dispatch,
     load: (input, dataset) => dispatch({ type: "load", input, dataset, steps: tracer.trace(input) }),
     lineAliases: tracer.lineAliases,
+    swapLabel: tracer.swapLabel ?? "swp",
   };
 
   return <PlayerContext value={value}>{children}</PlayerContext>;

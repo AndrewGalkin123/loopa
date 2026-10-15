@@ -47,6 +47,7 @@ export const MERGE_SORT: AlgorithmCardData = {
   description: "Stabilní třídění shora dolů. Rozdělí pole, seřadí poloviny a\u00a0poté je sloučí.",
   complexity: "O(n log n)",
   level: "intermediate",
+  href: "/algorithms/merge-sort",
 };
 
 export const CATALOG: AlgorithmCardData[] = [

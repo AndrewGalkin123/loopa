@@ -2,7 +2,7 @@
 
 import { ChevronDown, Pause, Play, RotateCcw, SkipBack, SkipForward } from "lucide-react";
 import { useEffect, type PointerEvent, type ReactNode } from "react";
-import type { ArrayStep } from "@/algorithms/types";
+import type { ArrayStep, DatasetKind } from "@/algorithms/types";
 import { Dropdown } from "@/components/Dropdown";
 import { VizBars, type BarClass } from "@/components/VizBars";
 import { pad } from "@/lib/demoSteps";
@@ -14,42 +14,89 @@ import { SPEEDS, STEP_MS } from "./playerState";
 const MAX_LABELED = 24;
 const PROGRESS_TICKS = 24;
 
-/** Colour of a bar: settled values are cyan, the compared pair amber, the swapped pair lime. */
+/**
+ * Colour of a bar: settled values are cyan, compared amber, swapped lime, the pivot pink;
+ * bars outside the part being worked on are dimmed.
+ */
 function barClass(step: ArrayStep, i: number): BarClass {
   if (step.sorted.includes(i)) return "sorted";
   if (step.indices.includes(i)) {
     if (step.kind === "compare") return "compared";
-    if (step.kind === "swap") return "active";
+    if (step.kind === "swap" || step.kind === "write") return "active";
   }
+  if (i === step.pivot) return "pivot";
+  if (step.range && (i < step.range[0] || i > step.range[1])) return "dimmed";
   return "";
 }
 
 /** Text after "step N / M" in the player head. */
 function describe(step: ArrayStep): ReactNode {
-  const pair = (color: string) =>
-    step.indices.map((i) => (
+  // " [3] [4]" in the given colour.
+  const indices = (list: number[], color: string) =>
+    list.map((i) => (
       <span key={i} style={{ color }}>
         {" "}[{i}]
       </span>
     ));
+  const pivot = step.pivot !== undefined && <> with pivot{indices([step.pivot], "var(--viz-pivot)")}</>;
+  // "[0..7] + [8..14]": the two halves of the current part.
+  const halves = step.range && step.mid !== undefined && (
+    <>
+      [{step.range[0]}..{step.mid}] + [{step.mid + 1}..{step.range[1]}]
+    </>
+  );
+
   switch (step.kind) {
     case "start":
       return "ready";
     case "pass":
       return `pass ${step.pass}`;
+    case "partition":
+      return (
+        <>
+          partition [{step.range?.join("..")}], pivot{indices([step.pivot ?? 0], "var(--viz-pivot)")}
+        </>
+      );
+    case "split":
+      return (
+        <>
+          split [{step.range?.join("..")}] → {halves}
+        </>
+      );
+    case "merge":
+      return <>merge {halves}</>;
     case "compare":
-      return <>comparing{pair("var(--viz-compared)")}</>;
+      return (
+        <>
+          comparing{indices(step.indices, "var(--viz-compared)")}
+          {pivot}
+        </>
+      );
     case "swap":
-      return <>swapped{pair("var(--viz-active)")}</>;
-    case "pass-end":
-      return <>{pair("var(--viz-sorted)")} in place</>;
+      return <>swapped{indices(step.indices, "var(--viz-active)")}</>;
+    case "write": {
+      const [first] = step.indices;
+      const last = step.indices[step.indices.length - 1];
+      return (
+        <>
+          written to{" "}
+          <span style={{ color: "var(--viz-active)" }}>{first === last ? `[${first}]` : `[${first}..${last}]`}</span>
+        </>
+      );
+    }
+    case "settle":
+      return <>{indices(step.indices, "var(--viz-sorted)")} in place</>;
     case "done":
       return "sorted";
   }
 }
 
-export function Player({ name }: { name: string }) {
-  const { state, step, dispatch, load } = usePlayer();
+export function Player({ name, datasetHints = {} }: {
+  name: string;
+  /** Hints in the "array" menu that replace the neutral ones, e.g. sorted → "nejhorší případ". */
+  datasetHints?: Partial<Record<DatasetKind, string>>;
+}) {
+  const { state, step, dispatch, load, swapLabel } = usePlayer();
   const last = state.steps.length - 1;
   const progress = last > 0 ? (state.index / last) * 100 : 0;
   const n = state.input.length;
@@ -102,7 +149,7 @@ export function Player({ name }: { name: string }) {
             <span className="v">{pad(step.cmp)}</span>
           </div>
           <div className="metric">
-            <span className="k">swp</span>
+            <span className="k">{swapLabel}</span>
             <span className="v">{pad(step.swp)}</span>
           </div>
           {/* Time the run takes up to this step at speed 1× (independent of the chosen speed). */}
@@ -223,7 +270,7 @@ export function Player({ name }: { name: string }) {
                 className={dataset.id === state.dataset ? "on" : undefined}
                 onClick={() => load(makeArray(dataset.id, n), dataset.id)}
               >
-                {dataset.label} <span className="c">{dataset.hint}</span>
+                {dataset.label} <span className="c">{datasetHints[dataset.id] ?? dataset.hint}</span>
               </button>
             ))}
           </Dropdown>

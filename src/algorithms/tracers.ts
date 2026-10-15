@@ -1,4 +1,5 @@
 import { bubbleSortTracer } from "./bubble-sort/trace";
+import { mergeSortTracer } from "./merge-sort/trace";
 import { quickSortTracer } from "./quick-sort/trace";
 import type { AlgorithmTracer } from "./types";
 
@@ -10,4 +11,5 @@ import type { AlgorithmTracer } from "./types";
 export const TRACERS: Record<string, AlgorithmTracer> = {
   "bubble-sort": bubbleSortTracer,
   "quick-sort": quickSortTracer,
+  "merge-sort": mergeSortTracer,
 };
