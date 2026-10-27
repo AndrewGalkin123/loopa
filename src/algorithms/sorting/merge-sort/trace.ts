@@ -1,8 +1,10 @@
-import type { AlgorithmTracer, ArrayStep } from "../types";
+import type { NotePart } from "@/core/types";
+import { ref, snapshot, span, type Highlight } from "@/models/array/snapshot";
+import type { ArrayEvent, ArrayStep } from "@/models/array/types";
 
 /*
- * Top-down Merge Sort (Cormen et al.). The comments show which pseudocode
- * line each step belongs to.
+ * Top-down Merge Sort (Cormen et al.). Each recorded step says which
+ * pseudocode line it belongs to.
  *
  *  1  procedure mergeSort(A, lo, hi)
  *  2    if lo < hi then
@@ -28,7 +30,7 @@ import type { AlgorithmTracer, ArrayStep } from "../types";
  * state instead: the merged part, then what is left of L, then what is left
  * of R. Comparisons and the order of writes are exactly those of the real merge.
  */
-function trace(input: number[]): ArrayStep[] {
+export function mergeSortTrace(input: number[]): ArrayStep[] {
   const a = [...input];
   const n = a.length;
   const steps: ArrayStep[] = [];
@@ -37,28 +39,13 @@ function trace(input: number[]): ArrayStep[] {
   let writes = 0;
 
   // Saves a snapshot of the current moment.
-  const record = (
-    kind: ArrayStep["kind"],
-    line: number,
-    extra: { indices?: number[]; range?: [number, number]; mid?: number } = {},
-  ) => {
-    steps.push({
-      kind,
-      line,
-      indices: extra.indices ?? [],
-      range: extra.range,
-      mid: extra.mid,
-      array: [...a],
-      sorted: [...sorted],
-      pass: 0,
-      cmp,
-      swp: writes,
-    });
+  const record = (line: number, event: ArrayEvent, note: NotePart[], highlight: Highlight = {}) => {
+    steps.push({ state: snapshot(a, { ...highlight, sorted }), event, note, line, counters: { cmp, wrt: writes } });
   };
 
   function merge(lo: number, mid: number, hi: number) {
     const range: [number, number] = [lo, hi];
-    record("merge", 9, { range, mid });
+    record(9, { type: "phase", name: "merge", range }, ["merge", span(lo, mid), "+", span(mid + 1, hi)], { range });
     // Only the very last merge puts elements into their final places.
     const isLast = lo === 0 && hi === n - 1;
 
@@ -70,7 +57,10 @@ function trace(input: number[]): ArrayStep[] {
       const l = k;
       const r = k + leftRemaining;
       cmp++;
-      record("compare", 12, { indices: [l, r], range, mid });
+      record(12, { type: "compare", i: l, j: r }, ["comparing", ref(l, "compared"), ref(r, "compared")], {
+        compared: [l, r],
+        range,
+      });
 
       let line: number;
       if (a[l] <= a[r]) {
@@ -86,7 +76,7 @@ function trace(input: number[]): ArrayStep[] {
       }
       writes++;
       if (isLast) sorted = [...sorted, k];
-      record("write", line, { indices: [k], range, mid });
+      record(line, { type: "write", at: [k] }, ["written to", ref(k, "active")], { active: [k], range });
       k++;
     }
 
@@ -95,14 +85,18 @@ function trace(input: number[]): ArrayStep[] {
       const rest = Array.from({ length: hi - k + 1 }, (_, t) => k + t);
       writes += rest.length;
       if (isLast) sorted = [...sorted, ...rest];
-      record("write", 17, { indices: rest, range, mid });
+      const where = rest.length === 1 ? ref(k, "active") : { text: span(k, hi), mark: "active" };
+      record(17, { type: "write", at: rest }, ["written to", where], { active: rest, range });
     }
   }
 
   function mergeSort(lo: number, hi: number) {
     if (lo < hi) {
       const mid = Math.floor((lo + hi) / 2);
-      record("split", 3, { range: [lo, hi], mid });
+      const range: [number, number] = [lo, hi];
+      record(3, { type: "phase", name: "split", range }, ["split", span(lo, hi), "→", span(lo, mid), "+", span(mid + 1, hi)], {
+        range,
+      });
       mergeSort(lo, mid);
       mergeSort(mid + 1, hi);
       merge(lo, mid, hi);
@@ -110,16 +104,9 @@ function trace(input: number[]): ArrayStep[] {
     // A part of one element is sorted by itself.
   }
 
-  record("start", 1);
+  record(1, { type: "start" }, ["ready"]);
   mergeSort(0, n - 1);
   sorted = a.map((_, i) => i);
-  record("done", 0);
+  record(0, { type: "done" }, ["sorted"]);
   return steps;
 }
-
-export const mergeSortTracer: AlgorithmTracer = {
-  trace,
-  // 2, 4, 5: recursion → split; 6, 8: merge; 10, 11, 16: loop bookkeeping → compare; 14 → else branch.
-  lineAliases: { 2: 3, 4: 3, 5: 3, 6: 9, 8: 9, 10: 12, 11: 12, 14: 15, 16: 12 },
-  swapLabel: "wrt",
-};

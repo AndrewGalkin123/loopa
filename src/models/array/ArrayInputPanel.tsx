@@ -2,17 +2,20 @@
 
 import { Shuffle } from "lucide-react";
 import { useState } from "react";
-import { formatArray, makeArray, MAX_SIZE, parseArray } from "./datasets";
-import { usePlayer } from "./PlayerProvider";
+import { usePlayer } from "@/core/player/PlayerProvider";
+import { formatArray, makeArray, MAX_SIZE, parseArray, type DatasetKind } from "./datasets";
 
 /** Smallest size on the slider (as in the design); the own input allows even 2 values. */
 const SLIDER_MIN = 5;
 
-/** Side panel "Input": array size, own input array and a new random array. */
-export function InputPanel() {
+/** Side panel "Input" of the array model: array size, own input array and a new random array. */
+export function ArrayInputPanel() {
   const { state, load } = usePlayer();
-  const n = state.input.length;
-  const current = formatArray(state.input);
+  const input = state.input as number[];
+  const n = input.length;
+  const current = formatArray(input);
+  // A new array keeps the current kind; an own (custom) input is replaced by a random one.
+  const kind: DatasetKind = state.inputKind === "custom" ? "random" : (state.inputKind as DatasetKind);
   // The error belongs to the array it was typed over; once the array changes, it disappears.
   const [error, setError] = useState<{ over: string; message: string } | null>(null);
   const shownError = error?.over === current ? error.message : null;
@@ -43,13 +46,7 @@ export function InputPanel() {
           value={Math.max(SLIDER_MIN, n)}
           className="slider"
           aria-label="Velikost pole"
-          // A new array of the chosen size, of the same kind as now (own input becomes random).
-          onChange={(event) =>
-            load(
-              makeArray(state.dataset === "custom" ? "random" : state.dataset, Number(event.target.value)),
-              state.dataset === "custom" ? "random" : state.dataset,
-            )
-          }
+          onChange={(event) => load(makeArray(kind, Number(event.target.value)), kind)}
         />
       </div>
       <div className="field">

@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="cs" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Proč AlgoViz? — About</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root, [data-theme="dark"] {
+    --color-bg: #0a0a0b;
+    --color-surface: #111113;
+    --color-surface-elevated: #18181b;
+    --color-border: #1f1f23;
+    --color-border-strong: #2a2a2f;
+    --color-border-bright: #3f3f46;
+    --color-text: #fafafa;
+    --color-text-muted: #a1a1aa;
+    --color-text-subtle: #71717a;
+    --color-text-dim: #52525b;
+    --color-accent: #a3e635;
+    --color-accent-dim: #65a30d;
+    --color-accent-glow: rgba(163, 230, 53, 0.15);
+    --viz-sorted: #67e8f9;
+    --viz-pivot: #f0abfc;
+    --grid-line: rgba(255, 255, 255, 0.02);
+    --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+    --duration-fast: 120ms; --duration-normal: 200ms; --duration-slow: 400ms;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --max-w: 1200px;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--color-bg); color: var(--color-text);
+    font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* Header */
+  .nav { position: sticky; top: 0; z-index: 60; height: 64px; background: color-mix(in srgb, var(--color-bg) 80%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--color-border); }
+  .nav-inner { max-width: var(--max-w); height: 100%; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 32px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; letter-spacing: -0.01em; color: var(--color-text); text-decoration: none; }
+  .brand-mark { width: 22px; height: 22px; background: var(--color-accent); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .nav-links { display: flex; gap: 24px; }
+  .nav-links a { font-size: 14px; font-weight: 500; color: var(--color-text-muted); text-decoration: none; transition: color var(--duration-fast) var(--ease-out); }
+  .nav-links a.active { color: var(--color-text); }
+  .nav-links a:hover { color: var(--color-text); }
+  .nav-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+  .btn { display: inline-flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; border-radius: var(--radius-md); padding: 0 18px; height: 40px; border: 1px solid transparent; cursor: pointer; text-decoration: none; user-select: none; white-space: nowrap; transition: background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), filter var(--duration-fast) var(--ease-out); }
+  .btn-primary { background: var(--color-accent); color: #0a0a0b; border-color: var(--color-accent); }
+  .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 0 24px var(--color-accent-glow); }
+  .btn-secondary { background: var(--color-surface-elevated); color: var(--color-text); border-color: var(--color-border-strong); }
+  .btn-secondary:hover { border-color: var(--color-border-bright); }
+  .btn-ghost { background: transparent; color: var(--color-text-muted); border-color: transparent; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; padding: 0 12px; }
+  .btn-ghost:hover { color: var(--color-text); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+  .btn-lg { height: 48px; padding: 0 22px; font-size: 15px; }
+  .kbd-inline { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 3px 6px; background: var(--color-surface); border: 1px solid var(--color-border-strong); border-radius: 4px; color: var(--color-text-subtle); }
+
+  main { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+  /* Page hero */
+  .about-hero { padding: 72px 0 64px; border-bottom: 1px solid var(--color-border); }
+  .crumbs { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--color-text-subtle); text-transform: lowercase; margin-bottom: 28px; }
+  .crumbs a { color: var(--color-text-subtle); text-decoration: none; transition: color var(--duration-fast) var(--ease-out); }
+  .crumbs a:hover { color: var(--color-text); }
+  .crumbs .sep { color: var(--color-text-dim); }
+  .crumbs .here { color: var(--color-text-muted); }
+  .about-hero h1 { font-size: 64px; line-height: 1; letter-spacing: -0.035em; font-weight: 600; margin: 0 0 20px; }
+  .about-hero .lede { font-size: 20px; line-height: 1.45; color: var(--color-text-muted); max-width: 48ch; margin: 0; text-wrap: balance; }
+  .about-hero .lede em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-accent); }
+
+  /* Section scaffold */
+  section.block { padding: 96px 0; border-bottom: 1px solid var(--color-border); }
+  section.block:last-of-type { border-bottom: 0; }
+  .marker { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-subtle); display: inline-flex; align-items: center; gap: 8px; margin: 0 0 20px; }
+  .marker::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent); }
+  .block h2 { font-size: 40px; line-height: 1.08; letter-spacing: -0.03em; font-weight: 600; margin: 0 0 40px; max-width: 18ch; text-wrap: balance; }
+  .block h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-accent); }
+
+  /* Story prose */
+  .story-grid { display: grid; grid-template-columns: 1fr 320px; gap: 64px; align-items: start; }
+  .prose { max-width: 64ch; }
+  .prose p { font-size: 18px; line-height: 1.7; color: var(--color-text-muted); margin: 0 0 24px; }
+  .prose p:last-child { margin-bottom: 0; }
+  .prose em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-text); font-size: 1.05em; }
+  .prose strong { color: var(--color-text); font-weight: 600; }
+  .story-aside { position: sticky; top: 96px; }
+  .aside-card { border-left: 2px solid var(--color-border-strong); padding-left: 20px; display: flex; flex-direction: column; gap: 20px; }
+  .aside-item .k { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-subtle); margin-bottom: 6px; }
+  .aside-item .v { font-size: 15px; color: var(--color-text); }
+  .aside-item .v.accent { color: var(--color-accent); }
+
+  /* Mission three principles */
+  .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .principle { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 28px; display: flex; flex-direction: column; gap: 16px; }
+  .principle .icon { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; background: var(--color-bg); border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); color: var(--color-accent); }
+  .principle .pn { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-subtle); }
+  .principle .pn .accent { color: var(--color-accent); }
+  .principle h3 { font-size: 22px; line-height: 1.2; letter-spacing: -0.015em; font-weight: 500; margin: 0; }
+  .principle h3 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-text-muted); }
+  .principle p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-text-muted); }
+
+  /* Tech stack */
+  .stack-intro { font-size: 17px; line-height: 1.6; color: var(--color-text-muted); max-width: 56ch; margin: 0 0 40px; }
+  .stack-intro em { font-family: 'Instrument Serif', serif; font-style: italic; color: var(--color-text); }
+  .stack-table { border-top: 1px solid var(--color-border); }
+  .stack-row { display: grid; grid-template-columns: 200px 1fr; gap: 32px; align-items: baseline; padding: 18px 4px; border-bottom: 1px solid var(--color-border); }
+  .stack-row .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-subtle); }
+  .stack-row .tech { font-size: 16px; color: var(--color-text-muted); }
+  .stack-row .tech b { color: var(--color-text); font-weight: 500; }
+  .stack-row .tech .hl { color: var(--color-accent); font-weight: 500; }
+  .stack-row .tech .hl-cyan { color: var(--viz-sorted); font-weight: 500; }
+  .stack-row .tech .hl-mag { color: var(--viz-pivot); font-weight: 500; }
+  .stack-row .tech .dot { color: var(--color-text-dim); margin: 0 8px; }
+
+  /* Status / roadmap */
+  .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; }
+  .status-col .col-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--color-border); }
+  .status-col.done .col-label { color: var(--color-accent); }
+  .status-col.next .col-label { color: var(--color-text-subtle); }
+  .status-list { display: flex; flex-direction: column; gap: 18px; }
+  .status-item { display: flex; align-items: flex-start; gap: 14px; font-size: 17px; color: var(--color-text); }
+  .status-item .mk { flex-shrink: 0; margin-top: 2px; }
+  .status-col.done .status-item .mk { color: var(--color-accent); }
+  .status-col.next .status-item { color: var(--color-text-muted); }
+  .status-col.next .status-item .mk { color: var(--color-text-dim); font-family: 'JetBrains Mono', monospace; }
+
+  /* Connect */
+  .connect-text { font-size: 18px; line-height: 1.6; color: var(--color-text-muted); max-width: 48ch; margin: 0 0 40px; }
+  .links-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .link-card { display: flex; align-items: flex-start; gap: 16px; padding: 24px; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); text-decoration: none; color: inherit; transition: background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out); }
+  .link-card:hover { background: var(--color-surface-elevated); border-color: var(--color-border-strong); }
+  .link-card .icon { width: 40px; height: 40px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; background: var(--color-bg); border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); color: var(--color-text-muted); transition: color var(--duration-fast) var(--ease-out); }
+  .link-card:hover .icon { color: var(--color-accent); }
+  .link-card .k { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-subtle); margin-bottom: 6px; }
+  .link-card .v { font-size: 15px; color: var(--color-text); }
+  .link-card .v .uline { border-bottom: 1px solid transparent; padding-bottom: 1px; transition: border-color var(--duration-fast) var(--ease-out); }
+  .link-card:hover .v .uline { border-bottom-color: var(--color-accent); }
+
+  /* Final CTA */
+  .final { padding: 96px 0 112px; text-align: center; border-top: 1px solid var(--color-border); }
+  .final h2 { font-size: 48px; line-height: 1.05; letter-spacing: -0.03em; font-weight: 600; margin: 0 0 32px; }
+  .final h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-accent); }
+  .final .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .final .signoff { margin-top: 32px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--color-text-dim); }
+  .final .signoff .c { color: var(--color-text-subtle); }
+
+  /* Floating AI */
+  .ai-fab { position: fixed; right: 24px; bottom: 24px; z-index: 70; display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 18px; background: var(--color-surface-elevated); border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg); color: var(--color-text); cursor: pointer; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; box-shadow: 0 12px 32px rgba(0,0,0,0.4); transition: transform var(--duration-normal) var(--ease-out), border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out); }
+  .ai-fab .spark { color: var(--color-accent); }
+  .ai-fab:hover { transform: translateY(-3px); border-color: var(--color-accent); box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 24px var(--color-accent-glow); }
+
+  footer.page-foot { border-top: 1px solid var(--color-border); padding: 28px 0; }
+  .foot-inner { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: 1fr auto; gap: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--color-text-subtle); }
+  .foot-inner a { color: var(--color-text-subtle); text-decoration: none; margin-left: 20px; }
+  .foot-inner a:hover { color: var(--color-text); }
+  .foot-left { display: flex; gap: 16px; align-items: center; }
+  .foot-left .brand-mark { width: 14px; height: 14px; }
+  .foot-left .ver { color: var(--color-text-dim); }
+
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .about-hero h1 { font-size: 44px; }
+    .block h2 { font-size: 32px; }
+    .story-grid { grid-template-columns: 1fr; gap: 40px; }
+    .story-aside { position: static; }
+    .principles { grid-template-columns: 1fr; }
+    .stack-row { grid-template-columns: 1fr; gap: 8px; }
+    .status-grid { grid-template-columns: 1fr; gap: 48px; }
+    .links-row { grid-template-columns: 1fr; }
+    .final h2 { font-size: 34px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="Landing.html" class="brand"><div class="brand-mark"></div><span>AlgoViz</span></a>
+    <nav class="nav-links">
+      <a href="Algorithms.html">Algorithms</a>
+      <a href="Compare.html">Compare</a>
+      <a href="#" class="active">About</a>
+    </nav>
+    <div class="nav-right">
+      <button class="btn btn-secondary btn-sm"><i data-lucide="search" style="width:14px;height:14px"></i> Search <span class="kbd-inline">⌘K</span></button>
+      <button class="btn btn-ghost btn-sm">CS <i data-lucide="chevron-down" style="width:12px;height:12px"></i></button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="about-hero">
+    <div class="crumbs">
+      <a href="Algorithms.html">algorithms</a>
+      <span class="sep">/</span>
+      <span class="here">about</span>
+    </div>
+    <h1>Proč AlgoViz?</h1>
+    <p class="lede">Algoritmy jsou srdcem programování. Skoro nikdo je ale nevysvětluje <em>pořádně.</em></p>
+  </section>
+
+  <!-- 01 STORY -->
+  <section class="block">
+    <div class="marker">01 / Story</div>
+    <h2>Začalo to <em>frustrací.</em></h2>
+    <div class="story-grid">
+      <div class="prose">
+        <p>Jsem student programování. Když jsem se poprvé setkal s&nbsp;algoritmy na&nbsp;přednáškách, většina z&nbsp;nich mi přišla jako šum. Bubble sort? Dijkstra? Gradient descent? Slyšel jsem ta slova, viděl pseudokód, ale <strong>opravdu rozumět</strong> tomu, co se uvnitř děje — to byl jiný level.</p>
+        <p>Existují skvělé zdroje. <em>3Blue1Brown</em> dělá kouzla s&nbsp;matematikou. <em>Visualgo</em> má solidní vizualizace. <em>Brilliant</em> je dobře designovaný. Ale nic z&nbsp;toho mi nestačilo. Chtěl jsem nástroj, kde si můžu <strong>pohrát</strong> s&nbsp;algoritmem — měnit data, srovnávat, ptát se.</p>
+        <p>Tak jsem si ho začal stavět sám. AlgoViz je výsledek.</p>
+      </div>
+      <aside class="story-aside">
+        <div class="aside-card">
+          <div class="aside-item"><div class="k">autor</div><div class="v">Andrew Halkin</div></div>
+          <div class="aside-item"><div class="k">typ</div><div class="v">Bakalářská práce</div></div>
+          <div class="aside-item"><div class="k">rok</div><div class="v accent">2026</div></div>
+          <div class="aside-item"><div class="k">algoritmů</div><div class="v">9 · a&nbsp;roste</div></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 02 MISSION -->
+  <section class="block">
+    <div class="marker">02 / Mission</div>
+    <h2>Tři pravidla, <em>žádné výjimky.</em></h2>
+    <div class="principles">
+      <div class="principle">
+        <div class="icon"><i data-lucide="layers" style="width:18px;height:18px"></i></div>
+        <div class="pn"><span class="accent">A</span> / depth</div>
+        <h3>Hloubka před <em>šířkou</em></h3>
+        <p>Devět algoritmů vysvětlených pořádně je víc než padesát s&nbsp;třemi řádky textu. Každý má teorii, vizualizaci, kód, složitost a&nbsp;kontext.</p>
+      </div>
+      <div class="principle">
+        <div class="icon"><i data-lucide="shield-check" style="width:18px;height:18px"></i></div>
+        <div class="pn"><span class="accent">B</span> / honesty</div>
+        <h3>Bez <em>gamifikace</em></h3>
+        <p>Žádné odznáčky, série, virtuální měna, dopamin-hits. Jen znalosti, vizualizace a&nbsp;čas na&nbsp;přemýšlení. Učení nemusí být zábavné — musí být srozumitelné.</p>
+      </div>
+      <div class="principle">
+        <div class="icon"><i data-lucide="book-open" style="width:18px;height:18px"></i></div>
+        <div class="pn"><span class="accent">C</span> / open</div>
+        <h3>Zdarma <em>navždy</em></h3>
+        <p>Základ je zdarma a&nbsp;vždy bude. Pro pokročilé funkce existuje Pro tier, ale 95&nbsp;% obsahu je dostupné komukoliv bez registrace.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 BUILT WITH -->
+  <section class="block">
+    <div class="marker">03 / Built With</div>
+    <h2>Postaveno na&nbsp;<em>solidních základech</em></h2>
+    <p class="stack-intro">AlgoViz běží na&nbsp;moderním stacku. Žádné magické black boxy — všechno je <em>standardní</em>, otestované, otevřené.</p>
+    <div class="stack-table">
+      <div class="stack-row">
+        <div class="label">frontend</div>
+        <div class="tech"><span class="hl">Next.js 15</span> <span class="dot">·</span> <b>TypeScript</b> <span class="dot">·</span> SCSS Modules</div>
+      </div>
+      <div class="stack-row">
+        <div class="label">visualization</div>
+        <div class="tech"><span class="hl-cyan">D3.js</span> <span class="dot">·</span> Framer Motion</div>
+      </div>
+      <div class="stack-row">
+        <div class="label">backend</div>
+        <div class="tech"><b>Node.js</b> <span class="dot">·</span> PostgreSQL <span class="dot">·</span> Prisma</div>
+      </div>
+      <div class="stack-row">
+        <div class="label">ai</div>
+        <div class="tech"><span class="hl-mag">Anthropic Claude API</span></div>
+      </div>
+      <div class="stack-row">
+        <div class="label">hosting</div>
+        <div class="tech"><b>Vercel</b> <span class="dot">·</span> Cloudflare</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 STATUS -->
+  <section class="block">
+    <div class="marker">04 / Status</div>
+    <h2>Co je <em>hotové</em> a&nbsp;co <em>přijde</em></h2>
+    <div class="status-grid">
+      <div class="status-col done">
+        <div class="col-label">hotovo</div>
+        <div class="status-list">
+          <div class="status-item"><i data-lucide="check" class="mk" style="width:18px;height:18px"></i> 9 algoritmů s&nbsp;plnou teorií</div>
+          <div class="status-item"><i data-lucide="check" class="mk" style="width:18px;height:18px"></i> Režim porovnání</div>
+          <div class="status-item"><i data-lucide="check" class="mk" style="width:18px;height:18px"></i> AI asistent</div>
+          <div class="status-item"><i data-lucide="check" class="mk" style="width:18px;height:18px"></i> Česká a&nbsp;anglická verze</div>
+        </div>
+      </div>
+      <div class="status-col next">
+        <div class="col-label">na cestě</div>
+        <div class="status-list">
+          <div class="status-item"><span class="mk">—</span> Cvičení s&nbsp;kontrolou</div>
+          <div class="status-item"><span class="mk">—</span> Mobilní aplikace</div>
+          <div class="status-item"><span class="mk">—</span> Učitelský režim</div>
+          <div class="status-item"><span class="mk">—</span> Více algoritmů</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 CONNECT -->
+  <section class="block">
+    <div class="marker">05 / Connect</div>
+    <h2>Máte <em>otázku?</em></h2>
+    <p class="connect-text">Našli jste chybu? Máte návrh? Chcete spolupracovat? Ozvěte se.</p>
+    <div class="links-row">
+      <a class="link-card" href="/cdn-cgi/l/email-protection#21404f4553445661404d464e57485b0f425b">
+        <div class="icon"><i data-lucide="mail" style="width:18px;height:18px"></i></div>
+        <div>
+          <div class="k">email</div>
+          <div class="v"><span class="uline"><span class="__cf_email__" data-cfemail="93f2fdf7e1f6e4d3f2fff4fce5fae9bdf0e9">[email&#160;protected]</span></span></div>
+        </div>
+      </a>
+      <a class="link-card" href="#">
+        <div class="icon"><i data-lucide="at-sign" style="width:18px;height:18px"></i></div>
+        <div>
+          <div class="k">twitter</div>
+          <div class="v"><span class="uline">@algoviz</span></div>
+        </div>
+      </a>
+      <a class="link-card" href="#">
+        <div class="icon"><i data-lucide="git-branch" style="width:18px;height:18px"></i></div>
+        <div>
+          <div class="k">github</div>
+          <div class="v"><span class="uline">github.com/algoviz</span></div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final">
+    <h2>Připraveni <em>začít?</em></h2>
+    <div class="ctas">
+      <a href="Algorithms.html" class="btn btn-primary btn-lg">Procházet algoritmy <i data-lucide="arrow-right" style="width:16px;height:16px"></i></a>
+      <a href="Compare.html" class="btn btn-secondary btn-lg">Otevřít porovnání</a>
+    </div>
+    <div class="signoff"><span class="c">//</span> AlgoViz · bakalářská práce 2026 · Andrew Halkin</div>
+  </section>
+
+</main>
+
+<button class="ai-fab" aria-label="Máte otázku?">
+  <i data-lucide="sparkles" class="spark" style="width:16px;height:16px"></i>
+  <span>Zeptej se</span>
+</button>
+
+<footer class="page-foot">
+  <div class="foot-inner">
+    <div class="foot-left">
+      <div class="brand-mark"></div>
+      <span>AlgoViz</span>
+      <span class="ver">v1.0 · 2026</span>
+    </div>
+    <div>
+      <a href="#">GitHub</a>
+      <a href="#">Twitter</a>
+      <a href="#">About</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  if (window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

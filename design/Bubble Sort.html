@@ -1,0 +1,1060 @@
+<!doctype html>
+<html lang="cs" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bubble Sort — AlgoViz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  /* ───────── Tokens — Dark only ───────── */
+  :root, [data-theme="dark"] {
+    --color-bg: #0a0a0b;
+    --color-surface: #111113;
+    --color-surface-elevated: #18181b;
+    --color-border: #1f1f23;
+    --color-border-strong: #2a2a2f;
+    --color-border-bright: #3f3f46;
+    --color-text: #fafafa;
+    --color-text-muted: #a1a1aa;
+    --color-text-subtle: #71717a;
+    --color-text-dim: #52525b;
+    --color-accent: #a3e635;
+    --color-accent-dim: #65a30d;
+    --color-accent-glow: rgba(163, 230, 53, 0.15);
+    --viz-default: #3f3f46;
+    --viz-active: #a3e635;
+    --viz-compared: #fcd34d;
+    --viz-sorted: #67e8f9;
+    --viz-pivot: #f0abfc;
+    --viz-visited: #71717a;
+    --grid-line: rgba(255, 255, 255, 0.02);
+    --grid-line-strong: rgba(255, 255, 255, 0.04);
+
+    --code-keyword: #f0abfc;
+    --code-string: #a3e635;
+    --code-number: #fcd34d;
+    --code-comment: #52525b;
+    --code-fn: #67e8f9;
+
+    --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+    --duration-fast: 120ms; --duration-normal: 200ms; --duration-slow: 400ms;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --max-w: 1200px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 15px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .serif-i { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; }
+
+  /* ───────── Global header ───────── */
+  .nav {
+    position: sticky; top: 0; z-index: 60;
+    height: 64px;
+    background: color-mix(in srgb, var(--color-bg) 80%, transparent);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .nav-inner {
+    max-width: var(--max-w); height: 100%; margin: 0 auto; padding: 0 24px;
+    display: flex; align-items: center; gap: 32px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+    color: var(--color-text); text-decoration: none;
+  }
+  .brand-mark { width: 22px; height: 22px; background: var(--color-accent); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .nav-links { display: flex; gap: 24px; }
+  .nav-links a {
+    font-size: 14px; font-weight: 500; color: var(--color-text-muted);
+    text-decoration: none; transition: color var(--duration-fast) var(--ease-out);
+  }
+  .nav-links a.active { color: var(--color-text); }
+  .nav-links a:hover { color: var(--color-text); }
+  .nav-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+  /* ───────── Second-level sticky bar ───────── */
+  .subnav {
+    position: sticky; top: 64px; z-index: 50;
+    border-bottom: 1px solid var(--color-border);
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .subnav-inner {
+    max-width: var(--max-w); margin: 0 auto; padding: 0 24px;
+    height: 52px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .subnav .crumbs {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--color-text-subtle);
+  }
+  .subnav .crumbs a { color: var(--color-text-subtle); text-decoration: none; }
+  .subnav .crumbs a:hover { color: var(--color-text); }
+  .subnav .crumbs .sep { color: var(--color-text-dim); }
+  .subnav .crumbs .here { color: var(--color-text); }
+  .subnav .algo-name {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+    padding-left: 16px; border-left: 1px solid var(--color-border);
+  }
+  .subnav .algo-name .badge { transform: translateY(0); }
+  .subnav-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .subnav .mini-status {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--color-text-subtle);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .subnav .mini-status .accent { color: var(--color-accent); }
+
+  /* ───────── Buttons (DS) ───────── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+    border-radius: var(--radius-md);
+    padding: 0 18px; height: 40px;
+    border: 1px solid transparent; cursor: pointer;
+    transition: background-color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) var(--ease-out),
+      filter var(--duration-fast) var(--ease-out);
+    text-decoration: none; user-select: none; white-space: nowrap;
+  }
+  .btn-primary { background: var(--color-accent); color: #0a0a0b; border-color: var(--color-accent); }
+  .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 0 24px var(--color-accent-glow); }
+  .btn-secondary { background: var(--color-surface-elevated); color: var(--color-text); border-color: var(--color-border-strong); }
+  .btn-secondary:hover { border-color: var(--color-border-bright); }
+  .btn-ghost {
+    background: transparent; color: var(--color-text-muted); border-color: transparent;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; padding: 0 12px;
+  }
+  .btn-ghost:hover { color: var(--color-text); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+  .btn-icon { width: 40px; height: 40px; padding: 0; justify-content: center; }
+  .btn-icon.btn-sm { width: 32px; height: 32px; }
+  .kbd-inline {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 3px 6px;
+    background: var(--color-surface); border: 1px solid var(--color-border-strong);
+    border-radius: 4px; color: var(--color-text-subtle);
+  }
+
+  /* ───────── badges ───────── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px; border-radius: var(--radius-sm);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: lowercase; letter-spacing: 0.04em;
+    background: transparent; border: 1px solid currentColor;
+  }
+  .badge .lucide { width: 10px; height: 10px; }
+  .badge-sorting       { color: var(--color-accent); }
+  .badge-search-sorted { color: #60a5fa; }
+  .badge-graph         { color: var(--viz-sorted); }
+  .badge-shortest      { color: #c4b5fd; }
+  .badge-optimization  { color: var(--viz-pivot); }
+
+  /* ───────── Layout ───────── */
+  main { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+  /* ───────── Hero header ───────── */
+  .algo-hero { padding: 48px 0 40px; border-bottom: 1px solid var(--color-border); }
+  .algo-hero .top-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    margin-bottom: 28px;
+  }
+  .crumbs {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--color-text-subtle); text-transform: lowercase;
+  }
+  .crumbs a { color: var(--color-text-subtle); text-decoration: none; transition: color var(--duration-fast) var(--ease-out); }
+  .crumbs a:hover { color: var(--color-text); }
+  .crumbs .sep { color: var(--color-text-dim); }
+  .crumbs .here { color: var(--color-text-muted); }
+
+  .compare-wrap { position: relative; }
+  .compare-menu {
+    position: absolute; right: 0; top: calc(100% + 8px);
+    width: 280px; z-index: 30;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    padding: 8px;
+    display: none;
+  }
+  .compare-menu.open { display: block; }
+  .compare-menu .head {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--color-text-subtle); padding: 8px 10px 6px;
+  }
+  .compare-menu a {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 10px; border-radius: var(--radius-md);
+    color: var(--color-text); text-decoration: none; font-size: 14px;
+    transition: background-color var(--duration-fast) var(--ease-out);
+  }
+  .compare-menu a:hover { background: var(--color-surface); }
+  .compare-menu a .c { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-text-subtle); }
+
+  .algo-hero h1 {
+    font-size: 64px; line-height: 1; letter-spacing: -0.035em; font-weight: 600;
+    margin: 0 0 16px;
+  }
+  .algo-hero .lede {
+    font-size: 18px; line-height: 1.5; color: var(--color-text-muted);
+    max-width: 60ch; margin: 0 0 24px;
+  }
+  .algo-hero .lede em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-text); }
+  .meta-row {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    color: var(--color-text-subtle);
+  }
+  .meta-row .item { display: inline-flex; align-items: center; gap: 7px; }
+  .meta-row .item .lucide { width: 14px; height: 14px; color: var(--color-text-dim); }
+  .meta-row .sep { width: 1px; height: 14px; background: var(--color-border-strong); }
+  .meta-row .val { color: var(--color-text); }
+
+  /* ───────── Workspace: viz + side panel ───────── */
+  .workspace {
+    display: grid; grid-template-columns: 1fr 280px; gap: 24px;
+    padding: 40px 0;
+  }
+
+  /* Player */
+  .player {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .player-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 16px 20px; border-bottom: 1px solid var(--color-border);
+  }
+  .player-head .title { font-size: 14px; font-weight: 500; }
+  .player-head .status {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--color-text-subtle); margin-top: 3px;
+  }
+  .player-head .status .accent { color: var(--color-accent); }
+  .player-head .status .cmp-hl { color: var(--color-compared, #fcd34d); }
+  .head-metrics { display: flex; gap: 28px; }
+  .head-metrics .metric { display: flex; flex-direction: column; gap: 3px; text-align: right; }
+  .head-metrics .metric .k {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-subtle);
+  }
+  .head-metrics .metric .v {
+    font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600;
+    color: var(--color-text); font-variant-numeric: tabular-nums;
+  }
+  .head-metrics .metric.accent .v { color: var(--color-accent); }
+
+  .player-stage {
+    position: relative;
+    min-height: 400px;
+    padding: 40px 28px 28px;
+    display: flex; align-items: flex-end; justify-content: center;
+    background-image:
+      linear-gradient(to right, var(--grid-line-strong) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line-strong) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .viz-bars {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+    gap: 8px; align-items: flex-end; width: 100%; max-width: 760px; height: 320px;
+  }
+  .viz-bars .bar {
+    background: var(--viz-default);
+    border-radius: 3px 3px 0 0; position: relative;
+    transition: height var(--duration-slow) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
+  }
+  .viz-bars .bar.active { background: var(--viz-active); }
+  .viz-bars .bar.compared { background: var(--viz-compared); box-shadow: 0 0 0 1px var(--viz-compared); }
+  .viz-bars .bar.sorted { background: var(--viz-sorted); }
+  .viz-bars .bar .lab {
+    position: absolute; bottom: -24px; left: 0; right: 0; text-align: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-text-dim);
+  }
+  .viz-bars .bar.compared .lab, .viz-bars .bar.active .lab { color: var(--color-text); }
+
+  .player-controls {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 16px 20px; border-top: 1px solid var(--color-border);
+  }
+  .controls-left, .controls-right { display: flex; gap: 8px; align-items: center; }
+  .chip-control {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 32px; padding: 0 12px;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--color-text);
+    cursor: pointer;
+  }
+  .chip-control:hover { border-color: var(--color-border-bright); }
+  .chip-control .lbl { color: var(--color-text-subtle); }
+  .player-progress {
+    position: relative; height: 4px; background: var(--color-border); cursor: pointer;
+  }
+  .player-progress .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 30%; background: var(--color-accent); }
+  .player-progress .ticks { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(24, 1fr); }
+  .player-progress .ticks span { border-right: 1px solid var(--color-bg); }
+  .player-progress .handle {
+    position: absolute; top: 50%; left: 30%; transform: translate(-50%, -50%);
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--color-accent); border: 2px solid var(--color-bg);
+  }
+
+  /* Side panel */
+  .side-panel { display: flex; flex-direction: column; gap: 20px; }
+  .panel-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+  }
+  .panel-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-subtle);
+    margin-bottom: 16px;
+  }
+  .field { margin-bottom: 20px; }
+  .field:last-child { margin-bottom: 0; }
+  .field .flabel {
+    display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;
+  }
+  .field .flabel .name { font-size: 13px; color: var(--color-text-muted); }
+  .field .flabel .num { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--color-text); }
+  .slider {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 20px;
+    background: transparent; cursor: pointer; display: block;
+  }
+  .slider::-webkit-slider-runnable-track { height: 2px; background: var(--color-border-strong); border-radius: 1px; }
+  .slider::-moz-range-track { height: 2px; background: var(--color-border-strong); border-radius: 1px; }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px; background: var(--color-accent);
+    border-radius: 50%; margin-top: -6px; border: 2px solid var(--color-bg);
+  }
+  .slider::-moz-range-thumb { width: 14px; height: 14px; background: var(--color-accent); border-radius: 50%; border: 2px solid var(--color-bg); }
+  .input-mono {
+    width: 100%; height: 40px; padding: 0 12px;
+    background: var(--color-surface-elevated); border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md); color: var(--color-text);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+  .input-mono:focus { outline: 0; border-color: var(--color-accent); }
+  .panel-card .btn { width: 100%; justify-content: center; }
+  .legend { display: flex; flex-direction: column; gap: 12px; }
+  .legend .item {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--color-text-muted);
+  }
+  .legend .item .sw { width: 12px; height: 12px; border-radius: 3px; }
+  .legend .item .desc { margin-left: auto; color: var(--color-text-subtle); font-size: 11px; }
+
+  /* ───────── Tabs + content ───────── */
+  .content-section { padding: 24px 0 80px; }
+  .tabs { display: flex; gap: 28px; border-bottom: 1px solid var(--color-border); margin-bottom: 48px; position: sticky; top: 116px; background: color-mix(in srgb, var(--color-bg) 90%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 15; }
+  .tab {
+    position: relative; background: transparent; border: 0; padding: 14px 0;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
+    color: var(--color-text-muted); cursor: pointer; text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+  .tab:hover { color: var(--color-text); }
+  .tab.active { color: var(--color-text); }
+  .tab.active::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--color-accent); }
+  .tab .n { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-text-dim); margin-right: 7px; }
+
+  /* Editorial article */
+  .article { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .prose { max-width: 680px; }
+  .section-marker {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-subtle);
+    display: inline-flex; align-items: center; gap: 8px; margin: 0 0 20px;
+  }
+  .section-marker::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent); }
+  .prose h2 {
+    font-size: 32px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 600;
+    margin: 56px 0 20px;
+  }
+  .prose h2:first-of-type { margin-top: 0; }
+  .prose h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-accent); }
+  .prose p { font-size: 17px; line-height: 1.65; color: var(--color-text-muted); margin: 0 0 20px; }
+  .prose p em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-text); font-size: 1.06em; }
+  .prose strong { color: var(--color-text); font-weight: 600; }
+  .prose .drop { color: var(--color-text); }
+
+  .inline-viz-row {
+    display: grid; grid-template-columns: 1fr 200px; gap: 40px; align-items: center;
+    margin: 32px 0;
+  }
+  .inline-viz {
+    border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+    background: var(--color-surface); padding: 18px;
+  }
+  .inline-viz .head {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-subtle); margin-bottom: 14px;
+    display: flex; justify-content: space-between;
+  }
+  .inline-viz .head .accent { color: var(--color-accent); }
+  .inline-viz .bars { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 5px; align-items: flex-end; height: 92px; }
+  .inline-viz .bars .b { background: var(--viz-default); border-radius: 2px 2px 0 0; }
+  .inline-viz .bars .b.up { background: var(--viz-compared); }
+  .inline-viz .arrow {
+    text-align: center; margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-text-dim);
+  }
+
+  /* Callout */
+  .callout {
+    border-left: 3px solid var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 5%, transparent);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    padding: 20px 24px; margin: 32px 0;
+  }
+  .callout .q {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-accent); margin-bottom: 10px;
+  }
+  .callout p { font-size: 15px; line-height: 1.6; color: var(--color-text-muted); margin: 0; }
+  .callout p em { font-family: 'Instrument Serif', serif; font-style: italic; color: var(--color-text); }
+
+  .pull {
+    margin: 40px 0; padding: 0 0 0 24px;
+    border-left: 1px solid var(--color-border-strong);
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 26px; line-height: 1.35; color: var(--color-text);
+  }
+
+  /* Code block */
+  .block-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-subtle);
+    margin: 64px 0 18px; display: flex; align-items: center; gap: 8px;
+  }
+  .block-title::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent); }
+  .code {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg); overflow: hidden; position: relative;
+  }
+  .code-tabs {
+    display: flex; border-bottom: 1px solid var(--color-border); padding: 0 16px; background: var(--color-surface);
+  }
+  .code-tab {
+    background: transparent; border: 0; padding: 11px 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--color-text-subtle);
+    cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+  .code-tab:hover { color: var(--color-text); }
+  .code-tab.active { color: var(--color-text); border-bottom-color: var(--color-accent); }
+  .code-copy {
+    position: absolute; top: 8px; right: 12px; height: 28px; padding: 0 10px;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--color-surface-elevated); border: 1px solid var(--color-border-strong);
+    border-radius: 4px; color: var(--color-text-muted); cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+  }
+  .code-copy:hover { color: var(--color-text); border-color: var(--color-border-bright); }
+  .code-body { padding: 16px 0; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7; overflow-x: auto; margin: 0; }
+  .code-pane { display: none; }
+  .code-pane.active { display: block; }
+  .cl { display: grid; grid-template-columns: 44px 1fr; border-left: 3px solid transparent; }
+  .cl .ln { text-align: right; padding-right: 16px; color: var(--color-text-dim); user-select: none; }
+  .cl.cur { background: color-mix(in srgb, var(--color-accent) 7%, transparent); border-left-color: var(--color-accent); }
+  .cl.clickable { cursor: pointer; }
+  .cl.clickable:hover { background: var(--color-surface-elevated); }
+  .tok-k { color: var(--code-keyword); }
+  .tok-s { color: var(--code-string); }
+  .tok-n { color: var(--code-number); }
+  .tok-c { color: var(--code-comment); font-style: italic; }
+  .tok-f { color: var(--code-fn); }
+  .tok-p { color: var(--color-text-muted); }
+  .pseudo-hint {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-text-subtle);
+    margin-top: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .pseudo-hint .lucide { width: 13px; height: 13px; color: var(--color-accent); }
+
+  /* Complexity table */
+  .cx-table { margin-top: 20px; border-top: 1px solid var(--color-border); }
+  .cx-row {
+    display: grid; grid-template-columns: 200px 140px 1fr; gap: 24px; align-items: baseline;
+    padding: 20px 4px; border-bottom: 1px solid var(--color-border);
+  }
+  .cx-row .case { font-size: 15px; font-weight: 500; color: var(--color-text); }
+  .cx-row .case .sub { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-text-subtle); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .cx-row .big-o { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 600; color: var(--color-text); }
+  .cx-row.good .big-o { color: var(--color-accent); }
+  .cx-row.bad .big-o { color: var(--viz-compared); }
+  .cx-row .note { font-size: 14px; line-height: 1.5; color: var(--color-text-muted); }
+  .cx-row .note em { font-family: 'Instrument Serif', serif; font-style: italic; color: var(--color-text); }
+
+  /* size vs time chart */
+  .chart-wrap {
+    margin-top: 40px; border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+    background: var(--color-surface); padding: 24px;
+  }
+  .chart-head {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+  }
+  .chart-head .t { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-subtle); }
+  .chart-legend { display: flex; gap: 20px; }
+  .chart-legend .lg { display: inline-flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-text-muted); }
+  .chart-legend .lg .ln { width: 18px; height: 0; border-top: 2px solid var(--color-accent); }
+  .chart-legend .lg.dash .ln { border-top-style: dashed; border-top-color: var(--color-text-subtle); }
+  .chart-svg { width: 100%; height: auto; display: block; }
+
+  /* Related */
+  .related { padding: 72px 0 96px; border-top: 1px solid var(--color-border); }
+  .related-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 32px; }
+  .related-head h2 { font-size: 32px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 8px 0 0; }
+  .related-head h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-accent); }
+  .related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg); padding: 22px;
+    display: flex; flex-direction: column; gap: 14px;
+    text-decoration: none; color: inherit; cursor: pointer;
+    transition: background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+    min-height: 200px;
+  }
+  .card:hover { background: var(--color-surface-elevated); border-color: var(--color-border-strong); }
+  .card-top { display: flex; align-items: center; justify-content: space-between; }
+  .card-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.05em; color: var(--color-text-subtle); text-transform: uppercase; }
+  .card-num b { color: var(--color-text-muted); font-weight: 500; }
+  .card-title { font-size: 20px; line-height: 1.2; letter-spacing: -0.015em; font-weight: 500; margin: 0; }
+  .card-title em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-text-muted); }
+  .card-desc { font-size: 13px; line-height: 1.5; color: var(--color-text-muted); margin: 0; }
+  .card-foot { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--color-text-subtle); }
+  .card.arrow-card { align-items: flex-start; justify-content: center; }
+  .card.arrow-card .big-arrow {
+    margin-top: auto; margin-bottom: auto;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 22px; font-weight: 500; letter-spacing: -0.015em; color: var(--color-text);
+  }
+  .card.arrow-card .big-arrow em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-text-muted); }
+  .card.arrow-card:hover .big-arrow .lucide { transform: translateX(4px); }
+  .card.arrow-card .big-arrow .lucide { transition: transform var(--duration-normal) var(--ease-out); color: var(--color-accent); }
+
+  /* Floating AI button */
+  .ai-fab {
+    position: fixed; right: 24px; bottom: 24px; z-index: 70;
+    display: inline-flex; align-items: center; gap: 10px;
+    height: 48px; padding: 0 18px;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-lg);
+    color: var(--color-text); cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    transition: transform var(--duration-normal) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out);
+  }
+  .ai-fab .spark { color: var(--color-accent); }
+  .ai-fab:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-accent);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 24px var(--color-accent-glow);
+  }
+  .ai-fab .kbd-inline { background: var(--color-surface); }
+
+  /* Footer */
+  footer.page-foot { border-top: 1px solid var(--color-border); padding: 28px 0; }
+  .foot-inner {
+    max-width: var(--max-w); margin: 0 auto; padding: 0 24px;
+    display: grid; grid-template-columns: 1fr auto; gap: 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--color-text-subtle);
+  }
+  .foot-inner a { color: var(--color-text-subtle); text-decoration: none; margin-left: 20px; }
+  .foot-inner a:hover { color: var(--color-text); }
+  .foot-left { display: flex; gap: 16px; align-items: center; }
+  .foot-left .brand-mark { width: 14px; height: 14px; }
+  .foot-left .ver { color: var(--color-text-dim); }
+
+  /* Responsive */
+  @media (max-width: 980px) {
+    .workspace { grid-template-columns: 1fr; }
+    .side-panel { flex-direction: row; flex-wrap: wrap; }
+    .side-panel .panel-card { flex: 1; min-width: 240px; }
+    .algo-hero h1 { font-size: 48px; }
+    .inline-viz-row { grid-template-columns: 1fr; }
+    .related-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .subnav .algo-name { display: none; }
+    .cx-row { grid-template-columns: 1fr; gap: 8px; }
+  }
+  @media (max-width: 560px) {
+    .ai-fab .label-text { display: none; }
+    .head-metrics { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ───────── GLOBAL HEADER ───────── -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="Landing.html" class="brand"><div class="brand-mark"></div><span>AlgoViz</span></a>
+    <nav class="nav-links">
+      <a href="Algorithms.html" class="active">Algorithms</a>
+      <a href="#">Compare</a>
+      <a href="#">About</a>
+    </nav>
+    <div class="nav-right">
+      <button class="btn btn-secondary btn-sm"><i data-lucide="search" style="width:14px;height:14px"></i> Search <span class="kbd-inline">⌘K</span></button>
+      <button class="btn btn-ghost btn-sm">CS <i data-lucide="chevron-down" style="width:12px;height:12px"></i></button>
+    </div>
+  </div>
+</header>
+
+<!-- ───────── SECOND-LEVEL STICKY (scrolled state) ───────── -->
+<div class="subnav">
+  <div class="subnav-inner">
+    <div class="crumbs">
+      <a href="Algorithms.html">algorithms</a>
+      <span class="sep">/</span>
+      <a href="#">sorting</a>
+    </div>
+    <div class="algo-name">
+      <span>Bubble Sort</span>
+      <span class="badge badge-sorting"><i data-lucide="arrow-up-narrow-wide"></i> sort</span>
+    </div>
+    <div class="subnav-right">
+      <span class="mini-status">step <span class="accent">07</span> / 24</span>
+      <button class="btn btn-secondary btn-sm">Porovnat <i data-lucide="chevron-down" style="width:13px;height:13px"></i></button>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ───────── ALGO HERO ───────── -->
+  <section class="algo-hero">
+    <div class="top-row">
+      <div class="crumbs">
+        <a href="Landing.html">home</a><span class="sep">/</span>
+        <a href="Algorithms.html">algorithms</a><span class="sep">/</span>
+        <a href="#">sorting</a><span class="sep">/</span>
+        <span class="here">bubble&nbsp;sort</span>
+      </div>
+      <div class="compare-wrap">
+        <button class="btn btn-secondary" id="compareBtn">Porovnat <i data-lucide="chevron-down" style="width:14px;height:14px"></i></button>
+        <div class="compare-menu" id="compareMenu">
+          <div class="head">Porovnat s…</div>
+          <a href="#">Quick Sort <span class="c">O(n log n)</span></a>
+          <a href="#">Merge Sort <span class="c">O(n log n)</span></a>
+          <a href="#">Selection Sort <span class="c">O(n²)</span></a>
+          <a href="#">Insertion Sort <span class="c">O(n²)</span></a>
+        </div>
+      </div>
+    </div>
+
+    <h1>Bubble Sort</h1>
+    <p class="lede">Nejjednodušší řadicí algoritmus založený na&nbsp;porovnání. Pomalý v&nbsp;praxi, ale <em>dokonalý</em> pro pochopení, jak třídění vůbec funguje.</p>
+    <div class="meta-row">
+      <span class="badge badge-sorting"><i data-lucide="arrow-up-narrow-wide"></i> sort</span>
+      <span class="sep"></span>
+      <span class="item"><i data-lucide="activity"></i> složitost <span class="val">O(n²)</span></span>
+      <span class="sep"></span>
+      <span class="item"><i data-lucide="bar-chart-2"></i> úroveň <span class="val">beginner</span></span>
+      <span class="sep"></span>
+      <span class="item"><i data-lucide="clock"></i> <span class="val">5 min</span> čtení</span>
+    </div>
+  </section>
+
+  <!-- ───────── WORKSPACE ───────── -->
+  <section class="workspace">
+
+    <!-- Player -->
+    <div class="player">
+      <div class="player-head">
+        <div>
+          <div class="title">Bubble Sort</div>
+          <div class="status">step <span class="accent">07</span> / 24 &nbsp;·&nbsp; comparing <span style="color:var(--viz-compared)">[3]</span> <span style="color:var(--viz-compared)">[4]</span></div>
+        </div>
+        <div class="head-metrics">
+          <div class="metric"><span class="k">cmp</span><span class="v">14</span></div>
+          <div class="metric"><span class="k">swp</span><span class="v">07</span></div>
+          <div class="metric accent"><span class="k">elapsed</span><span class="v">0.42s</span></div>
+        </div>
+      </div>
+
+      <div class="player-stage">
+        <div class="viz-bars" id="mainBars" aria-hidden="true"></div>
+      </div>
+
+      <div class="player-progress" aria-hidden="true">
+        <div class="fill"></div>
+        <div class="ticks" id="ticks"></div>
+        <div class="handle"></div>
+      </div>
+
+      <div class="player-controls">
+        <div class="controls-left">
+          <button class="btn btn-secondary btn-icon btn-sm" aria-label="Reset"><i data-lucide="rotate-ccw" style="width:14px;height:14px"></i></button>
+          <button class="btn btn-secondary btn-icon btn-sm" aria-label="Krok zpět"><i data-lucide="skip-back" style="width:14px;height:14px"></i></button>
+          <button class="btn btn-primary btn-icon" aria-label="Play"><i data-lucide="play" style="width:16px;height:16px"></i></button>
+          <button class="btn btn-secondary btn-icon btn-sm" aria-label="Krok vpřed"><i data-lucide="skip-forward" style="width:14px;height:14px"></i></button>
+        </div>
+        <div class="controls-right">
+          <button class="chip-control"><span class="lbl">speed</span> 1.0× <i data-lucide="chevron-down" style="width:12px;height:12px;color:var(--color-text-subtle)"></i></button>
+          <button class="chip-control"><span class="lbl">array</span> n=15 <i data-lucide="chevron-down" style="width:12px;height:12px;color:var(--color-text-subtle)"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side panel -->
+    <aside class="side-panel">
+      <div class="panel-card">
+        <div class="panel-label">Input</div>
+        <div class="field">
+          <div class="flabel"><span class="name">Velikost pole</span><span class="num">15</span></div>
+          <input type="range" min="5" max="40" value="15" class="slider" />
+        </div>
+        <div class="field">
+          <div class="flabel"><span class="name">Vlastní vstup</span></div>
+          <input type="text" class="input-mono" value="[3, 1, 4, 1, 5, 9, 2, 6]" />
+        </div>
+        <div class="field">
+          <button class="btn btn-secondary btn-sm"><i data-lucide="shuffle" style="width:13px;height:13px"></i> Nové náhodné pole</button>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-label">Color legend</div>
+        <div class="legend">
+          <div class="item"><span class="sw" style="background:var(--viz-default)"></span> default <span class="desc">neaktivní</span></div>
+          <div class="item"><span class="sw" style="background:var(--viz-active)"></span> active <span class="desc">právě teď</span></div>
+          <div class="item"><span class="sw" style="background:var(--viz-compared)"></span> compared <span class="desc">porovnání</span></div>
+          <div class="item"><span class="sw" style="background:var(--viz-sorted)"></span> sorted <span class="desc">hotovo</span></div>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ───────── TABS + CONTENT ───────── -->
+  <section class="content-section">
+    <div class="tabs" id="tabs">
+      <a href="#popis" class="tab active"><span class="n">01</span>Popis</a>
+      <a href="#pseudokod" class="tab"><span class="n">02</span>Pseudokód</a>
+      <a href="#implementace" class="tab"><span class="n">03</span>Implementace</a>
+      <a href="#slozitost" class="tab"><span class="n">04</span>Složitost</a>
+    </div>
+
+    <!-- DESCRIPTION -->
+    <article class="article" id="popis">
+      <div class="prose">
+        <div class="section-marker">01 / Popis</div>
+        <h2>Jak Bubble Sort <em>funguje</em></h2>
+        <p><span class="drop">Představ si</span>, že třídíš balíček karet. Bubble Sort pracuje jako ten nejpomalejší možný člověk — porovnává vždy jen dvě <em>sousední</em> karty, a&nbsp;pokud jsou ve&nbsp;špatném pořadí, prohodí je. Pak postoupí o&nbsp;jedno místo dál a&nbsp;udělá totéž.</p>
+        <p>Algoritmus prochází polem znovu a&nbsp;znovu, dokud neudělá celý průchod bez jediné výměny. Největší prvek pokaždé „probublá" až nahoru jako vzduchová bublina — odtud to jméno.</p>
+
+        <div class="inline-viz-row">
+          <p style="margin:0">Sleduj jednu hodnotu během prvního průchodu. Vždy, když je větší než její soused vpravo, prohodí se s&nbsp;ním — a&nbsp;putuje stále dál, dokud nenarazí na&nbsp;ještě většího souseda nebo na&nbsp;konec pole.</p>
+          <div class="inline-viz" aria-hidden="true">
+            <div class="head"><span>bubble&nbsp;up</span><span class="accent">pass 1</span></div>
+            <div class="bars">
+              <div class="b" style="height:30%"></div>
+              <div class="b" style="height:48%"></div>
+              <div class="b up" style="height:88%"></div>
+              <div class="b" style="height:62%"></div>
+              <div class="b" style="height:40%"></div>
+            </div>
+            <div class="arrow">[2] → swap → [3] →</div>
+          </div>
+        </div>
+
+        <h2>Kdy ho <em>použít</em></h2>
+        <p>Nikdy v&nbsp;produkci. Vážně. Pro pole o&nbsp;tisíci prvcích provede řádově milion operací tam, kde si Quicksort vystačí s&nbsp;deseti tisíci. Existuje ale jedna výjimka, kde má smysl: <strong>téměř seřazená data</strong> s&nbsp;optimalizací předčasného ukončení, kdy doběhne v&nbsp;lineárním čase.</p>
+
+        <div class="callout">
+          <div class="q">Zachovat na production? Nikdy. Ale proč ho tedy učit?</div>
+          <p>Bubble Sort se učí, protože je to <em>ideální výchozí bod</em> pro pochopení toho, jak třídění vůbec funguje — invariant „po&nbsp;k&nbsp;průchodech je&nbsp;k&nbsp;největších prvků na&nbsp;svém místě" je tu vidět doslova očima. Až ho pochopíš, Quicksort i&nbsp;Merge Sort dají mnohem větší smysl.</p>
+        </div>
+
+        <p class="pull">„Největší prvek vždy vyplave nahoru. Otázka není jestli, ale za&nbsp;kolik porovnání."</p>
+
+        <p>V&nbsp;každém dalším průchodu se horní hranice posune o&nbsp;jedno místo dolů — poslední pozice je už definitivně seřazená, takže ji není potřeba znovu kontrolovat. Právě to vidíš výše jako rostoucí <span style="color:var(--viz-sorted)">azurovou</span> oblast zprava.</p>
+      </div>
+    </article>
+
+    <!-- PSEUDOCODE -->
+    <div id="pseudokod">
+      <div class="block-title">02 / Pseudokód</div>
+      <div class="code">
+        <pre class="code-body" style="margin:0"><div class="cl clickable"><span class="ln">1</span><span><span class="tok-k">procedure</span> <span class="tok-f">bubbleSort</span><span class="tok-p">(A : list)</span></span></div><div class="cl clickable"><span class="ln">2</span><span>  n <span class="tok-p">←</span> length<span class="tok-p">(</span>A<span class="tok-p">)</span></span></div><div class="cl clickable"><span class="ln">3</span><span>  <span class="tok-k">repeat</span></span></div><div class="cl clickable cur"><span class="ln">4</span><span>    swapped <span class="tok-p">←</span> <span class="tok-k">false</span>          <span class="tok-c">// ← krok 07: nový průchod</span></span></div><div class="cl clickable"><span class="ln">5</span><span>    <span class="tok-k">for</span> i <span class="tok-p">←</span> <span class="tok-n">1</span> <span class="tok-k">to</span> n<span class="tok-p">-</span><span class="tok-n">1</span> <span class="tok-k">do</span></span></div><div class="cl clickable"><span class="ln">6</span><span>      <span class="tok-k">if</span> A<span class="tok-p">[</span>i<span class="tok-p">-</span><span class="tok-n">1</span><span class="tok-p">] &gt;</span> A<span class="tok-p">[</span>i<span class="tok-p">]</span> <span class="tok-k">then</span></span></div><div class="cl clickable"><span class="ln">7</span><span>        <span class="tok-f">swap</span><span class="tok-p">(</span>A<span class="tok-p">[</span>i<span class="tok-p">-</span><span class="tok-n">1</span><span class="tok-p">],</span> A<span class="tok-p">[</span>i<span class="tok-p">])</span></span></div><div class="cl clickable"><span class="ln">8</span><span>        swapped <span class="tok-p">←</span> <span class="tok-k">true</span></span></div><div class="cl clickable"><span class="ln">9</span><span>    n <span class="tok-p">←</span> n<span class="tok-p">-</span><span class="tok-n">1</span></span></div><div class="cl clickable"><span class="ln">10</span><span>  <span class="tok-k">until</span> <span class="tok-k">not</span> swapped</span></div></pre>
+      </div>
+      <div class="pseudo-hint"><i data-lucide="mouse-pointer-click"></i> Klikni na&nbsp;řádek a&nbsp;přehrávač skočí na&nbsp;odpovídající krok.</div>
+    </div>
+
+    <!-- IMPLEMENTATION -->
+    <div id="implementace">
+      <div class="block-title">03 / Implementace</div>
+      <div class="code">
+        <div class="code-tabs" id="implTabs">
+          <button class="code-tab active" data-lang="js">JavaScript</button>
+          <button class="code-tab" data-lang="py">Python</button>
+          <button class="code-tab" data-lang="java">Java</button>
+        </div>
+        <button class="code-copy" id="copyBtn"><i data-lucide="copy" style="width:13px;height:13px"></i> kopírovat</button>
+
+        <div class="code-pane active" data-lang="js">
+          <pre class="code-body" style="margin:0"><div class="cl"><span class="ln">1</span><span><span class="tok-k">function</span> <span class="tok-f">bubbleSort</span><span class="tok-p">(arr) {</span></span></div><div class="cl"><span class="ln">2</span><span>  <span class="tok-k">let</span> n <span class="tok-p">=</span> arr<span class="tok-p">.</span>length<span class="tok-p">;</span></span></div><div class="cl"><span class="ln">3</span><span>  <span class="tok-k">let</span> swapped<span class="tok-p">;</span></span></div><div class="cl"><span class="ln">4</span><span>  <span class="tok-k">do</span> <span class="tok-p">{</span></span></div><div class="cl"><span class="ln">5</span><span>    swapped <span class="tok-p">=</span> <span class="tok-k">false</span><span class="tok-p">;</span></span></div><div class="cl"><span class="ln">6</span><span>    <span class="tok-k">for</span> <span class="tok-p">(</span><span class="tok-k">let</span> i <span class="tok-p">=</span> <span class="tok-n">1</span><span class="tok-p">;</span> i <span class="tok-p">&lt;</span> n<span class="tok-p">;</span> i<span class="tok-p">++) {</span></span></div><div class="cl"><span class="ln">7</span><span>      <span class="tok-k">if</span> <span class="tok-p">(</span>arr<span class="tok-p">[</span>i <span class="tok-p">-</span> <span class="tok-n">1</span><span class="tok-p">] &gt;</span> arr<span class="tok-p">[</span>i<span class="tok-p">]) {</span></span></div><div class="cl"><span class="ln">8</span><span>        <span class="tok-p">[</span>arr<span class="tok-p">[</span>i<span class="tok-p">-</span><span class="tok-n">1</span><span class="tok-p">],</span> arr<span class="tok-p">[</span>i<span class="tok-p">]] = [</span>arr<span class="tok-p">[</span>i<span class="tok-p">],</span> arr<span class="tok-p">[</span>i<span class="tok-p">-</span><span class="tok-n">1</span><span class="tok-p">]];</span></span></div><div class="cl"><span class="ln">9</span><span>        swapped <span class="tok-p">=</span> <span class="tok-k">true</span><span class="tok-p">;</span></span></div><div class="cl"><span class="ln">10</span><span>      <span class="tok-p">}</span></span></div><div class="cl"><span class="ln">11</span><span>    <span class="tok-p">}</span></span></div><div class="cl"><span class="ln">12</span><span>    n<span class="tok-p">--;</span></span></div><div class="cl"><span class="ln">13</span><span>  <span class="tok-p">}</span> <span class="tok-k">while</span> <span class="tok-p">(</span>swapped<span class="tok-p">);</span></span></div><div class="cl"><span class="ln">14</span><span>  <span class="tok-k">return</span> arr<span class="tok-p">;</span></span></div><div class="cl"><span class="ln">15</span><span><span class="tok-p">}</span></span></div></pre>
+        </div>
+
+        <div class="code-pane" data-lang="py">
+          <pre class="code-body" style="margin:0"><div class="cl"><span class="ln">1</span><span><span class="tok-k">def</span> <span class="tok-f">bubble_sort</span><span class="tok-p">(</span>arr<span class="tok-p">):</span></span></div><div class="cl"><span class="ln">2</span><span>    n <span class="tok-p">=</span> <span class="tok-f">len</span><span class="tok-p">(</span>arr<span class="tok-p">)</span></span></div><div class="cl"><span class="ln">3</span><span>    <span class="tok-k">while</span> <span class="tok-k">True</span><span class="tok-p">:</span></span></div><div class="cl"><span class="ln">4</span><span>        swapped <span class="tok-p">=</span> <span class="tok-k">False</span></span></div><div class="cl"><span class="ln">5</span><span>        <span class="tok-k">for</span> i <span class="tok-k">in</span> <span class="tok-f">range</span><span class="tok-p">(</span><span class="tok-n">1</span><span class="tok-p">,</span> n<span class="tok-p">):</span></span></div><div class="cl"><span class="ln">6</span><span>            <span class="tok-k">if</span> arr<span class="tok-p">[</span>i <span class="tok-p">-</span> <span class="tok-n">1</span><span class="tok-p">] &gt;</span> arr<span class="tok-p">[</span>i<span class="tok-p">]:</span></span></div><div class="cl"><span class="ln">7</span><span>                arr<span class="tok-p">[</span>i<span class="tok-p">-</span><span class="tok-n">1</span><span class="tok-p">],</span> arr<span class="tok-p">[</span>i<span class="tok-p">] =</span> arr<span class="tok-p">[</span>i<span class="tok-p">],</span> arr<span class="tok-p">[</span>i<span class="tok-p">-</span><span class="tok-n">1</span><span class="tok-p">]</span></span></div><div class="cl"><span class="ln">8</span><span>                swapped <span class="tok-p">=</span> <span class="tok-k">True</span></span></div><div class="cl"><span class="ln">9</span><span>        n <span class="tok-p">-=</span> <span class="tok-n">1</span></span></div><div class="cl"><span class="ln">10</span><span>        <span class="tok-k">if</span> <span class="tok-k">not</span> swapped<span class="tok-p">:</span></span></div><div class="cl"><span class="ln">11</span><span>            <span class="tok-k">break</span></span></div><div class="cl"><span class="ln">12</span><span>    <span class="tok-k">return</span> arr</span></div></pre>
+        </div>
+
+        <div class="code-pane" data-lang="java">
+          <pre class="code-body" style="margin:0"><div class="cl"><span class="ln">1</span><span><span class="tok-k">static</span> <span class="tok-k">void</span> <span class="tok-f">bubbleSort</span><span class="tok-p">(</span><span class="tok-k">int</span><span class="tok-p">[]</span> arr<span class="tok-p">) {</span></span></div><div class="cl"><span class="ln">2</span><span>  <span class="tok-k">int</span> n <span class="tok-p">=</span> arr<span class="tok-p">.</span>length<span class="tok-p">;</span></span></div><div class="cl"><span class="ln">3</span><span>  <span class="tok-k">boolean</span> swapped<span class="tok-p">;</span></span></div><div class="cl"><span class="ln">4</span><span>  <span class="tok-k">do</span> <span class="tok-p">{</span></span></div><div class="cl"><span class="ln">5</span><span>    swapped <span class="tok-p">=</span> <span class="tok-k">false</span><span class="tok-p">;</span></span></div><div class="cl"><span class="ln">6</span><span>    <span class="tok-k">for</span> <span class="tok-p">(</span><span class="tok-k">int</span> i <span class="tok-p">=</span> <span class="tok-n">1</span><span class="tok-p">;</span> i <span class="tok-p">&lt;</span> n<span class="tok-p">;</span> i<span class="tok-p">++) {</span></span></div><div class="cl"><span class="ln">7</span><span>      <span class="tok-k">if</span> <span class="tok-p">(</span>arr<span class="tok-p">[</span>i<span class="tok-p">-</span><span class="tok-n">1</span><span class="tok-p">] &gt;</span> arr<span class="tok-p">[</span>i<span class="tok-p">]) {</span></span></div><div class="cl"><span class="ln">8</span><span>        <span class="tok-k">int</span> t <span class="tok-p">=</span> arr<span class="tok-p">[</span>i<span class="tok-p">-</span><span class="tok-n">1</span><span class="tok-p">];</span></span></div><div class="cl"><span class="ln">9</span><span>        arr<span class="tok-p">[</span>i<span class="tok-p">-</span><span class="tok-n">1</span><span class="tok-p">] =</span> arr<span class="tok-p">[</span>i<span class="tok-p">];</span> arr<span class="tok-p">[</span>i<span class="tok-p">] =</span> t<span class="tok-p">;</span></span></div><div class="cl"><span class="ln">10</span><span>        swapped <span class="tok-p">=</span> <span class="tok-k">true</span><span class="tok-p">;</span></span></div><div class="cl"><span class="ln">11</span><span>      <span class="tok-p">}</span></span></div><div class="cl"><span class="ln">12</span><span>    <span class="tok-p">}</span></span></div><div class="cl"><span class="ln">13</span><span>    n<span class="tok-p">--;</span></span></div><div class="cl"><span class="ln">14</span><span>  <span class="tok-p">}</span> <span class="tok-k">while</span> <span class="tok-p">(</span>swapped<span class="tok-p">);</span></span></div><div class="cl"><span class="ln">15</span><span><span class="tok-p">}</span></span></div></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPLEXITY -->
+    <div id="slozitost">
+      <div class="block-title">04 / Složitost</div>
+      <div class="cx-table">
+        <div class="cx-row good">
+          <div class="case">Best case<span class="sub">nejlepší případ</span></div>
+          <div class="big-o">O(n)</div>
+          <div class="note">Když je pole <em>již seřazené</em> — jediný průchod bez výměny a&nbsp;algoritmus končí.</div>
+        </div>
+        <div class="cx-row">
+          <div class="case">Average case<span class="sub">průměrný případ</span></div>
+          <div class="big-o">O(n²)</div>
+          <div class="note">Náhodné pořadí. Počet porovnání roste s&nbsp;druhou mocninou velikosti vstupu.</div>
+        </div>
+        <div class="cx-row bad">
+          <div class="case">Worst case<span class="sub">nejhorší případ</span></div>
+          <div class="big-o">O(n²)</div>
+          <div class="note">Pole seřazené <em>sestupně</em> — každý prvek musí probublat přes celé pole.</div>
+        </div>
+        <div class="cx-row good">
+          <div class="case">Space<span class="sub">paměť</span></div>
+          <div class="big-o">O(1)</div>
+          <div class="note">Třídí <em>in-place</em>, výměny probíhají přímo v&nbsp;poli. Žádná pomocná struktura.</div>
+        </div>
+      </div>
+
+      <!-- size vs time chart -->
+      <div class="chart-wrap">
+        <div class="chart-head">
+          <div class="t">velikost pole&nbsp;→&nbsp;čas</div>
+          <div class="chart-legend">
+            <span class="lg"><span class="ln"></span> bubble · O(n²)</span>
+            <span class="lg dash"><span class="ln"></span> quicksort · O(n log n)</span>
+          </div>
+        </div>
+        <svg class="chart-svg" viewBox="0 0 720 240" preserveAspectRatio="none" aria-hidden="true">
+          <!-- grid -->
+          <g stroke="#1f1f23" stroke-width="1">
+            <line x1="0" y1="60" x2="720" y2="60"></line>
+            <line x1="0" y1="120" x2="720" y2="120"></line>
+            <line x1="0" y1="180" x2="720" y2="180"></line>
+          </g>
+          <!-- axes -->
+          <g stroke="#2a2a2f" stroke-width="1">
+            <line x1="0" y1="220" x2="720" y2="220"></line>
+            <line x1="1" y1="20" x2="1" y2="220"></line>
+          </g>
+          <!-- quicksort n log n (dashed subtle) -->
+          <path d="M0,218 C120,206 260,188 400,168 C520,150 620,134 720,120"
+                fill="none" stroke="#71717a" stroke-width="2" stroke-dasharray="5 5"></path>
+          <!-- bubble n^2 (accent) -->
+          <path d="M0,219 C150,210 270,188 390,150 C500,116 590,74 690,24"
+                fill="none" stroke="#a3e635" stroke-width="2.5"></path>
+          <!-- end dots -->
+          <circle cx="690" cy="24" r="3.5" fill="#a3e635"></circle>
+          <circle cx="720" cy="120" r="3" fill="#71717a"></circle>
+        </svg>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--color-text-dim);text-transform:uppercase;letter-spacing:0.06em">
+          <span>n = 0</span><span>velikost vstupu</span><span>n = 1000</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── RELATED ───────── -->
+  <section class="related">
+    <div class="related-head">
+      <div>
+        <div class="section-marker">související</div>
+        <h2>Chcete <em>hlouběji?</em></h2>
+      </div>
+    </div>
+    <div class="related-grid">
+      <a class="card" href="#">
+        <div class="card-top">
+          <span class="card-num">02 <b>/ sorting</b></span>
+          <span class="badge badge-sorting"><i data-lucide="zap"></i> fast</span>
+        </div>
+        <h3 class="card-title">Quick Sort <em>— divide</em></h3>
+        <p class="card-desc">Rozděl a&nbsp;panuj. Volí pivot a&nbsp;rekurzivně třídí dvě poloviny pole.</p>
+        <div class="card-foot"><span>O(n log n)</span><span>intermediate</span></div>
+      </a>
+      <a class="card" href="#">
+        <div class="card-top">
+          <span class="card-num">03 <b>/ sorting</b></span>
+          <span class="badge badge-sorting"><i data-lucide="layers"></i> stable</span>
+        </div>
+        <h3 class="card-title">Merge Sort <em>— stable</em></h3>
+        <p class="card-desc">Stabilní třídění shora dolů. Rozdělí pole, seřadí poloviny a&nbsp;poté je sloučí.</p>
+        <div class="card-foot"><span>O(n log n)</span><span>intermediate</span></div>
+      </a>
+      <a class="card arrow-card" href="Algorithms.html">
+        <div class="card-top">
+          <span class="card-num">/ sorting</span>
+          <span class="badge badge-sorting"><i data-lucide="arrow-up-narrow-wide"></i> sort</span>
+        </div>
+        <div class="big-arrow">Selection Sort <i data-lucide="arrow-right" style="width:22px;height:22px"></i></div>
+        <div class="card-foot"><span>O(n²)</span><span>beginner</span></div>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<!-- ───────── FLOATING AI ───────── -->
+<button class="ai-fab" aria-label="Zeptej se na tento algoritmus">
+  <i data-lucide="sparkles" class="spark" style="width:16px;height:16px"></i>
+  <span class="label-text">Zeptej se na&nbsp;tento algoritmus</span>
+</button>
+
+<footer class="page-foot">
+  <div class="foot-inner">
+    <div class="foot-left">
+      <div class="brand-mark"></div>
+      <span>AlgoViz</span>
+      <span class="ver">v1.0 · 2026</span>
+    </div>
+    <div>
+      <a href="#">GitHub</a>
+      <a href="#">Twitter</a>
+      <a href="#">About</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  if (window.lucide) lucide.createIcons();
+
+  /* Frozen player state at step 07/24 */
+  (function paintMain() {
+    const values = [4, 7, 2, 11, 9, 14, 6, 12, 3, 15, 1, 8, 13, 5, 10];
+    // visual heights mapped 0..1
+    const max = Math.max(...values);
+    const root = document.getElementById('mainBars');
+    // sorted region = last 4 bars cyan; compared = indices 3 & 4 amber
+    const sortedFrom = values.length - 4;
+    let html = '';
+    values.forEach((v, i) => {
+      let cls = '';
+      if (i >= sortedFrom) cls = 'sorted';
+      else if (i === 3 || i === 4) cls = 'compared';
+      const h = Math.max(8, Math.round((v / max) * 100));
+      html += `<div class="bar ${cls}" style="height:${h}%"><span class="lab">${v}</span></div>`;
+    });
+    root.innerHTML = html;
+  })();
+
+  /* progress ticks */
+  (function ticks() {
+    const t = document.getElementById('ticks');
+    t.innerHTML = Array.from({ length: 24 }, () => '<span></span>').join('');
+  })();
+
+  /* Compare dropdown */
+  const cb = document.getElementById('compareBtn');
+  const cm = document.getElementById('compareMenu');
+  cb?.addEventListener('click', (e) => { e.stopPropagation(); cm.classList.toggle('open'); });
+  document.addEventListener('click', (e) => { if (!cm.contains(e.target) && e.target !== cb) cm.classList.remove('open'); });
+
+  /* Implementation language tabs */
+  const implTabs = document.getElementById('implTabs');
+  implTabs?.addEventListener('click', (e) => {
+    const t = e.target.closest('.code-tab');
+    if (!t) return;
+    const lang = t.dataset.lang;
+    implTabs.querySelectorAll('.code-tab').forEach(x => x.classList.toggle('active', x === t));
+    document.querySelectorAll('.code-pane').forEach(p => p.classList.toggle('active', p.dataset.lang === lang));
+  });
+
+  /* Copy button */
+  const copyBtn = document.getElementById('copyBtn');
+  copyBtn?.addEventListener('click', () => {
+    const active = document.querySelector('.code-pane.active');
+    const text = active ? active.innerText.replace(/^\s*\d+\s/gm, '') : '';
+    navigator.clipboard?.writeText(text).then(() => {
+      copyBtn.innerHTML = '<i data-lucide="check" style="width:13px;height:13px"></i> zkopírováno';
+      if (window.lucide) lucide.createIcons();
+      setTimeout(() => {
+        copyBtn.innerHTML = '<i data-lucide="copy" style="width:13px;height:13px"></i> kopírovat';
+        if (window.lucide) lucide.createIcons();
+      }, 1800);
+    });
+  });
+
+  /* Tabs scroll-spy + active state */
+  const tabLinks = [...document.querySelectorAll('.tabs .tab')];
+  const sections = tabLinks.map(a => document.querySelector(a.getAttribute('href')));
+  tabLinks.forEach(a => a.addEventListener('click', () => {
+    tabLinks.forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+  }));
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (en.isIntersecting) {
+        const id = '#' + en.target.id;
+        tabLinks.forEach(x => x.classList.toggle('active', x.getAttribute('href') === id));
+      }
+    });
+  }, { rootMargin: '-160px 0px -65% 0px', threshold: 0 });
+  sections.forEach(s => s && spy.observe(s));
+
+  /* Pseudocode line click → move "current" highlight */
+  document.querySelectorAll('#pseudokod .cl.clickable').forEach(line => {
+    line.addEventListener('click', () => {
+      document.querySelectorAll('#pseudokod .cl').forEach(l => l.classList.remove('cur'));
+      line.classList.add('cur');
+    });
+  });
+</script>
+</body>
+</html>

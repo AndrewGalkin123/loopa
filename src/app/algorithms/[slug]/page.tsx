@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Activity, ArrowRight, BarChart2, ChevronDown, Clock, MousePointerClick } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ALGORITHMS, getAlgorithm } from "@/algorithms";
-import type { BarState } from "@/algorithms/types";
+import { CONTENT } from "@/algorithms/content";
+import { ALGORITHMS, findAlgorithm } from "@/algorithms/registry";
 import { AiFab } from "@/components/AiFab";
 import { AlgorithmCard } from "@/components/AlgorithmCard";
 import { CodeTabs } from "@/components/algorithm/CodeTabs";
@@ -11,15 +11,19 @@ import { ContentTabs } from "@/components/algorithm/ContentTabs";
 import { Pseudocode } from "@/components/algorithm/Pseudocode";
 import { Badge } from "@/components/Badge";
 import { Dropdown } from "@/components/Dropdown";
-import { InputPanel } from "@/components/player/InputPanel";
-import { Player } from "@/components/player/Player";
-import { PlayerProvider } from "@/components/player/PlayerProvider";
-import { StepStatus } from "@/components/player/StepStatus";
+import { Player } from "@/core/player/Player";
+import { StepStatus } from "@/core/player/StepStatus";
+import { catalogCard } from "@/lib/catalog";
+import { MODELS } from "@/models";
+import { AlgorithmProvider } from "./AlgorithmProvider";
 import "./algorithm.css";
 
 /*
- * One template for every algorithm page: /algorithms/bubble-sort, later
- * /algorithms/quick-sort … The texts and code come from src/algorithms/<slug>/.
+ * One template for every algorithm page (/algorithms/bubble-sort, /algorithms/quick-sort …).
+ * What it shows comes from three places:
+ *   definition — name, complexity, the player (src/algorithms/<category>/<slug>/definition.ts)
+ *   content    — the long texts (…/content.tsx, via src/algorithms/content.ts)
+ *   model      — how the player draws the data and changes the input (src/models)
  */
 
 type Props = { params: Promise<{ slug: string }> };
@@ -28,12 +32,12 @@ type Props = { params: Promise<{ slug: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return ALGORITHMS.map((algorithm) => ({ slug: algorithm.slug }));
+  return ALGORITHMS.map((definition) => ({ slug: definition.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const algorithm = getAlgorithm((await params).slug);
-  return { title: algorithm ? `${algorithm.name} — Loopa` : "Loopa" };
+  const definition = findAlgorithm((await params).slug);
+  return { title: definition ? `${definition.name} — Loopa` : "Loopa" };
 }
 
 const CONTENT_TABS = [
@@ -43,22 +47,14 @@ const CONTENT_TABS = [
   { id: "slozitost", label: "Složitost" },
 ];
 
-/** Legend entries for every bar state; each algorithm lists the states it uses. */
-const LEGEND: Record<BarState, { color: string; desc: string; dim?: boolean }> = {
-  default: { color: "var(--viz-default)", desc: "neaktivní" },
-  active: { color: "var(--viz-active)", desc: "právě teď" },
-  compared: { color: "var(--viz-compared)", desc: "porovnání" },
-  pivot: { color: "var(--viz-pivot)", desc: "pivot" },
-  sorted: { color: "var(--viz-sorted)", desc: "hotovo" },
-  dimmed: { color: "var(--viz-default)", desc: "mimo úsek", dim: true },
-};
-
 export default async function AlgorithmPage({ params }: Props) {
-  const algorithm = getAlgorithm((await params).slug);
-  if (!algorithm) notFound();
+  const definition = findAlgorithm((await params).slug);
+  if (!definition) notFound();
+  const content = CONTENT[definition.slug];
+  const model = MODELS[definition.model];
 
   return (
-    <PlayerProvider slug={algorithm.slug} initialInput={algorithm.initialInput}>
+    <AlgorithmProvider slug={definition.slug}>
       <div className="page-algorithm">
         {/* ───────── SECOND-LEVEL STICKY ───────── */}
         <div className="subnav">
@@ -66,12 +62,12 @@ export default async function AlgorithmPage({ params }: Props) {
             <div className="crumbs">
               <Link href="/algorithms">algorithms</Link>
               <span className="sep">/</span>
-              <a href="#">{algorithm.group}</a>
+              <a href="#">{definition.group}</a>
             </div>
             <div className="algo-name">
-              <span>{algorithm.name}</span>
-              <Badge variant={algorithm.badge.variant} icon={algorithm.badge.icon}>
-                {algorithm.badge.label}
+              <span>{definition.name}</span>
+              <Badge variant={definition.card.badge.variant} icon={definition.card.badge.icon}>
+                {definition.card.badge.label}
               </Badge>
             </div>
             <div className="subnav-right">
@@ -92,9 +88,9 @@ export default async function AlgorithmPage({ params }: Props) {
                 <span className="sep">/</span>
                 <Link href="/algorithms">algorithms</Link>
                 <span className="sep">/</span>
-                <a href="#">{algorithm.group}</a>
+                <a href="#">{definition.group}</a>
                 <span className="sep">/</span>
-                <span className="here">{algorithm.name.toLowerCase()}</span>
+                <span className="here">{definition.name.toLowerCase()}</span>
               </div>
               <Dropdown
                 wrapClassName="compare-wrap"
@@ -107,7 +103,7 @@ export default async function AlgorithmPage({ params }: Props) {
                 }
               >
                 <div className="head">Porovnat s…</div>
-                {algorithm.compareWith.map((item) => (
+                {content.compareWith.map((item) => (
                   <Link key={item.name} href={item.href}>
                     {item.name} <span className="c">{item.complexity}</span>
                   </Link>
@@ -115,43 +111,43 @@ export default async function AlgorithmPage({ params }: Props) {
               </Dropdown>
             </div>
 
-            <h1>{algorithm.name}</h1>
-            <p className="lede">{algorithm.lede}</p>
+            <h1>{definition.name}</h1>
+            <p className="lede">{content.lede}</p>
             <div className="meta-row">
-              <Badge variant={algorithm.badge.variant} icon={algorithm.badge.icon}>
-                {algorithm.badge.label}
+              <Badge variant={definition.card.badge.variant} icon={definition.card.badge.icon}>
+                {definition.card.badge.label}
               </Badge>
               <span className="sep" />
               <span className="item">
-                <Activity /> složitost <span className="val">{algorithm.complexity}</span>
+                <Activity /> složitost <span className="val">{definition.complexity}</span>
               </span>
               <span className="sep" />
               <span className="item">
-                <BarChart2 /> úroveň <span className="val">{algorithm.level}</span>
+                <BarChart2 /> úroveň <span className="val">{definition.level}</span>
               </span>
               <span className="sep" />
               <span className="item">
-                <Clock /> <span className="val">{algorithm.readMinutes} min</span> čtení
+                <Clock /> <span className="val">{content.readMinutes} min</span> čtení
               </span>
             </div>
           </section>
 
           {/* ───────── WORKSPACE ───────── */}
           <section className="workspace">
-            <Player name={algorithm.name} datasetHints={algorithm.datasetHints} />
+            <Player />
 
             <aside className="side-panel">
-              <InputPanel />
+              <model.InputPanel />
               <div className="panel-card">
                 <div className="panel-label">Color legend</div>
                 <div className="legend">
-                  {algorithm.legend.map((state) => (
-                    <div className="item" key={state}>
+                  {definition.legend.map((mark) => (
+                    <div className="item" key={mark}>
                       <span
                         className="sw"
-                        style={{ background: LEGEND[state].color, opacity: LEGEND[state].dim ? 0.35 : undefined }}
+                        style={{ background: model.legend[mark].color, opacity: model.legend[mark].dim ? 0.35 : undefined }}
                       />{" "}
-                      {state} <span className="desc">{LEGEND[state].desc}</span>
+                      {mark} <span className="desc">{model.legend[mark].desc}</span>
                     </div>
                   ))}
                 </div>
@@ -164,12 +160,12 @@ export default async function AlgorithmPage({ params }: Props) {
             <ContentTabs tabs={CONTENT_TABS} />
 
             <article className="article" id="popis">
-              <div className="prose">{algorithm.description}</div>
+              <div className="prose">{content.description}</div>
             </article>
 
             <div id="pseudokod">
               <div className="block-title">02 / Pseudokód</div>
-              <Pseudocode lines={algorithm.pseudocode} />
+              <Pseudocode lines={content.pseudocode} />
               <div className="pseudo-hint">
                 <MousePointerClick /> Klikni na&nbsp;řádek a&nbsp;přehrávač skočí na&nbsp;odpovídající krok.
               </div>
@@ -177,13 +173,13 @@ export default async function AlgorithmPage({ params }: Props) {
 
             <div id="implementace">
               <div className="block-title">03 / Implementace</div>
-              <CodeTabs implementations={algorithm.implementations} />
+              <CodeTabs implementations={content.implementations} />
             </div>
 
             <div id="slozitost">
               <div className="block-title">04 / Složitost</div>
               <div className="cx-table">
-                {algorithm.complexityCases.map((row) => (
+                {content.complexityCases.map((row) => (
                   <div key={row.label} className={row.tone ? `cx-row ${row.tone}` : "cx-row"}>
                     <div className="case">
                       {row.label}
@@ -194,7 +190,7 @@ export default async function AlgorithmPage({ params }: Props) {
                   </div>
                 ))}
               </div>
-              <div className="chart-wrap">{algorithm.complexityChart}</div>
+              <div className="chart-wrap">{content.complexityChart}</div>
             </div>
           </section>
 
@@ -209,22 +205,22 @@ export default async function AlgorithmPage({ params }: Props) {
               </div>
             </div>
             <div className="related-grid">
-              {algorithm.related.map((card) => (
-                <AlgorithmCard key={card.title} {...card} />
+              {content.related.map((slug) => (
+                <AlgorithmCard key={slug} {...catalogCard(slug)} />
               ))}
-              <Link className="card arrow-card" href={algorithm.next.href}>
+              <Link className="card arrow-card" href={content.next.href}>
                 <div className="card-top">
-                  <span className="card-num">/ {algorithm.next.group}</span>
-                  <Badge variant={algorithm.next.badge.variant} icon={algorithm.next.badge.icon}>
-                    {algorithm.next.badge.label}
+                  <span className="card-num">/ {content.next.group}</span>
+                  <Badge variant={content.next.badge.variant} icon={content.next.badge.icon}>
+                    {content.next.badge.label}
                   </Badge>
                 </div>
                 <div className="big-arrow">
-                  {algorithm.next.name} <ArrowRight size={22} />
+                  {content.next.name} <ArrowRight size={22} />
                 </div>
                 <div className="card-foot">
-                  <span>{algorithm.next.complexity}</span>
-                  <span>{algorithm.next.level}</span>
+                  <span>{content.next.complexity}</span>
+                  <span>{content.next.level}</span>
                 </div>
               </Link>
             </div>
@@ -233,6 +229,6 @@ export default async function AlgorithmPage({ params }: Props) {
 
         <AiFab label="Zeptej se na&nbsp;tento algoritmus" ariaLabel="Zeptej se na tento algoritmus" collapsible />
       </div>
-    </PlayerProvider>
+    </AlgorithmProvider>
   );
 }

@@ -1,10 +1,11 @@
-import type { ArrayStep } from "@/algorithms/types";
-import type { Dataset } from "./datasets";
+import type { Step } from "@/core/types";
 
 /*
  * Player state and every way it can change, in one pure function (a reducer).
  * Components never change the state directly — they send an action, e.g.
  * dispatch({ type: "step", delta: 1 }), and playerReducer returns the new state.
+ * The player does not know what the data is (array, tree…): `input` and the
+ * steps are handled by the model and the algorithm.
  */
 
 /** How long one step lasts at speed 1×, in milliseconds. */
@@ -13,12 +14,12 @@ export const STEP_MS = 400;
 export const SPEEDS = [0.5, 1, 2, 4, 8];
 
 export interface PlayerState {
-  /** The array the algorithm sorts. */
-  input: number[];
-  /** Where the input came from (shown on the "array" button). */
-  dataset: Dataset;
+  /** The input of the algorithm (for arrays: number[]). */
+  input: unknown;
+  /** Where the input came from, e.g. "random", "sorted", "custom" (shown on the data button). */
+  inputKind: string;
   /** Recorded run of the algorithm on `input`. */
-  steps: ArrayStep[];
+  steps: Step[];
   /** Index of the step on screen. */
   index: number;
   playing: boolean;
@@ -26,8 +27,8 @@ export interface PlayerState {
 }
 
 export type PlayerAction =
-  /** New input array; `steps` are already computed for it. */
-  | { type: "load"; input: number[]; dataset: Dataset; steps: ArrayStep[] }
+  /** New input; `steps` are already computed for it. */
+  | { type: "load"; input: unknown; inputKind: string; steps: Step[] }
   | { type: "toggle" }
   /** Sent by the timer while playing. */
   | { type: "tick" }
@@ -36,8 +37,8 @@ export type PlayerAction =
   | { type: "reset" }
   | { type: "speed"; speed: number };
 
-export function createPlayerState(input: number[], dataset: Dataset, steps: ArrayStep[]): PlayerState {
-  return { input, dataset, steps, index: 0, playing: false, speed: 1 };
+export function createPlayerState(input: unknown, inputKind: string, steps: Step[]): PlayerState {
+  return { input, inputKind, steps, index: 0, playing: false, speed: 1 };
 }
 
 export function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
@@ -45,7 +46,14 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
 
   switch (action.type) {
     case "load":
-      return { ...state, input: action.input, dataset: action.dataset, steps: action.steps, index: 0, playing: false };
+      return {
+        ...state,
+        input: action.input,
+        inputKind: action.inputKind,
+        steps: action.steps,
+        index: 0,
+        playing: false,
+      };
 
     case "toggle":
       if (state.playing) return { ...state, playing: false };

@@ -1,13 +1,11 @@
-import type { DatasetKind } from "@/algorithms/types";
-
 /* Input arrays for the player: generated ones and the user's own. */
 
-/** A generated kind, or "custom" when the user typed the array. */
-export type Dataset = DatasetKind | "custom";
+/** Kinds of generated arrays (the "array" button of the player). */
+export type DatasetKind = "random" | "nearly" | "sorted" | "reversed";
 
 /**
  * Datasets offered on the "array" button. The hints are neutral; an algorithm can
- * replace them with what the input means for it (AlgorithmContent.datasetHints).
+ * replace them with what the input means for it (AlgorithmDefinition.inputHints).
  */
 export const DATASETS: { id: DatasetKind; label: string; hint: string }[] = [
   { id: "random", label: "random", hint: "náhodné pořadí" },

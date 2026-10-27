@@ -1,6 +1,5 @@
 import { ArrowUpNarrowWide } from "lucide-react";
-import { MERGE_SORT, QUICK_SORT } from "@/lib/catalog";
-import type { AlgorithmContent } from "../types";
+import type { AlgorithmContent } from "@/algorithms/types";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the Bubble Sort page shows besides the player (texts from design/Bubble Sort.html). */
@@ -118,13 +117,7 @@ const complexityChart = (
   </>
 );
 
-export const bubbleSort: AlgorithmContent = {
-  slug: "bubble-sort",
-  name: "Bubble Sort",
-  group: "sorting",
-  badge: { variant: "sorting", icon: ArrowUpNarrowWide, label: "sort" },
-  complexity: "O(n²)",
-  level: "beginner",
+export const bubbleSortContent: AlgorithmContent = {
   readMinutes: 5,
   lede: (
     <>
@@ -132,10 +125,6 @@ export const bubbleSort: AlgorithmContent = {
       pochopení, jak třídění vůbec funguje.
     </>
   ),
-  // The bars of the design: a shuffled 1..15.
-  initialInput: [4, 7, 2, 11, 9, 14, 6, 12, 3, 15, 1, 8, 13, 5, 10],
-  legend: ["default", "active", "compared", "sorted"],
-  datasetHints: { sorted: "nejlepší případ", reversed: "nejhorší případ" },
   compareWith: [
     { name: "Quick Sort", complexity: "O(n log n)", href: "/compare" },
     { name: "Merge Sort", complexity: "O(n log n)", href: "#" },
@@ -187,7 +176,7 @@ export const bubbleSort: AlgorithmContent = {
     },
   ],
   complexityChart,
-  related: [QUICK_SORT, MERGE_SORT],
+  related: ["quick-sort", "merge-sort"],
   next: {
     name: "Selection Sort",
     group: "sorting",

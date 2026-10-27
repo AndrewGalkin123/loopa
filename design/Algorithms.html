@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="cs" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Algorithms — AlgoViz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  /* ───────── Tokens — Dark only ───────── */
+  :root, [data-theme="dark"] {
+    --color-bg: #0a0a0b;
+    --color-surface: #111113;
+    --color-surface-elevated: #18181b;
+    --color-border: #1f1f23;
+    --color-border-strong: #2a2a2f;
+    --color-border-bright: #3f3f46;
+    --color-text: #fafafa;
+    --color-text-muted: #a1a1aa;
+    --color-text-subtle: #71717a;
+    --color-text-dim: #52525b;
+    --color-accent: #a3e635;
+    --color-accent-dim: #65a30d;
+    --color-accent-glow: rgba(163, 230, 53, 0.15);
+    --viz-default: #3f3f46;
+    --viz-sorted: #67e8f9;
+    --viz-pivot: #f0abfc;
+    --grid-line: rgba(255, 255, 255, 0.02);
+
+    --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+    --duration-fast: 120ms; --duration-normal: 200ms; --duration-slow: 400ms;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --max-w: 1200px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .serif-i { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; }
+
+  /* ───────── Header (DS) ───────── */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    height: 64px;
+    background: color-mix(in srgb, var(--color-bg) 75%, transparent);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .nav-inner {
+    max-width: var(--max-w); height: 100%; margin: 0 auto; padding: 0 24px;
+    display: flex; align-items: center; gap: 32px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+    color: var(--color-text); text-decoration: none;
+  }
+  .brand-mark {
+    width: 22px; height: 22px;
+    background: var(--color-accent);
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  }
+  .nav-links { display: flex; gap: 24px; }
+  .nav-links a {
+    font-size: 14px; font-weight: 500;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+  .nav-links a.active { color: var(--color-text); }
+  .nav-links a:hover { color: var(--color-text); }
+  .nav-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+  /* ───────── Buttons (DS) ───────── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+    border-radius: var(--radius-md);
+    padding: 0 18px; height: 40px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) var(--ease-out),
+      filter var(--duration-fast) var(--ease-out);
+    text-decoration: none; user-select: none; white-space: nowrap;
+  }
+  .btn-primary { background: var(--color-accent); color: #0a0a0b; border-color: var(--color-accent); }
+  .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 0 24px var(--color-accent-glow); }
+  .btn-secondary { background: var(--color-surface-elevated); color: var(--color-text); border-color: var(--color-border-strong); }
+  .btn-secondary:hover { border-color: var(--color-border-bright); }
+  .btn-ghost {
+    background: transparent; color: var(--color-text-muted);
+    border-color: transparent;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500;
+    padding: 0 12px;
+  }
+  .btn-ghost:hover { color: var(--color-text); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+  .kbd-inline {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    padding: 3px 6px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 4px;
+    color: var(--color-text-subtle);
+  }
+
+  /* ───────── Layout ───────── */
+  main { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+  /* ───────── Page header ───────── */
+  .page-head {
+    padding: 80px 0 56px;
+    border-bottom: 1px solid var(--color-border);
+    display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 32px;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 500; line-height: 1;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    margin-bottom: 24px;
+  }
+  .eyebrow::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--color-accent);
+  }
+  .page-head h1 {
+    font-size: 64px; line-height: 1; letter-spacing: -0.035em; font-weight: 600;
+    margin: 0 0 20px;
+  }
+  .page-head .subtitle {
+    margin: 0; font-size: 18px; line-height: 1.5;
+    color: var(--color-text-muted);
+    max-width: 56ch;
+  }
+  .page-head .subtitle em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-text); }
+  .page-head .meta {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--color-text-subtle);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    text-align: right;
+    display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
+  }
+  .page-head .meta .row { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .page-head .meta .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 4px var(--color-accent-glow);
+  }
+
+  /* ───────── Filter bar ───────── */
+  .filter-bar {
+    display: flex; flex-direction: column;
+    gap: 16px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--color-border);
+    position: sticky; top: 64px;
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    z-index: 20;
+  }
+  .filter-row {
+    display: flex; gap: 16px; align-items: center;
+  }
+  .filter-search {
+    display: inline-flex; align-items: center; gap: 10px;
+    flex: 1; max-width: 480px; height: 40px;
+    padding: 0 14px;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+  .filter-search:focus-within { border-color: var(--color-accent); }
+  .filter-search .lucide { color: var(--color-text-subtle); flex-shrink: 0; }
+  .filter-search input {
+    flex: 1; min-width: 0; height: 100%;
+    background: transparent; border: 0; outline: 0;
+    color: var(--color-text); font: inherit; font-size: 14px;
+  }
+  .filter-search input::placeholder { color: var(--color-text-subtle); }
+
+  .filter-groups {
+    display: flex; gap: 28px; align-items: center; flex-wrap: wrap;
+  }
+  .filter-set {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    border-left: 1px solid var(--color-border);
+    padding-left: 28px;
+  }
+  .filter-set:first-child { border-left: 0; padding-left: 0; }
+  .filter-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--color-text-subtle);
+    margin-right: 4px;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 28px;
+    padding: 0 12px;
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out);
+  }
+  .chip:hover { color: var(--color-text); border-color: var(--color-border-bright); }
+  .chip.active {
+    background: var(--color-accent);
+    color: #0a0a0b;
+    border-color: var(--color-accent);
+  }
+  .chip.active:hover { filter: brightness(1.08); }
+  .chip .count {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--color-text-subtle);
+    margin-left: 2px;
+  }
+  .chip.active .count { color: rgba(10,10,11,0.55); }
+
+  .sort-select {
+    display: inline-flex; align-items: center; gap: 10px;
+    height: 40px;
+    padding: 0 14px;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--color-text);
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+  .sort-select:hover { border-color: var(--color-border-bright); }
+  .sort-select .lbl {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--color-text-subtle);
+  }
+
+  /* ───────── Result strip ───────── */
+  .result-strip {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 24px 0 20px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--color-text-subtle);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .result-strip .accent { color: var(--color-text); }
+  .result-strip .crumb { color: var(--color-text-dim); }
+  .result-strip .reset {
+    color: var(--color-text-muted);
+    cursor: pointer; background: transparent; border: 0;
+    font: inherit; padding: 0;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+  .result-strip .reset:hover { color: var(--color-accent); }
+
+  /* ───────── Cards (DS) ───────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding-bottom: 96px;
+  }
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    display: flex; flex-direction: column; gap: 16px;
+    cursor: pointer;
+    text-decoration: none; color: inherit;
+    transition: background-color var(--duration-fast) var(--ease-out),
+                border-color var(--duration-fast) var(--ease-out);
+    min-height: 220px;
+  }
+  .card:hover, .card.is-hover {
+    background: var(--color-surface-elevated);
+    border-color: var(--color-border-strong);
+  }
+  .card-top { display: flex; align-items: center; justify-content: space-between; }
+  .card-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.05em;
+    color: var(--color-text-subtle); text-transform: uppercase;
+  }
+  .card-num b { color: var(--color-text-muted); font-weight: 500; }
+  .card-title {
+    font-size: 22px; line-height: 1.2; letter-spacing: -0.015em;
+    font-weight: 500; margin: 0;
+  }
+  .card-title em {
+    font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400;
+    color: var(--color-text-muted);
+  }
+  .card-desc {
+    font-size: 14px; line-height: 1.5;
+    color: var(--color-text-muted); margin: 0;
+  }
+  .card-foot {
+    margin-top: auto; padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--color-text-subtle);
+  }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: lowercase; letter-spacing: 0.04em;
+    background: transparent;
+    border: 1px solid currentColor;
+  }
+  .badge .lucide { width: 10px; height: 10px; }
+  .badge-sorting       { color: var(--color-accent); }
+  .badge-search-sorted { color: #60a5fa; }
+  .badge-graph         { color: var(--viz-sorted); }
+  .badge-shortest      { color: #c4b5fd; }
+  .badge-optimization  { color: var(--viz-pivot); }
+
+  /* ───────── Demo annotations ───────── */
+  .demo-section {
+    margin-top: 32px; padding: 64px 0 96px;
+    border-top: 1px dashed var(--color-border);
+  }
+  .demo-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .demo-head h2 {
+    margin: 8px 0 0;
+    font-size: 24px; line-height: 1.2; letter-spacing: -0.015em; font-weight: 500;
+  }
+  .demo-head h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-text-muted); }
+  .demo-head p { margin: 0; color: var(--color-text-muted); font-size: 14px; max-width: 38ch; text-align: right; }
+
+  .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .demo-card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: color-mix(in srgb, var(--color-surface) 60%, transparent);
+  }
+  .demo-card .lbl {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-border);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--color-text-subtle);
+  }
+  .demo-card .lbl .tag { color: var(--color-accent); }
+  .demo-card .body { padding: 24px; }
+
+  /* ───────── Empty state ───────── */
+  .empty {
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius-lg);
+    padding: 64px 32px;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .empty .icon-wrap {
+    width: 48px; height: 48px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    color: var(--color-text-subtle);
+  }
+  .empty h3 {
+    margin: 0; font-size: 20px; line-height: 1.2; letter-spacing: -0.01em; font-weight: 500;
+  }
+  .empty p {
+    margin: 0; color: var(--color-text-muted); font-size: 14px;
+    max-width: 36ch;
+  }
+  .empty .link {
+    color: var(--color-accent); text-decoration: none;
+    border-bottom: 1px solid var(--color-accent-dim);
+    padding-bottom: 1px;
+  }
+  .empty .link:hover { border-bottom-color: var(--color-accent); }
+  .empty .query {
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--color-text-subtle);
+    padding: 6px 10px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .empty .query b { color: var(--color-text); font-weight: 500; }
+
+  /* ───────── Footer (DS) ───────── */
+  footer.page-foot {
+    border-top: 1px solid var(--color-border);
+    padding: 28px 0;
+  }
+  .foot-inner {
+    max-width: var(--max-w);
+    margin: 0 auto; padding: 0 24px;
+    display: grid; grid-template-columns: 1fr auto; gap: 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--color-text-subtle);
+  }
+  .foot-inner a { color: var(--color-text-subtle); text-decoration: none; margin-left: 20px; }
+  .foot-inner a:hover { color: var(--color-text); }
+  .foot-left { display: flex; gap: 16px; align-items: center; }
+  .foot-left .brand-mark { width: 14px; height: 14px; }
+  .foot-left .ver { color: var(--color-text-dim); }
+
+  /* ───────── Responsive ───────── */
+  @media (max-width: 1080px) {
+    .filter-row { flex-wrap: wrap; }
+  }
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .page-head { grid-template-columns: 1fr; }
+    .page-head .meta { text-align: left; align-items: flex-start; }
+    .page-head h1 { font-size: 48px; }
+    .demo-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 640px) {
+    .grid { grid-template-columns: 1fr; }
+    .filter-set { border-left: 0; padding-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ───────── HEADER ───────── -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="Landing.html" class="brand">
+      <div class="brand-mark"></div>
+      <span>AlgoViz</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#" class="active">Algorithms</a>
+      <a href="#">Compare</a>
+      <a href="#">About</a>
+    </nav>
+    <div class="nav-right">
+      <button class="btn btn-secondary btn-sm">
+        <i data-lucide="search" style="width:14px;height:14px"></i>
+        Search
+        <span class="kbd-inline">⌘K</span>
+      </button>
+      <button class="btn btn-ghost btn-sm">CS <i data-lucide="chevron-down" style="width:12px;height:12px"></i></button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ───────── PAGE HEAD ───────── -->
+  <section class="page-head">
+    <div>
+      <div class="eyebrow">/ algorithms</div>
+      <h1>Algorithms</h1>
+      <p class="subtitle">9 algoritmů. <em>Vysvětlené pořádně.</em></p>
+    </div>
+    <div class="meta">
+      <div class="row"><span class="dot"></span> updated 06.2026</div>
+      <div class="row" style="color:var(--color-text-dim)">v1.0 · 9 entries</div>
+    </div>
+  </section>
+
+  <!-- ───────── FILTER BAR ───────── -->
+  <section class="filter-bar">
+    <div class="filter-row">
+      <div class="filter-search">
+        <i data-lucide="search" style="width:16px;height:16px"></i>
+        <input type="text" placeholder="Hledat algoritmus…" />
+        <span class="kbd-inline">⌘K</span>
+      </div>
+      <button class="sort-select" style="margin-left:auto" aria-label="Sort">
+        <span class="lbl">sort</span>
+        <span>by name</span>
+        <i data-lucide="chevron-down" style="width:14px;height:14px;color:var(--color-text-subtle)"></i>
+      </button>
+    </div>
+
+    <div class="filter-groups">
+      <div class="filter-set">
+        <span class="filter-label">group</span>
+        <button class="chip">All <span class="count">9</span></button>
+        <button class="chip active">Sorting <span class="count">3</span></button>
+        <button class="chip">Search <span class="count">2</span></button>
+        <button class="chip">Graphs <span class="count">3</span></button>
+        <button class="chip">Math <span class="count">1</span></button>
+      </div>
+      <div class="filter-set">
+        <span class="filter-label">level</span>
+        <button class="chip">All</button>
+        <button class="chip">Beginner</button>
+        <button class="chip">Intermediate</button>
+        <button class="chip">Advanced</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── RESULT STRIP ───────── -->
+  <div class="result-strip">
+    <div>
+      <span class="accent">9</span> results
+      <span class="crumb">·</span>
+      group <span class="accent">sorting</span>
+      <span class="crumb">·</span>
+      sorted by name
+    </div>
+    <button class="reset">reset filters ↺</button>
+  </div>
+
+  <!-- ───────── GRID ───────── -->
+  <section class="grid">
+
+    <a class="card" href="#">
+      <div class="card-top">
+        <span class="card-num">01 <b>/ sorting</b></span>
+        <span class="badge badge-sorting"><i data-lucide="arrow-up-narrow-wide"></i> sort</span>
+      </div>
+      <h3 class="card-title">Bubble Sort <em>— simple</em></h3>
+      <p class="card-desc">Jednoduchý algoritmus třídění. Porovnává a&nbsp;vyměňuje sousední prvky, dokud není pole seřazené.</p>
+      <div class="card-foot">
+        <span>O(n²)</span>
+        <span>beginner</span>
+      </div>
+    </a>
+
+    <a class="card" href="#">
+      <div class="card-top">
+        <span class="card-num">02 <b>/ sorting</b></span>
+        <span class="badge badge-sorting"><i data-lucide="zap"></i> fast</span>
+      </div>
+      <h3 class="card-title">Quick Sort <em>— divide</em></h3>
+      <p class="card-desc">Rozděl a&nbsp;panuj. Volí pivot a&nbsp;rekurzivně třídí dvě poloviny pole.</p>
+      <div class="card-foot">
+        <span>O(n log n)</span>
+        <span>intermediate</span>
+      </div>
+    </a>
+
+    <a class="card" href="#">
+      <div class="card-top">
+        <span class="card-num">03 <b>/ sorting</b></span>
+        <span class="badge badge-sorting"><i data-lucide="layers"></i> stable</span>
+      </div>
+      <h3 class="card-title">Merge Sort <em>— stable</em></h3>
+      <p class="card-desc">Stabilní třídění shora dolů. Rozdělí pole, seřadí poloviny a&nbsp;poté je sloučí.</p>
+      <div class="card-foot">
+        <span>O(n log n)</span>
+        <span>intermediate</span>
+      </div>
+    </a>
+
+    <a class="card" href="#">
+      <div class="card-top">
+        <span class="card-num">04 <b>/ search-sorted</b></span>
+        <span class="badge badge-search-sorted"><i data-lucide="search"></i> bin</span>
+      </div>
+      <h3 class="card-title">Binary Search <em>— halve</em></h3>
+      <p class="card-desc">Vyhledávání v&nbsp;seřazeném poli. V&nbsp;každém kroku zahodí polovinu prostoru.</p>
+      <div class="card-foot">
+        <span>O(log n)</span>
+        <span>beginner</span>
+      </div>
+    </a>
+
+    <a class="card" href="#">
+      <div class="card-top">
+        <span class="card-num">05 <b>/ search-sorted</b></span>
+        <span class="badge badge-search-sorted"><i data-lucide="list-ordered"></i> lin</span>
+      </div>
+      <h3 class="card-title">Linear Search <em>— scan</em></h3>
+      <p class="card-desc">Sekvenční průchod polem. Nejjednodušší vyhledávání bez požadavku na&nbsp;uspořádání.</p>
+      <div class="card-foot">
+        <span>O(n)</span>
+        <span>beginner</span>
+      </div>
+    </a>
+
+    <a class="card" href="#">
+      <div class="card-top">
+        <span class="card-num">06 <b>/ graph-traversal</b></span>
+        <span class="badge badge-graph"><i data-lucide="git-branch"></i> bfs</span>
+      </div>
+      <h3 class="card-title">BFS <em>— ripples</em></h3>
+      <p class="card-desc">Procházení grafu po&nbsp;vrstvách. Najde nejkratší cestu v&nbsp;neváženém grafu.</p>
+      <div class="card-foot">
+        <span>O(V + E)</span>
+        <span>intermediate</span>
+      </div>
+    </a>
+
+    <a class="card" href="#">
+      <div class="card-top">
+        <span class="card-num">07 <b>/ graph-traversal</b></span>
+        <span class="badge badge-graph"><i data-lucide="git-fork"></i> dfs</span>
+      </div>
+      <h3 class="card-title">DFS <em>— deepen</em></h3>
+      <p class="card-desc">Procházení grafu do&nbsp;hloubky. Základ pro topologické řazení i&nbsp;hledání cyklů.</p>
+      <div class="card-foot">
+        <span>O(V + E)</span>
+        <span>intermediate</span>
+      </div>
+    </a>
+
+    <a class="card" href="#">
+      <div class="card-top">
+        <span class="card-num">08 <b>/ shortest-path</b></span>
+        <span class="badge badge-shortest"><i data-lucide="route"></i> path</span>
+      </div>
+      <h3 class="card-title">Dijkstra <em>— greedy</em></h3>
+      <p class="card-desc">Nejkratší cesty z&nbsp;jednoho zdroje ve&nbsp;váženém grafu s&nbsp;nezápornými hranami.</p>
+      <div class="card-foot">
+        <span>O(E log V)</span>
+        <span>advanced</span>
+      </div>
+    </a>
+
+    <a class="card" href="#">
+      <div class="card-top">
+        <span class="card-num">09 <b>/ optimization</b></span>
+        <span class="badge badge-optimization"><i data-lucide="trending-down"></i> opt</span>
+      </div>
+      <h3 class="card-title">Gradient Descent <em>— iterate</em></h3>
+      <p class="card-desc">Iterativní optimalizace. Sestupuje po&nbsp;gradientu k&nbsp;lokálnímu minimu funkce.</p>
+      <div class="card-foot">
+        <span>iterative</span>
+        <span>advanced</span>
+      </div>
+    </a>
+
+  </section>
+
+  <!-- ───────── SPEC: empty + hover states ───────── -->
+  <section class="demo-section">
+    <div class="demo-head">
+      <div>
+        <div class="eyebrow">spec / states</div>
+        <h2>Empty &amp; <em>hover</em></h2>
+      </div>
+      <p>How the catalog behaves on the edges — when no results match and when the cursor lands on a card.</p>
+    </div>
+
+    <div class="demo-grid">
+
+      <!-- Empty state -->
+      <div class="demo-card">
+        <div class="lbl"><span>state · empty</span><span class="tag">no results</span></div>
+        <div class="body">
+          <div class="empty">
+            <div class="icon-wrap"><i data-lucide="search-x" style="width:20px;height:20px"></i></div>
+            <h3>Nic nenalezeno</h3>
+            <p>Zkuste jiný dotaz nebo <a href="#" class="link">resetujte filtry</a>.</p>
+            <span class="query">query: <b>"radix"</b> · group: <b>sorting</b></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hover state -->
+      <div class="demo-card">
+        <div class="lbl"><span>state · hover</span><span class="tag">cursor: pointer</span></div>
+        <div class="body">
+          <a class="card is-hover" href="#" style="min-height:0">
+            <div class="card-top">
+              <span class="card-num">02 <b>/ sorting</b></span>
+              <span class="badge badge-sorting"><i data-lucide="zap"></i> fast</span>
+            </div>
+            <h3 class="card-title">Quick Sort <em>— divide</em></h3>
+            <p class="card-desc">Rozděl a&nbsp;panuj. Volí pivot a&nbsp;rekurzivně třídí dvě poloviny pole.</p>
+            <div class="card-foot">
+              <span>O(n log n)</span>
+              <span>intermediate</span>
+            </div>
+          </a>
+          <div class="mono" style="font-size:11px;color:var(--color-text-subtle);text-transform:uppercase;letter-spacing:0.06em;margin-top:16px;display:flex;justify-content:space-between">
+            <span>bg → surface-elevated</span>
+            <span>border → border-strong</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="page-foot">
+  <div class="foot-inner">
+    <div class="foot-left">
+      <div class="brand-mark"></div>
+      <span>AlgoViz</span>
+      <span class="ver">v1.0 · 2026</span>
+    </div>
+    <div>
+      <a href="#">GitHub</a>
+      <a href="#">Twitter</a>
+      <a href="#">About</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  if (window.lucide) lucide.createIcons();
+
+  // Make chips toggleable within their own set (single-select for now)
+  document.querySelectorAll('.filter-set').forEach(set => {
+    set.addEventListener('click', (e) => {
+      const c = e.target.closest('.chip');
+      if (!c) return;
+      set.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

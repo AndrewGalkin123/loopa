@@ -1,6 +1,5 @@
-import { Search, Zap } from "lucide-react";
-import { BUBBLE_SORT, MERGE_SORT } from "@/lib/catalog";
-import type { AlgorithmContent } from "../types";
+import { Search } from "lucide-react";
+import type { AlgorithmContent } from "@/algorithms/types";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the Quick Sort page shows besides the player. */
@@ -123,13 +122,7 @@ const complexityChart = (
   </>
 );
 
-export const quickSort: AlgorithmContent = {
-  slug: "quick-sort",
-  name: "Quick Sort",
-  group: "sorting",
-  badge: { variant: "sorting", icon: Zap, label: "fast" },
-  complexity: "O(n log n)",
-  level: "intermediate",
+export const quickSortContent: AlgorithmContent = {
   readMinutes: 6,
   lede: (
     <>
@@ -137,11 +130,6 @@ export const quickSort: AlgorithmContent = {
       na&nbsp;rekurzi. V&nbsp;průměru <em>bleskově</em> rychlý — pokud zrovna nemá smůlu na&nbsp;pivot.
     </>
   ),
-  // The same array as on the Bubble Sort page, so the two runs can be compared.
-  // (Deliberately not the arrays of the research tests in docs/research.)
-  initialInput: [4, 7, 2, 11, 9, 14, 6, 12, 3, 15, 1, 8, 13, 5, 10],
-  legend: ["default", "active", "compared", "pivot", "sorted", "dimmed"],
-  datasetHints: { random: "průměrný případ", sorted: "nejhorší případ", reversed: "nejhorší případ" },
   compareWith: [
     { name: "Bubble Sort", complexity: "O(n²)", href: "/compare" },
     { name: "Merge Sort", complexity: "O(n log n)", href: "#" },
@@ -196,7 +184,7 @@ export const quickSort: AlgorithmContent = {
     },
   ],
   complexityChart,
-  related: [BUBBLE_SORT, MERGE_SORT],
+  related: ["bubble-sort", "merge-sort"],
   next: {
     name: "Binary Search",
     group: "search-sorted",

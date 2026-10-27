@@ -1,6 +1,5 @@
-import { Layers, Search } from "lucide-react";
-import { BUBBLE_SORT, QUICK_SORT } from "@/lib/catalog";
-import type { AlgorithmContent } from "../types";
+import { Search } from "lucide-react";
+import type { AlgorithmContent } from "@/algorithms/types";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the Merge Sort page shows besides the player. */
@@ -125,13 +124,7 @@ const complexityChart = (
   </>
 );
 
-export const mergeSort: AlgorithmContent = {
-  slug: "merge-sort",
-  name: "Merge Sort",
-  group: "sorting",
-  badge: { variant: "sorting", icon: Layers, label: "stable" },
-  complexity: "O(n log n)",
-  level: "intermediate",
+export const mergeSortContent: AlgorithmContent = {
   readMinutes: 6,
   lede: (
     <>
@@ -139,11 +132,6 @@ export const mergeSort: AlgorithmContent = {
       a&nbsp;<em>stabilní</em> — za&nbsp;cenu pomocné paměti.
     </>
   ),
-  // The same array as on the other sorting pages, so the runs can be compared.
-  initialInput: [4, 7, 2, 11, 9, 14, 6, 12, 3, 15, 1, 8, 13, 5, 10],
-  legend: ["default", "active", "compared", "sorted", "dimmed"],
-  // Sorted and reversed input: one half always runs out first, so about half the comparisons.
-  datasetHints: { random: "průměrný případ", sorted: "méně porovnání", reversed: "méně porovnání" },
   compareWith: [
     { name: "Quick Sort", complexity: "O(n log n)", href: "#" },
     { name: "Heap Sort", complexity: "O(n log n)", href: "#" },
@@ -193,7 +181,7 @@ export const mergeSort: AlgorithmContent = {
     },
   ],
   complexityChart,
-  related: [QUICK_SORT, BUBBLE_SORT],
+  related: ["quick-sort", "bubble-sort"],
   next: {
     name: "Binary Search",
     group: "search-sorted",

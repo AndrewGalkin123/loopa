@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="cs" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AlgoViz — Algoritmy, vysvětlené vizuálně</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  /* ───────── Tokens — Dark only ───────── */
+  :root, [data-theme="dark"] {
+    --color-bg: #0a0a0b;
+    --color-surface: #111113;
+    --color-surface-elevated: #18181b;
+    --color-border: #1f1f23;
+    --color-border-strong: #2a2a2f;
+    --color-border-bright: #3f3f46;
+    --color-text: #fafafa;
+    --color-text-muted: #a1a1aa;
+    --color-text-subtle: #71717a;
+    --color-text-dim: #52525b;
+    --color-accent: #a3e635;
+    --color-accent-dim: #65a30d;
+    --color-accent-glow: rgba(163, 230, 53, 0.15);
+    --viz-default: #3f3f46;
+    --viz-active: #a3e635;
+    --viz-compared: #fcd34d;
+    --viz-sorted: #67e8f9;
+    --viz-pivot: #f0abfc;
+    --viz-visited: #71717a;
+    --color-success: #22c55e;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+    --color-info: #3b82f6;
+    --grid-line: rgba(255, 255, 255, 0.02);
+
+    --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+    --duration-fast: 120ms; --duration-normal: 200ms; --duration-slow: 400ms;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --max-w: 1200px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .serif-i { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; }
+
+  /* ───────── Header ───────── */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    height: 64px;
+    background: color-mix(in srgb, var(--color-bg) 75%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .nav-inner {
+    max-width: var(--max-w);
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 32px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .brand:hover { color: var(--color-text); text-decoration: none; }
+  .brand-mark {
+    width: 22px; height: 22px;
+    background: var(--color-accent);
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  }
+  .nav-links { display: flex; gap: 24px; }
+  .nav-links a {
+    font-size: 14px; font-weight: 500;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+  .nav-links a.active { color: var(--color-text); }
+  .nav-links a:hover { color: var(--color-text); }
+  .nav-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+  /* ───────── Buttons (DS) ───────── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+    border-radius: var(--radius-md);
+    padding: 0 18px; height: 40px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) var(--ease-out),
+      filter var(--duration-fast) var(--ease-out);
+    user-select: none; white-space: nowrap;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--color-accent); color: #0a0a0b; border-color: var(--color-accent); }
+  .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 0 24px var(--color-accent-glow); }
+  .btn-primary:active { filter: brightness(0.95); }
+  .btn-secondary { background: var(--color-surface-elevated); color: var(--color-text); border-color: var(--color-border-strong); }
+  .btn-secondary:hover { border-color: var(--color-border-bright); }
+  .btn-ghost {
+    background: transparent; color: var(--color-text-muted);
+    border-color: transparent;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500;
+    padding: 0 12px;
+  }
+  .btn-ghost:hover { color: var(--color-text); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+  .btn-lg { height: 48px; padding: 0 22px; font-size: 15px; }
+  .kbd-inline {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    padding: 3px 6px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 4px;
+    color: var(--color-text-subtle);
+  }
+
+  /* ───────── Eyebrow / section labels ───────── */
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 500; line-height: 1;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+  }
+  .eyebrow::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--color-accent);
+  }
+  .eyebrow .v { color: var(--color-text-dim); }
+
+  /* ───────── Layout helpers ───────── */
+  main { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+  section + section { margin-top: 128px; }
+
+  .section-head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 32px;
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 24px;
+  }
+  .section-head-left { max-width: 720px; }
+  .section-head h2 {
+    font-size: 48px; line-height: 1.05; letter-spacing: -0.03em; font-weight: 600;
+    margin: 16px 0 0;
+    text-wrap: balance;
+  }
+  .section-head h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-accent); }
+  .section-head p {
+    margin: 16px 0 0;
+    color: var(--color-text-muted);
+    font-size: 16px;
+    max-width: 56ch;
+  }
+
+  /* ───────── Hero ───────── */
+  .hero {
+    padding-top: 96px;
+    padding-bottom: 48px;
+  }
+  .hero .eyebrow { margin-bottom: 28px; }
+  .hero h1 {
+    font-size: 88px; line-height: 1; letter-spacing: -0.04em; font-weight: 600;
+    margin: 0 0 28px;
+    max-width: 14ch;
+    text-wrap: balance;
+  }
+  .hero h1 em {
+    font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--color-accent);
+  }
+  .hero .lede {
+    font-size: 18px; line-height: 1.5;
+    color: var(--color-text-muted);
+    max-width: 56ch;
+    margin: 0 0 36px;
+  }
+  .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .docs-link {
+    margin-left: 8px;
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    color: var(--color-text-subtle);
+    text-decoration: none;
+    height: 40px; padding: 0 4px;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+  .docs-link:hover { color: var(--color-text); }
+  .docs-link .prompt { color: var(--color-accent); }
+
+  /* ───────── Hero demo bars ───────── */
+  .hero-demo {
+    margin-top: 64px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 24px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-demo-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--color-text-subtle);
+  }
+  .hero-demo-head .left { display: flex; gap: 14px; align-items: center; }
+  .hero-demo-head .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 4px var(--color-accent-glow);
+    animation: pulse 1.6s var(--ease-out) infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.4 } }
+  .hero-demo-head .right { color: var(--color-text-dim); }
+  .hero-demo-head .right .accent { color: var(--color-accent); }
+
+  .viz-bars {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 6px;
+    align-items: flex-end;
+    height: 180px;
+  }
+  .viz-bars .bar {
+    background: var(--viz-default);
+    border-radius: 3px 3px 0 0;
+    transition: height var(--duration-slow) var(--ease-out),
+                background-color var(--duration-fast) var(--ease-out);
+  }
+  .viz-bars .bar.active   { background: var(--viz-active); }
+  .viz-bars .bar.compared { background: var(--viz-compared); }
+  .viz-bars .bar.sorted   { background: var(--viz-sorted); }
+  .viz-bars .bar.pivot    { background: var(--viz-pivot); }
+
+  .hero-demo-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--color-text-subtle);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .hero-demo-foot .metrics { display: flex; gap: 28px; }
+  .hero-demo-foot .metric .k { color: var(--color-text-subtle); }
+  .hero-demo-foot .metric .v {
+    margin-left: 8px;
+    color: var(--color-text);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-demo-foot .metric .v.accent { color: var(--color-accent); }
+
+  /* ───────── Algorithm card (DS) ───────── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    display: flex; flex-direction: column; gap: 16px;
+    cursor: pointer;
+    text-decoration: none; color: inherit;
+    transition: background-color var(--duration-fast) var(--ease-out),
+                border-color var(--duration-fast) var(--ease-out);
+  }
+  .card:hover { background: var(--color-surface-elevated); border-color: var(--color-border-strong); }
+  .card-top { display: flex; align-items: center; justify-content: space-between; }
+  .card-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.05em;
+    color: var(--color-text-subtle); text-transform: uppercase;
+  }
+  .card-num b { color: var(--color-text-muted); font-weight: 500; }
+  .card-title {
+    font-size: 22px; line-height: 1.2; letter-spacing: -0.015em;
+    font-weight: 500; margin: 0;
+  }
+  .card-title em {
+    font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400;
+    color: var(--color-text-muted);
+  }
+  .card-desc {
+    font-size: 14px; line-height: 1.5;
+    color: var(--color-text-muted); margin: 0;
+  }
+  .card-foot {
+    margin-top: auto; padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--color-text-subtle);
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: lowercase; letter-spacing: 0.04em;
+    background: transparent; border: 1px solid currentColor;
+  }
+  .badge .lucide { width: 10px; height: 10px; }
+  .badge-sorting       { color: var(--color-accent); }
+  .badge-search-sorted { color: #60a5fa; }
+  .badge-graph         { color: var(--viz-sorted); }
+  .badge-shortest      { color: #c4b5fd; }
+  .badge-optimization  { color: var(--viz-pivot); }
+
+  .head-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--color-text-muted);
+    text-decoration: none; font-size: 14px; font-weight: 500;
+    height: 32px;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+  .head-cta:hover { color: var(--color-accent); }
+  .head-cta .lucide { width: 14px; height: 14px; }
+
+  /* ───────── Compare showcase ───────── */
+  .compare-shell {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: 28px;
+  }
+  .compare-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .compare-panel {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+  }
+  .compare-panel .head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 16px;
+  }
+  .compare-panel .name {
+    font-size: 16px; font-weight: 500; letter-spacing: -0.01em;
+  }
+  .compare-panel .name em {
+    font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400;
+    color: var(--color-text-muted);
+    margin-left: 4px;
+  }
+  .compare-panel .step {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--color-text-subtle);
+  }
+  .compare-panel .step .accent { color: var(--color-accent); }
+  .compare-panel .viz-bars { height: 96px; gap: 4px; }
+  .compare-panel .viz-bars .bar { border-radius: 2px 2px 0 0; }
+  .compare-panel .footrow {
+    display: flex; gap: 24px; margin-top: 16px;
+    padding-top: 12px; border-top: 1px solid var(--color-border);
+  }
+  .compare-panel .metric { display: flex; flex-direction: column; gap: 2px; }
+  .compare-panel .metric .k {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--color-text-subtle);
+  }
+  .compare-panel .metric .v {
+    font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 600;
+    color: var(--color-text); font-variant-numeric: tabular-nums;
+  }
+  .compare-panel.winner .metric .v.accent { color: var(--color-accent); }
+
+  .compare-shell-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 20px;
+    border-top: 1px solid var(--color-border);
+  }
+  .compare-shell-foot .label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--color-text-subtle); text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .compare-shell-foot .label .accent { color: var(--color-accent); }
+
+  /* ───────── AI section ───────── */
+  .ai-grid {
+    display: grid; grid-template-columns: 1.05fr 1fr;
+    gap: 48px; align-items: center;
+  }
+  .ai-copy h2 {
+    font-size: 48px; line-height: 1.05; letter-spacing: -0.03em; font-weight: 600;
+    margin: 16px 0 16px;
+    text-wrap: balance;
+  }
+  .ai-copy h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-accent); }
+  .ai-copy p { font-size: 16px; line-height: 1.6; color: var(--color-text-muted); margin: 0 0 24px; max-width: 52ch; }
+
+  .ai-features {
+    list-style: none; padding: 0; margin: 0 0 28px;
+    display: grid; gap: 14px;
+  }
+  .ai-features li {
+    display: flex; align-items: center; gap: 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--color-text-subtle);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .ai-features li::before {
+    content: ''; width: 16px; height: 1px; background: var(--color-border-strong);
+  }
+  .ai-features li b { color: var(--color-text); font-weight: 500; }
+
+  .chat-mock {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+  .chat-mock .head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .chat-mock .head .lbl { font-weight: 600; font-size: 14px; }
+  .chat-mock .head .sub {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--color-text-subtle); margin-top: 4px;
+  }
+  .chat-mock .head .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--color-accent);
+    padding: 4px 8px;
+    border: 1px solid var(--color-accent);
+    border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .chat-mock .body {
+    padding: 20px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .msg { display: flex; gap: 10px; font-size: 14px; line-height: 1.55; max-width: 88%; }
+  .msg.ai { color: var(--color-text); }
+  .msg.ai .spark { color: var(--color-accent); flex-shrink: 0; margin-top: 4px; }
+  .msg.ai .mono-inline { font-family: 'JetBrains Mono', monospace; color: var(--color-accent); }
+  .msg.user {
+    align-self: flex-end;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border);
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+  }
+  .chat-mock .input-row {
+    display: flex; align-items: center; gap: 8px;
+    margin: 0 16px 16px;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    font-family: 'Inter', sans-serif; font-size: 13px;
+    color: var(--color-text-subtle);
+  }
+  .chat-mock .input-row .send {
+    margin-left: auto;
+    width: 24px; height: 24px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--color-accent); color: #0a0a0b;
+    border-radius: 4px;
+  }
+
+  /* ───────── Built for serious learners ───────── */
+  .features-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .feature {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .feature .num {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--color-text-subtle);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .feature .num .accent { color: var(--color-accent); }
+  .feature h3 {
+    font-size: 22px; line-height: 1.2; letter-spacing: -0.015em;
+    font-weight: 500; margin: 0;
+  }
+  .feature h3 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-text-muted); }
+  .feature p {
+    margin: 0; color: var(--color-text-muted);
+    font-size: 14px; line-height: 1.55;
+  }
+  .feature .icon {
+    width: 36px; height: 36px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    color: var(--color-accent);
+  }
+
+  /* Negative-positioning intro line above the heading */
+  .position-line {
+    margin: 32px 0 56px;
+    padding: 24px 28px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center;
+  }
+  .position-line .lhs {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--color-text-subtle);
+  }
+  .position-line .rhs {
+    color: var(--color-text-muted); font-size: 15px;
+  }
+  .position-line .rhs s {
+    color: var(--color-text-dim);
+    text-decoration-color: var(--color-error);
+  }
+  .position-line .rhs b { color: var(--color-text); font-weight: 500; }
+
+  /* ───────── Final CTA ───────── */
+  .final-cta {
+    margin-top: 128px;
+    border: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-accent);
+    background:
+      radial-gradient(circle at 50% 0%, var(--color-accent-glow), transparent 60%),
+      var(--color-surface);
+    border-radius: var(--radius-xl);
+    padding: 96px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .final-cta::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+  .final-cta > * { position: relative; }
+  .final-cta h2 {
+    font-size: 64px; line-height: 1; letter-spacing: -0.035em; font-weight: 600;
+    margin: 24px 0 16px;
+    text-wrap: balance;
+  }
+  .final-cta h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--color-accent); }
+  .final-cta p {
+    margin: 0 auto 36px;
+    color: var(--color-text-muted);
+    font-size: 16px;
+    max-width: 48ch;
+  }
+
+  /* ───────── Footer ───────── */
+  footer.page-foot {
+    border-top: 1px solid var(--color-border);
+    margin-top: 96px;
+    padding: 28px 0;
+  }
+  .foot-inner {
+    max-width: var(--max-w);
+    margin: 0 auto; padding: 0 24px;
+    display: grid; grid-template-columns: 1fr auto; gap: 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--color-text-subtle);
+  }
+  .foot-inner a { color: var(--color-text-subtle); text-decoration: none; margin-left: 20px; }
+  .foot-inner a:hover { color: var(--color-text); }
+  .foot-left { display: flex; gap: 16px; align-items: center; }
+  .foot-left .brand-mark { width: 14px; height: 14px; }
+  .foot-left .ver { color: var(--color-text-dim); }
+
+  /* ───────── Responsive ───────── */
+  @media (max-width: 960px) {
+    .hero { padding-top: 56px; }
+    .hero h1 { font-size: 56px; }
+    .section-head { flex-direction: column; align-items: flex-start; }
+    .section-head h2 { font-size: 36px; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .ai-grid { grid-template-columns: 1fr; gap: 32px; }
+    .ai-copy h2 { font-size: 36px; }
+    .features-row { grid-template-columns: 1fr; }
+    .final-cta { padding: 56px 24px; }
+    .final-cta h2 { font-size: 40px; }
+    .position-line { grid-template-columns: 1fr; gap: 12px; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ───────── HEADER ───────── -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="#" class="brand">
+      <div class="brand-mark"></div>
+      <span>AlgoViz</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#" class="active">Algorithms</a>
+      <a href="#">Compare</a>
+      <a href="#">About</a>
+    </nav>
+    <div class="nav-right">
+      <button class="btn btn-secondary btn-sm">
+        <i data-lucide="search" style="width:14px;height:14px"></i>
+        Search
+        <span class="kbd-inline">⌘K</span>
+      </button>
+      <button class="btn btn-ghost btn-sm">CS <i data-lucide="chevron-down" style="width:12px;height:12px"></i></button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ───────── HERO ───────── -->
+  <section class="hero">
+    <div class="eyebrow">
+      <span>▲ Interactive Algorithm Visualizer</span>
+      <span class="v">· v1.0</span>
+    </div>
+    <h1>Algoritmy,<br />vysvětlené <em>vizuálně</em>.</h1>
+    <p class="lede">Interaktivní vizualizace matematických a algoritmických postupů. Pro studenty, kteří chtějí&nbsp;skutečně rozumět.</p>
+    <div class="hero-ctas">
+      <a href="#" class="btn btn-primary">Začít teď <i data-lucide="arrow-right" style="width:14px;height:14px"></i></a>
+      <a href="#" class="btn btn-secondary">Procházet katalog</a>
+      <a href="#" class="docs-link">
+        <span><span class="prompt">$</span> docs --read</span>
+        <span class="kbd-inline">⌘ D</span>
+      </a>
+    </div>
+
+    <!-- ───────── Decorative looping demo ───────── -->
+    <div class="hero-demo" aria-label="Bubble Sort demonstration">
+      <div class="hero-demo-head">
+        <div class="left">
+          <span class="dot"></span>
+          <span>Bubble Sort</span>
+          <span class="v" style="color:var(--color-text-dim)">— live demo</span>
+        </div>
+        <div class="right">
+          step <span class="accent" id="demo-step">07</span> / <span id="demo-total">66</span> &nbsp;—&nbsp; <span id="demo-action">comparing [3] [4]</span>
+        </div>
+      </div>
+      <div class="viz-bars" id="hero-bars" aria-hidden="true"></div>
+      <div class="hero-demo-foot">
+        <div class="metrics">
+          <div class="metric"><span class="k">cmp</span><span class="v" id="demo-cmp">14</span></div>
+          <div class="metric"><span class="k">swp</span><span class="v" id="demo-swp">07</span></div>
+          <div class="metric"><span class="k">elapsed</span><span class="v accent" id="demo-elapsed">0.42s</span></div>
+        </div>
+        <div>n = 12 · auto-play</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── 01 FEATURED ───────── -->
+  <section>
+    <div class="section-head">
+      <div class="section-head-left">
+        <div class="eyebrow">01 / Explore</div>
+        <h2>Pochopte do hloubky, <em>jak fungují</em>.</h2>
+        <p>Šest klasiků na začátek. Pošlapaná teorie z přednášek, převedená do kroků, které vidíte a ovládáte.</p>
+      </div>
+      <a href="#" class="head-cta">Všechny algoritmy <i data-lucide="arrow-right"></i></a>
+    </div>
+
+    <div class="cards-grid">
+      <a class="card" href="#">
+        <div class="card-top">
+          <span class="card-num">01 <b>/ sorting</b></span>
+          <span class="badge badge-sorting"><i data-lucide="arrow-up-narrow-wide"></i> sort</span>
+        </div>
+        <h3 class="card-title">Bubble Sort <em>— simple</em></h3>
+        <p class="card-desc">Jednoduchý algoritmus třídění. Ideální pro pochopení principů porovnání a&nbsp;výměn sousedních prvků.</p>
+        <div class="card-foot">
+          <span>O(n²)</span>
+          <span>beginner</span>
+        </div>
+      </a>
+
+      <a class="card" href="#">
+        <div class="card-top">
+          <span class="card-num">02 <b>/ sorting</b></span>
+          <span class="badge badge-sorting"><i data-lucide="zap"></i> fast</span>
+        </div>
+        <h3 class="card-title">Quicksort <em>— divide</em></h3>
+        <p class="card-desc">Rozděl a&nbsp;panuj. Volí pivot a&nbsp;rekurzivně třídí dvě poloviny. Mistr v&nbsp;praxi, choulostivý v&nbsp;nejhorším případě.</p>
+        <div class="card-foot">
+          <span>O(n log n)</span>
+          <span>intermediate</span>
+        </div>
+      </a>
+
+      <a class="card" href="#">
+        <div class="card-top">
+          <span class="card-num">03 <b>/ search-sorted</b></span>
+          <span class="badge badge-search-sorted"><i data-lucide="search"></i> bin</span>
+        </div>
+        <h3 class="card-title">Binary Search <em>— halve</em></h3>
+        <p class="card-desc">Vyhledávání v&nbsp;seřazeném poli. V&nbsp;každém kroku zahodí polovinu prostoru. Logaritmické, elegantní.</p>
+        <div class="card-foot">
+          <span>O(log n)</span>
+          <span>beginner</span>
+        </div>
+      </a>
+
+      <a class="card" href="#">
+        <div class="card-top">
+          <span class="card-num">04 <b>/ graph-traversal</b></span>
+          <span class="badge badge-graph"><i data-lucide="git-branch"></i> bfs</span>
+        </div>
+        <h3 class="card-title">Breadth-First <em>— ripples</em></h3>
+        <p class="card-desc">Prochází graf vrstvu po&nbsp;vrstvě jako vlna na&nbsp;hladině. Najde nejkratší cestu v&nbsp;neváženém grafu.</p>
+        <div class="card-foot">
+          <span>O(V + E)</span>
+          <span>intermediate</span>
+        </div>
+      </a>
+
+      <a class="card" href="#">
+        <div class="card-top">
+          <span class="card-num">05 <b>/ shortest-path</b></span>
+          <span class="badge badge-shortest"><i data-lucide="route"></i> path</span>
+        </div>
+        <h3 class="card-title">Dijkstra <em>— greedy</em></h3>
+        <p class="card-desc">Najde nejkratší cestu z&nbsp;jednoho zdroje ve&nbsp;váženém grafu s&nbsp;nezápornými hranami.</p>
+        <div class="card-foot">
+          <span>O((V+E) log V)</span>
+          <span>advanced</span>
+        </div>
+      </a>
+
+      <a class="card" href="#">
+        <div class="card-top">
+          <span class="card-num">06 <b>/ optimization</b></span>
+          <span class="badge badge-optimization"><i data-lucide="grid-3x3"></i> dp</span>
+        </div>
+        <h3 class="card-title">Knapsack <em>— pack</em></h3>
+        <p class="card-desc">Klasický problém dynamického programování. Maximalizuj hodnotu při omezené kapacitě.</p>
+        <div class="card-foot">
+          <span>O(nW)</span>
+          <span>advanced</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ───────── 02 COMPARE ───────── -->
+  <section>
+    <div class="section-head">
+      <div class="section-head-left">
+        <div class="eyebrow">02 / Signature Feature</div>
+        <h2>Dva algoritmy. Jeden vstup. <em>Jedna pravda.</em></h2>
+        <p>Spusťte Bubble Sort a&nbsp;Quicksort na&nbsp;identickém poli a&nbsp;sledujte, jak se rozcházejí — krok za krokem, porovnání za porovnáním. Žádná teorie. Konkrétní čísla.</p>
+      </div>
+      <a href="#" class="head-cta">Otevřít srovnání <i data-lucide="arrow-right"></i></a>
+    </div>
+
+    <div class="compare-shell">
+      <div class="compare-grid">
+        <!-- Bubble panel -->
+        <div class="compare-panel" id="cmp-bubble">
+          <div class="head">
+            <div class="name">Bubble Sort <em>— simple</em></div>
+            <div class="step">step <span class="accent" id="b-step">12</span> / 66</div>
+          </div>
+          <div class="viz-bars" id="bubble-bars" aria-hidden="true"></div>
+          <div class="footrow">
+            <div class="metric"><span class="k">cmp</span><span class="v" id="b-cmp">24</span></div>
+            <div class="metric"><span class="k">swp</span><span class="v" id="b-swp">17</span></div>
+            <div class="metric"><span class="k">elapsed</span><span class="v" id="b-time">0.71s</span></div>
+          </div>
+        </div>
+        <!-- Quick panel -->
+        <div class="compare-panel winner" id="cmp-quick">
+          <div class="head">
+            <div class="name">Quicksort <em>— divide</em></div>
+            <div class="step">step <span class="accent" id="q-step">12</span> / 24</div>
+          </div>
+          <div class="viz-bars" id="quick-bars" aria-hidden="true"></div>
+          <div class="footrow">
+            <div class="metric"><span class="k">cmp</span><span class="v accent" id="q-cmp">8</span></div>
+            <div class="metric"><span class="k">swp</span><span class="v accent" id="q-swp">4</span></div>
+            <div class="metric"><span class="k">elapsed</span><span class="v accent" id="q-time">0.21s</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="compare-shell-foot">
+        <div class="label">running on identical input · <span class="accent">n = 16</span> · live</div>
+        <a href="#" class="btn btn-secondary btn-sm">Otevřít plné srovnání <i data-lucide="arrow-right" style="width:13px;height:13px"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── 03 AI ───────── -->
+  <section>
+    <div class="section-head">
+      <div class="section-head-left">
+        <div class="eyebrow">03 / AI Powered</div>
+        <h2>Zeptej se na <em>cokoli</em>.</h2>
+        <p>Vestavěný asistent vysvětluje libovolný algoritmus na&nbsp;základě ověřeného materiálu. Žádné halucinace — jen prověřené znalosti.</p>
+      </div>
+    </div>
+
+    <div class="ai-grid">
+      <div class="ai-copy">
+        <ul class="ai-features">
+          <li><b>Ověřený korpus</b> — zdrojem jsou učebnice, ne web</li>
+          <li><b>Krokově přesný</b> — ví, kde je plejer právě teď</li>
+          <li><b>Citace na kliknutí</b> — každé tvrzení s&nbsp;odkazem</li>
+        </ul>
+        <a href="#" class="btn btn-primary">Vyzkoušet <i data-lucide="arrow-right" style="width:14px;height:14px"></i></a>
+      </div>
+
+      <div class="chat-mock" aria-hidden="true">
+        <div class="head">
+          <div>
+            <div class="lbl">AI Assistant</div>
+            <div class="sub">asks about <span style="color:var(--color-text-muted)">bubble sort</span></div>
+          </div>
+          <div class="pill"><i data-lucide="shield-check" style="width:10px;height:10px"></i> verified</div>
+        </div>
+        <div class="body">
+          <div class="msg user">Proč se bubble sort nazývá „bubble"?</div>
+          <div class="msg ai">
+            <i data-lucide="sparkles" class="spark" style="width:14px;height:14px"></i>
+            <div>Větší prvky postupně „probublávají" ke&nbsp;konci pole — v&nbsp;každém průchodu se největší zbývající hodnota usadí na&nbsp;své finální místo, podobně jako vzduchová bublina stoupající k&nbsp;hladině.</div>
+          </div>
+          <div class="msg user">A nejhorší případ?</div>
+          <div class="msg ai">
+            <i data-lucide="sparkles" class="spark" style="width:14px;height:14px"></i>
+            <div>O(n²) — když je vstup seřazen sestupně. Tehdy provede <span class="mono-inline">n(n−1)/2</span> porovnání a&nbsp;stejný počet výměn.</div>
+          </div>
+        </div>
+        <div class="input-row">
+          <span>Zeptej se na cokoli o&nbsp;tomto algoritmu…</span>
+          <span class="send"><i data-lucide="arrow-up" style="width:12px;height:12px"></i></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── 04 FOR YOU ───────── -->
+  <section>
+    <div class="section-head">
+      <div class="section-head-left">
+        <div class="eyebrow">04 / For You</div>
+        <h2>Není to <em>Brilliant.</em> Není to <em>visualgo.</em></h2>
+        <p>Stavíme pro lidi, kteří chtějí algoritmům opravdu rozumět — ne sbírat odznáčky a&nbsp;procházet padesát kvízů, než se dostanou k&nbsp;první myšlence.</p>
+      </div>
+    </div>
+
+    <div class="position-line">
+      <div class="lhs">positioning</div>
+      <div class="rhs"><s>Hra. Mise. Odznáčky.</s> &nbsp;→&nbsp; <b>Hloubka místo šířky. Pochopení místo postupu.</b></div>
+    </div>
+
+    <div class="features-row">
+      <div class="feature">
+        <div class="icon"><i data-lucide="book-open" style="width:18px;height:18px"></i></div>
+        <div class="num"><span class="accent">A</span> / depth</div>
+        <h3>Hluboká <em>vysvětlení</em></h3>
+        <p>Ne tři řádky a&nbsp;animace. Celá teorie — invarianty, hraniční případy, důkaz správnosti, kompromisy v&nbsp;praxi.</p>
+      </div>
+      <div class="feature">
+        <div class="icon"><i data-lucide="git-compare" style="width:18px;height:18px"></i></div>
+        <div class="num"><span class="accent">B</span> / compare</div>
+        <h3>Skutečné <em>srovnání</em></h3>
+        <p>Postavte dva algoritmy proti sobě na&nbsp;stejných datech a&nbsp;uvidíte rozdíl vlastníma očima. Žádné tabulky složitostí v&nbsp;knize.</p>
+      </div>
+      <div class="feature">
+        <div class="icon"><i data-lucide="shield-off" style="width:18px;height:18px"></i></div>
+        <div class="num"><span class="accent">C</span> / focus</div>
+        <h3>Bez <em>gamifikace</em></h3>
+        <p>Žádné mise, žádné série, žádná virtuální měna. Jen znalosti, vizualizace a&nbsp;čas na&nbsp;přemýšlení.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── Final CTA ───────── -->
+  <section class="final-cta">
+    <div class="eyebrow" style="justify-content:center">— Ready</div>
+    <h2>Připraveni rozumět <em>algoritmům?</em></h2>
+    <p>Začněte s&nbsp;Bubble Sort. Nebo se ponořte rovnou do&nbsp;Dijkstry. Bez registrace, bez závazku.</p>
+    <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+      <a href="#" class="btn btn-primary btn-lg">Začít <i data-lucide="arrow-right" style="width:16px;height:16px"></i></a>
+      <a href="#" class="btn btn-secondary btn-lg">Procházet katalog</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="page-foot">
+  <div class="foot-inner">
+    <div class="foot-left">
+      <div class="brand-mark"></div>
+      <span>AlgoViz</span>
+      <span class="ver">v1.0 · 2026</span>
+    </div>
+    <div>
+      <a href="#">GitHub</a>
+      <a href="#">Twitter</a>
+      <a href="#">About</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  if (window.lucide) lucide.createIcons();
+
+  /* ─────── Tiny helper: render an array as bars in a container ─────── */
+  function renderBars(container, arr, classifier) {
+    const max = Math.max(...arr);
+    // create/refresh
+    let html = '';
+    arr.forEach((v, i) => {
+      const cls = classifier ? classifier(i, v) : '';
+      const h = Math.max(6, Math.round((v / max) * 100));
+      html += `<div class="bar ${cls}" style="height:${h}%"></div>`;
+    });
+    container.innerHTML = html;
+  }
+
+  /* ─────── HERO DEMO: full bubble sort loop ─────── */
+  (function heroDemo() {
+    const N = 12;
+    const root = document.getElementById('hero-bars');
+    if (!root) return;
+
+    // build a step list once
+    function buildBubbleSteps(arr) {
+      const steps = [];
+      const a = arr.slice();
+      const n = a.length;
+      let cmp = 0, swp = 0;
+      let sortedFrom = n; // [sortedFrom .. n-1] are final
+      for (let i = 0; i < n - 1; i++) {
+        let swapped = false;
+        for (let j = 0; j < n - i - 1; j++) {
+          cmp++;
+          steps.push({ kind: 'cmp', a: [...a], j, sortedFrom, cmp, swp });
+          if (a[j] > a[j + 1]) {
+            [a[j], a[j + 1]] = [a[j + 1], a[j]];
+            swp++;
+            swapped = true;
+            steps.push({ kind: 'swp', a: [...a], j, sortedFrom, cmp, swp });
+          }
+        }
+        sortedFrom = n - i - 1;
+        if (!swapped) break;
+      }
+      steps.push({ kind: 'done', a: [...a], j: -1, sortedFrom: 0, cmp, swp });
+      return steps;
+    }
+
+    const initial = [5, 11, 2, 9, 14, 7, 12, 4, 8, 1, 10, 6];
+    let steps = buildBubbleSteps(initial);
+    let idx = 0;
+    let t0 = performance.now();
+
+    const stepEl = document.getElementById('demo-step');
+    const totalEl = document.getElementById('demo-total');
+    const actEl = document.getElementById('demo-action');
+    const cmpEl = document.getElementById('demo-cmp');
+    const swpEl = document.getElementById('demo-swp');
+    const elEl = document.getElementById('demo-elapsed');
+    totalEl.textContent = String(steps.length).padStart(2, '0');
+
+    function pad(n, l = 2) { return String(n).padStart(l, '0'); }
+
+    function paint() {
+      const s = steps[idx];
+      renderBars(root, s.a, (i) => {
+        if (i >= s.sortedFrom) return 'sorted';
+        if (s.kind !== 'done' && (i === s.j || i === s.j + 1)) {
+          return s.kind === 'swp' ? 'active' : 'compared';
+        }
+        return '';
+      });
+      stepEl.textContent = pad(idx + 1);
+      cmpEl.textContent = pad(s.cmp);
+      swpEl.textContent = pad(s.swp);
+      const dt = ((performance.now() - t0) / 1000).toFixed(2);
+      elEl.textContent = dt + 's';
+      if (s.kind === 'cmp') actEl.textContent = `comparing [${s.j}] [${s.j + 1}]`;
+      else if (s.kind === 'swp') actEl.textContent = `swapped  [${s.j}] [${s.j + 1}]`;
+      else actEl.textContent = 'sorted';
+    }
+    paint();
+
+    setInterval(() => {
+      idx++;
+      if (idx >= steps.length) {
+        // restart with light shuffle so it loops
+        const reshuffled = initial.slice().sort(() => Math.random() - 0.5);
+        steps = buildBubbleSteps(reshuffled);
+        idx = 0;
+        t0 = performance.now();
+      }
+      paint();
+    }, 420);
+  })();
+
+  /* ─────── COMPARE: bubble vs quick, live loop ─────── */
+  (function compareDemo() {
+    const bubbleRoot = document.getElementById('bubble-bars');
+    const quickRoot = document.getElementById('quick-bars');
+    if (!bubbleRoot || !quickRoot) return;
+
+    function buildBubble(a0) {
+      const a = a0.slice();
+      const n = a.length;
+      const steps = [];
+      let cmp = 0, swp = 0;
+      let sortedFrom = n;
+      for (let i = 0; i < n - 1; i++) {
+        let swapped = false;
+        for (let j = 0; j < n - i - 1; j++) {
+          cmp++;
+          steps.push({ a: [...a], j, sortedFrom, cmp, swp, kind: 'cmp' });
+          if (a[j] > a[j + 1]) {
+            [a[j], a[j + 1]] = [a[j + 1], a[j]];
+            swp++;
+            swapped = true;
+            steps.push({ a: [...a], j, sortedFrom, cmp, swp, kind: 'swp' });
+          }
+        }
+        sortedFrom = n - i - 1;
+        if (!swapped) break;
+      }
+      steps.push({ a: [...a], j: -1, sortedFrom: 0, cmp, swp, kind: 'done' });
+      return steps;
+    }
+
+    function buildQuick(a0) {
+      const a = a0.slice();
+      const steps = [];
+      let cmp = 0, swp = 0;
+      const done = new Set();
+      function partition(lo, hi) {
+        const pivotIdx = hi;
+        const pivot = a[pivotIdx];
+        let i = lo;
+        for (let j = lo; j < hi; j++) {
+          cmp++;
+          steps.push({ a: [...a], pivot: pivotIdx, j, i, range: [lo, hi], done: new Set(done), cmp, swp, kind: 'cmp' });
+          if (a[j] < pivot) {
+            if (i !== j) {
+              [a[i], a[j]] = [a[j], a[i]];
+              swp++;
+              steps.push({ a: [...a], pivot: pivotIdx, j, i, range: [lo, hi], done: new Set(done), cmp, swp, kind: 'swp' });
+            }
+            i++;
+          }
+        }
+        if (i !== hi) {
+          [a[i], a[hi]] = [a[hi], a[i]];
+          swp++;
+        }
+        done.add(i);
+        steps.push({ a: [...a], pivot: i, j: -1, i, range: [lo, hi], done: new Set(done), cmp, swp, kind: 'place' });
+        return i;
+      }
+      function qs(lo, hi) {
+        if (lo >= hi) { if (lo === hi) done.add(lo); return; }
+        const p = partition(lo, hi);
+        qs(lo, p - 1);
+        qs(p + 1, hi);
+      }
+      qs(0, a.length - 1);
+      steps.push({ a: [...a], pivot: -1, j: -1, i: -1, range: [0, a.length - 1], done: new Set(Array.from({ length: a.length }, (_, k) => k)), cmp, swp, kind: 'done' });
+      return steps;
+    }
+
+    function rand(n, min = 2, max = 30) {
+      return Array.from({ length: n }, () => Math.floor(Math.random() * (max - min + 1)) + min);
+    }
+
+    let input = [12, 4, 19, 7, 22, 3, 15, 9, 27, 6, 17, 11, 24, 2, 14, 8];
+    let bSteps = buildBubble(input);
+    let qSteps = buildQuick(input);
+    let bi = 0, qi = 0;
+    let t0 = performance.now();
+
+    const bStep = document.getElementById('b-step');
+    const bCmp = document.getElementById('b-cmp');
+    const bSwp = document.getElementById('b-swp');
+    const bTime = document.getElementById('b-time');
+    const qStep = document.getElementById('q-step');
+    const qCmp = document.getElementById('q-cmp');
+    const qSwp = document.getElementById('q-swp');
+    const qTime = document.getElementById('q-time');
+
+    function paintBubble() {
+      const s = bSteps[bi];
+      renderBars(bubbleRoot, s.a, (i) => {
+        if (i >= s.sortedFrom) return 'sorted';
+        if (s.kind !== 'done' && (i === s.j || i === s.j + 1)) {
+          return s.kind === 'swp' ? 'active' : 'compared';
+        }
+        return '';
+      });
+      bStep.textContent = String(bi + 1).padStart(2, '0');
+      bCmp.textContent = String(s.cmp).padStart(2, '0');
+      bSwp.textContent = String(s.swp).padStart(2, '0');
+      bTime.textContent = ((performance.now() - t0) / 1000).toFixed(2) + 's';
+    }
+    function paintQuick() {
+      const s = qSteps[qi];
+      renderBars(quickRoot, s.a, (i) => {
+        if (s.done && s.done.has(i)) return 'sorted';
+        if (i === s.pivot) return 'pivot';
+        if (s.kind !== 'done' && i === s.j) return s.kind === 'swp' ? 'active' : 'compared';
+        return '';
+      });
+      qStep.textContent = String(qi + 1).padStart(2, '0');
+      qCmp.textContent = String(s.cmp).padStart(2, '0');
+      qSwp.textContent = String(s.swp).padStart(2, '0');
+      qTime.textContent = ((performance.now() - t0) / 1000).toFixed(2) + 's';
+    }
+    paintBubble(); paintQuick();
+
+    // bubble is slower visually so step it slower
+    setInterval(() => {
+      bi++;
+      if (bi >= bSteps.length) {
+        // when bubble finishes, restart both with new input
+        input = rand(16);
+        bSteps = buildBubble(input);
+        qSteps = buildQuick(input);
+        bi = 0; qi = 0;
+        t0 = performance.now();
+      }
+      paintBubble();
+    }, 180);
+
+    // quick at a similar visual pace but proportional to its steps
+    const quickInterval = Math.max(120, Math.round(180 * (bSteps.length / qSteps.length)));
+    setInterval(() => {
+      // hold quick on its last frame until bubble restarts
+      if (qi < qSteps.length - 1) qi++;
+      paintQuick();
+    }, quickInterval);
+  })();
+</script>
+</body>
+</html>

@@ -2,17 +2,17 @@
 
 import type { ReactNode } from "react";
 import { CodeLine } from "@/components/code/tokens";
-import { usePlayer } from "@/components/player/PlayerProvider";
+import { usePlayer } from "@/core/player/PlayerProvider";
 
 /**
  * Pseudocode linked to the player: the line of the current step is highlighted,
  * and clicking a line jumps to the next step that executes it.
  */
 export function Pseudocode({ lines }: { lines: ReactNode[] }) {
-  const { state, step, dispatch, lineAliases } = usePlayer();
+  const { state, step, dispatch, definition } = usePlayer();
 
   const jumpToLine = (line: number) => {
-    const target = lineAliases[line] ?? line;
+    const target = definition.lineAliases[line] ?? line;
     const isTarget = (s: { line: number }) => s.line === target;
     // The next such step after the current one; if there is none, the first one from the start.
     let index = state.steps.findIndex((s, i) => i > state.index && isTarget(s));
