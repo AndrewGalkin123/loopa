@@ -187,10 +187,10 @@ export const quickSortContent: AlgorithmContent = {
   related: ["bubble-sort", "merge-sort"],
   next: {
     name: "Binary Search",
-    group: "search-sorted",
+    group: "search",
     badge: { variant: "search-sorted", icon: Search, label: "bin" },
     complexity: "O(log n)",
     level: "beginner",
-    href: "/algorithms",
+    href: "/algorithms/binary-search",
   },
 };

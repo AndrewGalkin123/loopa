@@ -1,4 +1,4 @@
-import { GitBranch, GitFork, ListOrdered, Route, Search, TrendingDown } from "lucide-react";
+import { Route, TrendingDown } from "lucide-react";
 import { ALGORITHMS } from "@/algorithms/registry";
 import type { AlgorithmCardData } from "@/components/AlgorithmCard";
 import type { AlgorithmDefinition } from "@/core/types";
@@ -14,46 +14,6 @@ export type CatalogCard = AlgorithmCardData & { slug: string };
 
 /** Algorithms planned for the catalog that do not have a page yet. */
 const PLANNED: Omit<CatalogCard, "num">[] = [
-  {
-    slug: "binary-search",
-    group: "search-sorted",
-    badge: { variant: "search-sorted", icon: Search, label: "bin" },
-    title: "Binary Search",
-    tagline: "halve",
-    description: "Vyhledávání v\u00a0seřazeném poli. V\u00a0každém kroku zahodí polovinu prostoru.",
-    complexity: "O(log n)",
-    level: "beginner",
-  },
-  {
-    slug: "linear-search",
-    group: "search-sorted",
-    badge: { variant: "search-sorted", icon: ListOrdered, label: "lin" },
-    title: "Linear Search",
-    tagline: "scan",
-    description: "Sekvenční průchod polem. Nejjednodušší vyhledávání bez požadavku na\u00a0uspořádání.",
-    complexity: "O(n)",
-    level: "beginner",
-  },
-  {
-    slug: "bfs",
-    group: "graph-traversal",
-    badge: { variant: "graph", icon: GitBranch, label: "bfs" },
-    title: "BFS",
-    tagline: "ripples",
-    description: "Procházení grafu po\u00a0vrstvách. Najde nejkratší cestu v\u00a0neváženém grafu.",
-    complexity: "O(V + E)",
-    level: "intermediate",
-  },
-  {
-    slug: "dfs",
-    group: "graph-traversal",
-    badge: { variant: "graph", icon: GitFork, label: "dfs" },
-    title: "DFS",
-    tagline: "deepen",
-    description: "Procházení grafu do\u00a0hloubky. Základ pro topologické řazení i\u00a0hledání cyklů.",
-    complexity: "O(V + E)",
-    level: "intermediate",
-  },
   {
     slug: "dijkstra",
     group: "shortest-path",
@@ -83,6 +43,7 @@ const ORDER = [
   "merge-sort",
   "binary-search",
   "linear-search",
+  "interpolation-search",
   "bfs",
   "dfs",
   "dijkstra",
@@ -104,6 +65,10 @@ function cardOf(definition: AlgorithmDefinition): Omit<CatalogCard, "num"> {
 }
 
 const CARDS = [...ALGORITHMS.map(cardOf), ...PLANNED];
+
+// An algorithm that got its page must be removed from PLANNED.
+const twice = CARDS.find((card, i) => CARDS.findIndex((other) => other.slug === card.slug) !== i);
+if (twice) throw new Error(`Catalog: "${twice.slug}" is both in the registry and in PLANNED`);
 
 export const CATALOG: CatalogCard[] = ORDER.map((slug, i) => {
   const card = CARDS.find((c) => c.slug === slug);

@@ -52,6 +52,7 @@ const FEATURED: AlgorithmCardData[] = [
     description: "Vyhledávání v\u00a0seřazeném poli. V\u00a0každém kroku zahodí polovinu prostoru. Logaritmické, elegantní.",
     complexity: "O(log n)",
     level: "beginner",
+    href: "/algorithms/binary-search",
   },
   {
     num: "04",
@@ -62,6 +63,7 @@ const FEATURED: AlgorithmCardData[] = [
     description: "Prochází graf vrstvu po\u00a0vrstvě jako vlna na\u00a0hladině. Najde nejkratší cestu v\u00a0neváženém grafu.",
     complexity: "O(V + E)",
     level: "intermediate",
+    href: "/algorithms/bfs",
   },
   {
     num: "05",

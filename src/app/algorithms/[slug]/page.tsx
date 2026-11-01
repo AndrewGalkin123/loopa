@@ -147,7 +147,8 @@ export default async function AlgorithmPage({ params }: Props) {
                         className="sw"
                         style={{ background: model.legend[mark].color, opacity: model.legend[mark].dim ? 0.35 : undefined }}
                       />{" "}
-                      {mark} <span className="desc">{model.legend[mark].desc}</span>
+                      {mark}{" "}
+                      <span className="desc">{definition.legendDescriptions?.[mark] ?? model.legend[mark].desc}</span>
                     </div>
                   ))}
                 </div>
@@ -180,7 +181,7 @@ export default async function AlgorithmPage({ params }: Props) {
               <div className="block-title">04 / Složitost</div>
               <div className="cx-table">
                 {content.complexityCases.map((row) => (
-                  <div key={row.label} className={row.tone ? `cx-row ${row.tone}` : "cx-row"}>
+                  <div key={`${row.label}-${row.sub}`} className={row.tone ? `cx-row ${row.tone}` : "cx-row"}>
                     <div className="case">
                       {row.label}
                       <span className="sub">{row.sub}</span>
@@ -190,7 +191,7 @@ export default async function AlgorithmPage({ params }: Props) {
                   </div>
                 ))}
               </div>
-              <div className="chart-wrap">{content.complexityChart}</div>
+              {content.complexityChart && <div className="chart-wrap">{content.complexityChart}</div>}
             </div>
           </section>
 

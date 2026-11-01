@@ -1,4 +1,9 @@
+import { bfsContent } from "./graphs/bfs/content";
+import { dfsContent } from "./graphs/dfs/content";
 import type { Slug } from "./registry";
+import { binarySearchContent } from "./search/binary-search/content";
+import { interpolationSearchContent } from "./search/interpolation-search/content";
+import { linearSearchContent } from "./search/linear-search/content";
 import { bubbleSortContent } from "./sorting/bubble-sort/content";
 import { mergeSortContent } from "./sorting/merge-sort/content";
 import { quickSortContent } from "./sorting/quick-sort/content";
@@ -14,4 +19,9 @@ export const CONTENT: Record<Slug, AlgorithmContent> = {
   "bubble-sort": bubbleSortContent,
   "quick-sort": quickSortContent,
   "merge-sort": mergeSortContent,
+  "binary-search": binarySearchContent,
+  "linear-search": linearSearchContent,
+  "interpolation-search": interpolationSearchContent,
+  bfs: bfsContent,
+  dfs: dfsContent,
 };

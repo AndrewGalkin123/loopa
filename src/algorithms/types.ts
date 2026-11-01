@@ -20,7 +20,8 @@ export interface AlgorithmContent {
     note: ReactNode;
     tone?: "good" | "bad";
   }[];
-  complexityChart: ReactNode;
+  /** Chart under the complexity table (optional). */
+  complexityChart?: ReactNode;
   /** Slugs of the catalog cards shown under "související" (see src/lib/catalog.ts). */
   related: string[];
   /** The last "related" card: a big link to the next algorithm to study. */

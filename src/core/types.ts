@@ -5,7 +5,7 @@ import type { AlgorithmCardData } from "@/components/AlgorithmCard";
  * The contract between the three layers:
  *
  *   core        — knows only these types; plays steps (src/core/player)
- *   models      — how the data looks: array (bars), later nodes & edges (src/models)
+ *   models      — how the data looks: array (bars), graph (nodes & edges), search (src/models)
  *   algorithms  — the algorithms themselves, they produce steps (src/algorithms)
  *
  * Dependencies go one way only: algorithms → models → core.
@@ -33,14 +33,14 @@ export interface Step<S = unknown, E = unknown> {
 }
 
 /** Data models the player can show. */
-export type ModelId = "array";
+export type ModelId = "array" | "graph" | "search";
 
 /** Everything the site needs to know about one algorithm, except the long texts (those are in content.tsx). */
 export interface AlgorithmDefinition<Input = unknown, S = unknown, E = unknown> {
   /** Part of the URL: /algorithms/<slug> */
   slug: string;
   name: string;
-  /** Group shown on the card and in the breadcrumbs, e.g. "sorting", "search-sorted". */
+  /** Group shown on the card and in the breadcrumbs, e.g. "sorting", "search". */
   group: string;
   model: ModelId;
   level: "beginner" | "intermediate" | "advanced";
@@ -61,8 +61,12 @@ export interface AlgorithmDefinition<Input = unknown, S = unknown, E = unknown> 
   counters: { key: string; label: string }[];
   /** Marks shown in the colour legend next to the player. */
   legend: string[];
+  /** Descriptions that replace the model's ones in the legend, e.g. { frontier: "ve frontě" }. */
+  legendDescriptions?: Record<string, string>;
   /** Input the player starts with. */
   initialInput: Input;
+  /** What kind of input that is (shown on the data button); "random" by default. */
+  initialInputKind?: string;
   /** What a prepared input means for this algorithm, e.g. { sorted: "nejlepší případ" }. */
   inputHints?: Record<string, string>;
 }

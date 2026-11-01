@@ -19,7 +19,7 @@ export const DEFAULT_FILTERS: CatalogFilters = { query: "", category: "all", lev
 export const CATEGORIES: { id: Category; label: string; groups: string[] }[] = [
   { id: "all", label: "All", groups: [] },
   { id: "sorting", label: "Sorting", groups: ["sorting"] },
-  { id: "search", label: "Search", groups: ["search-sorted"] },
+  { id: "search", label: "Search", groups: ["search"] },
   { id: "graphs", label: "Graphs", groups: ["graph-traversal", "shortest-path"] },
   { id: "math", label: "Math", groups: ["optimization"] },
 ];
@@ -59,7 +59,7 @@ export function filterCatalog(cards: AlgorithmCardData[], filters: CatalogFilter
     (card) =>
       inCategory(card, filters.category) &&
       (filters.level === "all" || card.level === filters.level) &&
-      // Search by name only ("sort" must not find Binary Search through its group "search-sorted").
+      // Search by name only, not by group or description.
       (query === "" || normalize(card.title).includes(query)),
   );
 

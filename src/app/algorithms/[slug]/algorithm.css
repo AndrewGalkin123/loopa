@@ -571,6 +571,298 @@
   letter-spacing: 0.06em;
 }
 
+/* ───────── Graph model (not in the design) ───────── */
+
+.page-algorithm .graph-view {
+  width: 100%;
+  max-width: 760px;
+  align-self: center;
+}
+
+.page-algorithm .graph-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.page-algorithm .graph-svg .edge {
+  stroke: var(--color-border-strong);
+  stroke-width: 2;
+  transition: stroke var(--duration-fast) var(--ease-out);
+}
+
+/* The edges through which vertices were found form the BFS / DFS tree. */
+.page-algorithm .graph-svg .edge.tree {
+  stroke: var(--viz-done);
+  stroke-width: 3;
+}
+
+.page-algorithm .graph-svg .edge.active {
+  stroke: var(--viz-compared);
+  stroke-width: 3;
+}
+
+.page-algorithm .graph-svg .node circle {
+  fill: var(--viz-default);
+  stroke: var(--color-bg);
+  stroke-width: 3;
+  transition: fill var(--duration-fast) var(--ease-out);
+}
+
+.page-algorithm .graph-svg .node.frontier circle { fill: var(--viz-frontier); }
+.page-algorithm .graph-svg .node.active circle { fill: var(--viz-active); }
+.page-algorithm .graph-svg .node.compared circle { fill: var(--viz-compared); }
+.page-algorithm .graph-svg .node.done circle { fill: var(--viz-done); }
+
+.page-algorithm .graph-svg .node .label {
+  fill: var(--color-text);
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+/* Dark letters on the coloured vertices. */
+.page-algorithm .graph-svg .node:is(.frontier, .active, .compared, .done) .label {
+  fill: #0a0a0b;
+}
+
+.page-algorithm .graph-svg .node .badge {
+  fill: var(--color-text-muted);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  /* A halo in the background colour keeps the label readable over edges. */
+  stroke: var(--color-bg);
+  stroke-width: 4px;
+  paint-order: stroke;
+}
+
+/* Queue / stack / visit order under the picture. */
+.page-algorithm .graph-lists {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  margin-top: 16px;
+  min-height: 26px;
+}
+
+.page-algorithm .graph-list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+}
+
+.page-algorithm .graph-list .lbl {
+  margin-right: 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-subtle);
+}
+
+.page-algorithm .graph-list .item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--viz-default);
+  color: var(--color-text);
+}
+
+.page-algorithm .graph-list .item:is(.frontier, .active, .compared, .done) {
+  color: #0a0a0b;
+}
+
+.page-algorithm .graph-list .item.frontier { background: var(--viz-frontier); }
+.page-algorithm .graph-list .item.active { background: var(--viz-active); }
+.page-algorithm .graph-list .item.compared { background: var(--viz-compared); }
+.page-algorithm .graph-list .item.done { background: var(--viz-done); }
+
+.page-algorithm .graph-list .empty {
+  color: var(--color-text-dim);
+}
+
+/* Graph editor ("Upravit graf"). */
+.page-algorithm .graph-toolbar {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+
+.page-algorithm .graph-view.editing .graph-svg {
+  outline: 1px dashed var(--color-border-strong);
+  outline-offset: 4px;
+  border-radius: var(--radius-md);
+}
+
+.page-algorithm .graph-svg .edit-area {
+  fill: transparent;
+  cursor: crosshair;
+}
+
+.page-algorithm .graph-view.editing .node {
+  cursor: grab;
+}
+
+.page-algorithm .graph-view.editing .node:active {
+  cursor: grabbing;
+}
+
+.page-algorithm .graph-svg .edge-hit {
+  stroke: transparent;
+  stroke-width: 14;
+  cursor: pointer;
+}
+
+/* Hovering an edge in the editor shows that a click deletes it. */
+.page-algorithm .graph-svg .edge-hit:hover {
+  stroke: var(--color-error);
+  stroke-opacity: 0.35;
+}
+
+.page-algorithm .graph-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--color-text-subtle);
+}
+
+.page-algorithm .field-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--color-text-subtle);
+}
+
+.page-algorithm .slider:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Start vertex buttons in the side panel. */
+.page-algorithm .vertex-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.page-algorithm .vertex-picker button {
+  width: 30px;
+  height: 30px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+
+.page-algorithm .vertex-picker button:hover {
+  border-color: var(--color-border-bright);
+  color: var(--color-text);
+}
+
+.page-algorithm .vertex-picker button.on {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #0a0a0b;
+}
+
+/* ───────── Search model (not in the design) ───────── */
+
+.page-algorithm .search-svg {
+  display: block;
+  width: 100%;
+  max-width: 760px;
+  height: auto;
+  overflow: visible;
+}
+
+.page-algorithm .search-bar rect {
+  fill: var(--viz-default);
+  transition: fill var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
+}
+
+.page-algorithm .search-bar.compared rect { fill: var(--viz-compared); }
+.page-algorithm .search-bar.sorted rect { fill: var(--viz-sorted); }
+.page-algorithm .search-bar.dimmed { opacity: 0.3; }
+
+.page-algorithm .search-svg .value {
+  fill: var(--color-text-dim);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  text-anchor: middle;
+}
+
+.page-algorithm .search-bar:is(.compared, .sorted) .value {
+  fill: var(--color-text);
+}
+
+.page-algorithm .search-svg .pointer {
+  fill: var(--color-accent);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+.page-algorithm .search-svg .target-line {
+  stroke: var(--viz-target);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 5;
+}
+
+.page-algorithm .search-svg .target-label {
+  fill: var(--viz-target);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  text-anchor: end;
+  stroke: var(--color-bg);
+  stroke-width: 4px;
+  paint-order: stroke;
+}
+
+/* Interpolation: the line through A[lo] and A[hi] and where it meets the wanted value. */
+.page-algorithm .search-svg .estimate-line {
+  stroke: var(--color-accent);
+  stroke-width: 2;
+}
+
+.page-algorithm .search-svg .estimate-drop {
+  stroke: var(--color-accent);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.page-algorithm .search-svg .estimate-point {
+  fill: var(--color-accent);
+}
+
+.page-algorithm .target-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .page-algorithm .side-panel {
   display: flex;
   flex-direction: column;

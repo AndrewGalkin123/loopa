@@ -29,7 +29,11 @@ export function PlayerProvider({ definition, model, children }: {
   children: ReactNode;
 }) {
   const [state, dispatch] = useReducer(playerReducer, null, () =>
-    createPlayerState(definition.initialInput, "random", definition.trace(definition.initialInput)),
+    createPlayerState(
+      definition.initialInput,
+      definition.initialInputKind ?? "random",
+      definition.trace(definition.initialInput),
+    ),
   );
 
   // While playing, move one step forward every STEP_MS / speed milliseconds.
