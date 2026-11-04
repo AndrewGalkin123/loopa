@@ -10,7 +10,7 @@ export const selectionSort = defineArrayAlgorithm({
   complexity: "O(n²)",
   card: {
     tagline: "minimum",
-    description: "Řazení výběrem. V neseřazené části vždy najde minimum a vymění ho s jejím prvním prvkem.",
+    description: "Řazení výběrem. V\u00a0neseřazené části vždy najde minimum a\u00a0vymění ho s\u00a0jejím prvním prvkem.",
     badge: { variant: "sorting", icon: Crosshair, label: "select" },
   },
   trace: selectionSortTrace,

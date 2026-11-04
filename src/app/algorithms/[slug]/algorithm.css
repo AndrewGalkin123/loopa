@@ -1733,3 +1733,18 @@
     display: none;
   }
 }
+
+/* Complexity charts built by ComplexityChart: a third, dotted curve; long legends wrap. */
+.page-algorithm .chart-legend .lg.dot .ln {
+  border-top-style: dotted;
+  border-top-color: var(--color-text-subtle);
+}
+
+.page-algorithm .chart-head {
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+
+.page-algorithm .chart-legend {
+  flex-wrap: wrap;
+}

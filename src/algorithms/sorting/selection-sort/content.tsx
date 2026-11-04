@@ -1,5 +1,6 @@
 import { ArrowDownToLine } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
+import { ComplexityChart, GROWTH } from "@/components/ComplexityChart";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the Selection Sort page shows besides the player. */
@@ -105,6 +106,16 @@ export const selectionSortContent: AlgorithmContent = {
       tone: "good",
     },
   ],
+  complexityChart: (
+    <ComplexityChart
+      title="velikost pole&nbsp;→&nbsp;čas"
+      axis="velikost vstupu n · bez konstant"
+      curves={[
+        { label: "selection · O(n²)", grows: GROWTH.n2 },
+        { label: "heap sort · O(n log n)", grows: GROWTH.nLogN, style: "dash" },
+      ]}
+    />
+  ),
   related: ["bubble-sort", "insertion-sort"],
   next: {
     name: "Insertion Sort",

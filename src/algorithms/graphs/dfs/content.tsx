@@ -1,5 +1,6 @@
 import { Route } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
+import { ComplexityChart, GROWTH } from "@/components/ComplexityChart";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the DFS page shows besides the player. */
@@ -87,6 +88,17 @@ export const dfsContent: AlgorithmContent = {
       note: <>Pole visited a&nbsp;zásobník rekurze — u&nbsp;grafu, který je jednou dlouhou cestou, až V volání.</>,
     },
   ],
+  complexityChart: (
+    <ComplexityChart
+      title="počet vrcholů&nbsp;→&nbsp;čas"
+      axis="řídký graf, E = 2V · bez konstant"
+      variable="V"
+      curves={[
+        { label: "seznamy sousedů · O(V + E)", grows: (v) => v + 2 * v },
+        { label: "matice · O(V²)", grows: GROWTH.n2, style: "dash" },
+      ]}
+    />
+  ),
   related: ["bfs", "dijkstra"],
   next: {
     name: "Dijkstra",

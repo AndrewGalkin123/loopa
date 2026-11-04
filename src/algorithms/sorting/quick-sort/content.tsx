@@ -133,7 +133,7 @@ export const quickSortContent: AlgorithmContent = {
   compareWith: [
     { name: "Bubble Sort", complexity: "O(n²)", href: "/compare?a=quick-sort&b=bubble-sort" },
     { name: "Merge Sort", complexity: "O(n log n)", href: "/compare?a=quick-sort&b=merge-sort" },
-    { name: "Heap Sort", complexity: "O(n log n)", href: "#" },
+    { name: "Heap Sort", complexity: "O(n log n)", href: "/compare?a=quick-sort&b=heap-sort" },
     { name: "Insertion Sort", complexity: "O(n²)", href: "/compare?a=quick-sort&b=insertion-sort" },
   ],
   description,

@@ -1,5 +1,6 @@
 import { GitBranch } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
+import { ComplexityChart, GROWTH } from "@/components/ComplexityChart";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the Interpolation Search page shows besides the player. */
@@ -113,6 +114,17 @@ export const interpolationSearchContent: AlgorithmContent = {
       tone: "good",
     },
   ],
+  complexityChart: (
+    <ComplexityChart
+      title="velikost pole&nbsp;→&nbsp;počet kroků"
+      axis="velikost vstupu n · bez konstant"
+      curves={[
+        { label: "rovnoměrná data · O(log log n)", grows: GROWTH.logLogN },
+        { label: "binární · O(log n)", grows: GROWTH.logN, style: "dash" },
+        { label: "nejhorší případ · O(n)", grows: GROWTH.n, style: "dot" },
+      ]}
+    />
+  ),
   related: ["binary-search", "linear-search"],
   next: {
     name: "BFS",

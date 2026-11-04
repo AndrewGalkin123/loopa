@@ -1,5 +1,6 @@
 import { Zap } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
+import { ComplexityChart, GROWTH } from "@/components/ComplexityChart";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the Insertion Sort page shows besides the player. */
@@ -109,6 +110,16 @@ export const insertionSortContent: AlgorithmContent = {
       tone: "good",
     },
   ],
+  complexityChart: (
+    <ComplexityChart
+      title="velikost pole&nbsp;→&nbsp;čas"
+      axis="velikost vstupu n · bez konstant"
+      curves={[
+        { label: "nejhorší případ · O(n²)", grows: GROWTH.n2 },
+        { label: "nejlepší případ · O(n)", grows: GROWTH.n, style: "dash" },
+      ]}
+    />
+  ),
   related: ["selection-sort", "bubble-sort"],
   next: {
     name: "Quick Sort",

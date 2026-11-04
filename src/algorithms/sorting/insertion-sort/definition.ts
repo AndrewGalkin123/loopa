@@ -10,7 +10,7 @@ export const insertionSort = defineArrayAlgorithm({
   complexity: "O(n²)",
   card: {
     tagline: "adaptive",
-    description: "Řazení vkládáním. Bere prvky jeden po druhém a vkládá je na správné místo v seřazené části.",
+    description: "Řazení vkládáním. Bere prvky jeden po\u00a0druhém a\u00a0vkládá je na\u00a0správné místo v\u00a0seřazené části.",
     badge: { variant: "sorting", icon: ArrowDownToLine, label: "insert" },
   },
   trace: insertionSortTrace,

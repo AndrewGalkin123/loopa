@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
+import { ComplexityChart, GROWTH } from "@/components/ComplexityChart";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the Linear Search page shows besides the player. */
@@ -91,6 +92,16 @@ export const linearSearchContent: AlgorithmContent = {
       tone: "good",
     },
   ],
+  complexityChart: (
+    <ComplexityChart
+      title="velikost pole&nbsp;→&nbsp;počet kroků"
+      axis="velikost vstupu n · bez konstant"
+      curves={[
+        { label: "lineární · O(n)", grows: GROWTH.n },
+        { label: "binární · O(log n)", grows: GROWTH.logN, style: "dash" },
+      ]}
+    />
+  ),
   related: ["binary-search", "interpolation-search"],
   next: {
     name: "Binary Search",

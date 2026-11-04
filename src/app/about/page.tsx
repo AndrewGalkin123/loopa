@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ArrowRight, AtSign, BookOpen, Check, GitBranch, Layers, Mail, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { ALGORITHMS } from "@/algorithms/registry";
 import { AiFab } from "@/components/AiFab";
 import "./about.css";
 
@@ -61,7 +62,7 @@ export default function AboutPage() {
                 </div>
                 <div className="aside-item">
                   <div className="k">algoritmů</div>
-                  <div className="v">9 · a&nbsp;roste</div>
+                  <div className="v">{ALGORITHMS.length} · a&nbsp;roste</div>
                 </div>
               </div>
             </aside>

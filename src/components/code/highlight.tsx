@@ -11,7 +11,7 @@ export type Language = "pseudo" | "js" | "py" | "java";
 
 const KEYWORDS: Record<Language, Set<string>> = {
   pseudo: new Set(["procedure", "for", "each", "of", "to", "do", "while", "if", "then", "else", "not", "and", "is",
-    "return", "true", "false", "repeat", "times", "nil"]),
+    "return", "true", "false", "repeat", "times", "nil", "downto"]),
   js: new Set(["function", "const", "let", "if", "else", "for", "of", "while", "return", "new", "null", "true", "false", "throw", "continue"]),
   py: new Set(["def", "if", "else", "for", "in", "not", "is", "and", "while", "return", "from", "import", "None", "True", "False", "raise", "continue", "elif"]),
   java: new Set(["static", "void", "int", "if", "else", "for", "while", "return", "new", "boolean", "throw", "long", "record", "continue"]),

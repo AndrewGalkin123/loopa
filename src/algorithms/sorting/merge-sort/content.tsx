@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Pyramid } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
@@ -134,7 +134,7 @@ export const mergeSortContent: AlgorithmContent = {
   ),
   compareWith: [
     { name: "Quick Sort", complexity: "O(n log n)", href: "/compare?a=merge-sort&b=quick-sort" },
-    { name: "Heap Sort", complexity: "O(n log n)", href: "#" },
+    { name: "Heap Sort", complexity: "O(n log n)", href: "/compare?a=merge-sort&b=heap-sort" },
     { name: "Insertion Sort", complexity: "O(n²)", href: "/compare?a=merge-sort&b=insertion-sort" },
     { name: "Bubble Sort", complexity: "O(n²)", href: "/compare?a=merge-sort&b=bubble-sort" },
   ],
@@ -183,11 +183,11 @@ export const mergeSortContent: AlgorithmContent = {
   complexityChart,
   related: ["quick-sort", "bubble-sort"],
   next: {
-    name: "Binary Search",
-    group: "search",
-    badge: { variant: "search-sorted", icon: Search, label: "bin" },
-    complexity: "O(log n)",
-    level: "beginner",
-    href: "/algorithms/binary-search",
+    name: "Heap Sort",
+    group: "sorting",
+    badge: { variant: "sorting", icon: Pyramid, label: "heap" },
+    complexity: "O(n log n)",
+    level: "intermediate",
+    href: "/algorithms/heap-sort",
   },
 };

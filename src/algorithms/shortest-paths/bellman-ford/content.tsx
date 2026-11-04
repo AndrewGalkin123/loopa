@@ -1,5 +1,6 @@
 import { ArrowLeftRight } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
+import { ComplexityChart, GROWTH } from "@/components/ComplexityChart";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the Bellman-Ford page shows besides the player. */
@@ -87,6 +88,17 @@ export const bellmanFordContent: AlgorithmContent = {
       tone: "good",
     },
   ],
+  complexityChart: (
+    <ComplexityChart
+      title="počet vrcholů&nbsp;→&nbsp;čas"
+      axis="řídký graf, E = 2V · bez konstant"
+      variable="V"
+      curves={[
+        { label: "bellman-ford · O(V · E)", grows: (v) => v * 2 * v },
+        { label: "dijkstra · O((V + E) log V)", grows: (v) => 3 * GROWTH.nLogN(v), style: "dash" },
+      ]}
+    />
+  ),
   related: ["dijkstra", "levit"],
   next: {
     name: "Levit",

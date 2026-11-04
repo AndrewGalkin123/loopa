@@ -8,7 +8,7 @@ const pairName = ([a, b]: readonly [{ slug: string }, { slug: string }]) => `${a
 
 describe("compare timeline", () => {
   test("offers all the sorting algorithms and only them", () => {
-    expect(COMPARABLE.map((d) => d.slug)).toEqual(["bubble-sort", "selection-sort", "insertion-sort", "quick-sort", "merge-sort"]);
+    expect(COMPARABLE.map((d) => d.slug)).toEqual(["bubble-sort", "selection-sort", "insertion-sort", "quick-sort", "merge-sort", "heap-sort"]);
   });
 
   test.each(pairs.map((pair) => [pairName(pair), pair] as const))("%s: one frame per operation of the slower one", (_, [a, b]) => {

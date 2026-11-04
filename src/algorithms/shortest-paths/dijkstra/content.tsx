@@ -1,5 +1,6 @@
 import { Repeat } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
+import { ComplexityChart, GROWTH } from "@/components/ComplexityChart";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the Dijkstra page shows besides the player. */
@@ -94,6 +95,17 @@ export const dijkstraContent: AlgorithmContent = {
       tone: "bad",
     },
   ],
+  complexityChart: (
+    <ComplexityChart
+      title="počet vrcholů&nbsp;→&nbsp;čas"
+      axis="řídký graf, E = 2V · bez konstant"
+      variable="V"
+      curves={[
+        { label: "binární halda · O((V + E) log V)", grows: (v) => 3 * GROWTH.nLogN(v) },
+        { label: "pole · O(V²)", grows: GROWTH.n2, style: "dash" },
+      ]}
+    />
+  ),
   related: ["bfs", "bellman-ford"],
   next: {
     name: "Bellman-Ford",

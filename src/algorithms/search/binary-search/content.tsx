@@ -1,5 +1,6 @@
 import { Crosshair } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
+import { ComplexityChart, GROWTH } from "@/components/ComplexityChart";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the Binary Search page shows besides the player. */
@@ -115,6 +116,16 @@ export const binarySearchContent: AlgorithmContent = {
       tone: "good",
     },
   ],
+  complexityChart: (
+    <ComplexityChart
+      title="velikost pole&nbsp;→&nbsp;počet kroků"
+      axis="velikost vstupu n · bez konstant"
+      curves={[
+        { label: "binární · O(log n)", grows: GROWTH.logN },
+        { label: "lineární · O(n)", grows: GROWTH.n, style: "dash" },
+      ]}
+    />
+  ),
   related: ["linear-search", "interpolation-search"],
   next: {
     name: "Interpolation Search",

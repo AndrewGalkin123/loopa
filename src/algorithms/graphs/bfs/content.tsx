@@ -1,5 +1,6 @@
 import { Route } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
+import { ComplexityChart, GROWTH } from "@/components/ComplexityChart";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the BFS page shows besides the player. */
@@ -93,6 +94,17 @@ export const bfsContent: AlgorithmContent = {
       note: <>Fronta a&nbsp;pole visited a&nbsp;d — každé nejvýš o&nbsp;V prvcích.</>,
     },
   ],
+  complexityChart: (
+    <ComplexityChart
+      title="počet vrcholů&nbsp;→&nbsp;čas"
+      axis="řídký graf, E = 2V · bez konstant"
+      variable="V"
+      curves={[
+        { label: "seznamy sousedů · O(V + E)", grows: (v) => v + 2 * v },
+        { label: "matice · O(V²)", grows: GROWTH.n2, style: "dash" },
+      ]}
+    />
+  ),
   related: ["dfs", "dijkstra"],
   next: {
     name: "Dijkstra",
