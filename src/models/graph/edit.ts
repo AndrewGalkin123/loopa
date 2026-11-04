@@ -1,4 +1,4 @@
-import type { Graph, GraphInput } from "./types";
+import type { Graph, GraphEdge, GraphInput } from "./types";
 
 /*
  * Changes of a graph made in the editor. Pure functions: each one returns
@@ -52,17 +52,29 @@ export function removeNode(input: GraphInput, id: string): GraphInput {
   const nodes = input.graph.nodes.filter((n) => n.id !== id);
   const edges = input.graph.edges.filter(([a, b]) => a !== id && b !== id);
   const start = input.start === id ? nodes[0].id : input.start;
-  return { graph: { nodes, edges }, start };
+  return { graph: { ...input.graph, nodes, edges }, start };
 }
 
-/** Adds the edge a–b, or removes it when it is already there. A vertex cannot be joined to itself. */
-export function toggleEdge(input: GraphInput, a: string, b: string): GraphInput {
+/**
+ * Adds the edge a–b, or removes it when it is already there (in either direction).
+ * A vertex cannot be joined to itself. `weight` makes the new edge weighted;
+ * in a directed graph the edge leads from a to b.
+ */
+export function toggleEdge(input: GraphInput, a: string, b: string, weight?: number): GraphInput {
   if (a === b) return input;
-  const same = ([x, y]: [string, string]) => (x === a && y === b) || (x === b && y === a);
+  const same = ([x, y]: GraphEdge) => (x === a && y === b) || (x === b && y === a);
   const exists = input.graph.edges.some(same);
-  const edges: [string, string][] = exists
-    ? input.graph.edges.filter((edge) => !same(edge))
-    : [...input.graph.edges, a < b ? [a, b] : [b, a]];
+  const ordered: [string, string] = input.graph.directed || a < b ? [a, b] : [b, a];
+  const added: GraphEdge = weight === undefined ? ordered : [...ordered, weight];
+  const edges = exists ? input.graph.edges.filter((edge) => !same(edge)) : [...input.graph.edges, added];
+  return { ...input, graph: { ...input.graph, edges } };
+}
+
+/** Changes the weight of the edge a–b. */
+export function setWeight(input: GraphInput, a: string, b: string, weight: number): GraphInput {
+  const edges = input.graph.edges.map((edge): GraphEdge =>
+    (edge[0] === a && edge[1] === b) || (edge[0] === b && edge[1] === a) ? [edge[0], edge[1], weight] : edge,
+  );
   return { ...input, graph: { ...input.graph, edges } };
 }
 

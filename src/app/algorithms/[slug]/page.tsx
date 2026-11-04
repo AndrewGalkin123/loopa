@@ -72,9 +72,16 @@ export default async function AlgorithmPage({ params }: Props) {
             </div>
             <div className="subnav-right">
               <StepStatus />
-              <button className="btn btn-secondary btn-sm">
-                Porovnat <ChevronDown size={13} />
-              </button>
+              {/* For now only sorting algorithms can be compared. */}
+              {definition.group === "sorting" ? (
+                <Link className="btn btn-secondary btn-sm" href={`/compare?a=${definition.slug}`}>
+                  Porovnat <ArrowRight size={13} />
+                </Link>
+              ) : (
+                <button className="btn btn-secondary btn-sm">
+                  Porovnat <ChevronDown size={13} />
+                </button>
+              )}
             </div>
           </div>
         </div>

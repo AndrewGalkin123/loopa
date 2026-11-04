@@ -1,4 +1,4 @@
-import { Route, TrendingDown } from "lucide-react";
+import { TrendingDown } from "lucide-react";
 import { ALGORITHMS } from "@/algorithms/registry";
 import type { AlgorithmCardData } from "@/components/AlgorithmCard";
 import type { AlgorithmDefinition } from "@/core/types";
@@ -15,16 +15,6 @@ export type CatalogCard = AlgorithmCardData & { slug: string };
 /** Algorithms planned for the catalog that do not have a page yet. */
 const PLANNED: Omit<CatalogCard, "num">[] = [
   {
-    slug: "dijkstra",
-    group: "shortest-path",
-    badge: { variant: "shortest", icon: Route, label: "path" },
-    title: "Dijkstra",
-    tagline: "greedy",
-    description: "Nejkratší cesty z\u00a0jednoho zdroje ve\u00a0váženém grafu s\u00a0nezápornými hranami.",
-    complexity: "O(E log V)",
-    level: "advanced",
-  },
-  {
     slug: "gradient-descent",
     group: "optimization",
     badge: { variant: "optimization", icon: TrendingDown, label: "opt" },
@@ -39,6 +29,8 @@ const PLANNED: Omit<CatalogCard, "num">[] = [
 /** Order of the catalog (it gives the card numbers 01, 02, …). */
 const ORDER = [
   "bubble-sort",
+  "selection-sort",
+  "insertion-sort",
   "quick-sort",
   "merge-sort",
   "binary-search",
@@ -47,6 +39,8 @@ const ORDER = [
   "bfs",
   "dfs",
   "dijkstra",
+  "bellman-ford",
+  "levit",
   "gradient-descent",
 ];
 

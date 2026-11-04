@@ -11,10 +11,12 @@ interface DropdownProps {
   /** Class of the menu; "open" is added while it is shown. */
   menuClassName: string;
   children: ReactNode;
+  /** Keep the menu open after a click inside it (a menu with fields, not a list of choices). */
+  stayOpen?: boolean;
 }
 
 /** Button with a menu that opens on click and closes on a choice or on any click outside. */
-export function Dropdown({ label, buttonClassName, wrapClassName, menuClassName, children }: DropdownProps) {
+export function Dropdown({ label, buttonClassName, wrapClassName, menuClassName, children, stayOpen = false }: DropdownProps) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -38,7 +40,7 @@ export function Dropdown({ label, buttonClassName, wrapClassName, menuClassName,
         {label}
       </button>
       {/* Choosing an item (any click inside the menu) closes it. */}
-      <div className={open ? `${menuClassName} open` : menuClassName} onClick={() => setOpen(false)}>
+      <div className={open ? `${menuClassName} open` : menuClassName} onClick={stayOpen ? undefined : () => setOpen(false)}>
         {children}
       </div>
     </div>

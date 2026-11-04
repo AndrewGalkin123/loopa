@@ -74,6 +74,7 @@ const FEATURED: AlgorithmCardData[] = [
     description: "Najde nejkratší cestu z\u00a0jednoho zdroje ve\u00a0váženém grafu s\u00a0nezápornými hranami.",
     complexity: "O((V+E) log V)",
     level: "advanced",
+    href: "/algorithms/dijkstra",
   },
   {
     num: "06",

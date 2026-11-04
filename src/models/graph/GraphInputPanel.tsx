@@ -2,15 +2,16 @@
 
 import { Pencil, Shuffle } from "lucide-react";
 import { usePlayer } from "@/core/player/PlayerProvider";
-import { MAX_RANDOM_NODES, maxRandomEdges, MIN_RANDOM_NODES, randomGraph } from "./presets";
-import type { GraphInput } from "./types";
+import { MAX_RANDOM_NODES, maxRandomEdges, MIN_RANDOM_NODES, randomGraph, randomWeightedGraph } from "./presets";
+import type { GraphAlgorithm, GraphInput } from "./types";
 
 /**
  * Side panel "Input" of the graph model: the start vertex and a random graph
  * with a chosen number of vertices and edges.
  */
 export function GraphInputPanel() {
-  const { state, load } = usePlayer();
+  const { state, load, definition } = usePlayer();
+  const { weighted } = definition as GraphAlgorithm;
   const { graph, start } = state.input as GraphInput;
   const n = graph.nodes.length;
   const m = graph.edges.length;
@@ -23,7 +24,7 @@ export function GraphInputPanel() {
 
   /** A new random graph; the start vertex is kept when the new graph has it. */
   const generate = (nodeCount: number, edgeCount: number) => {
-    const next = randomGraph(nodeCount, edgeCount);
+    const next = weighted ? randomWeightedGraph(weighted, nodeCount, edgeCount) : randomGraph(nodeCount, edgeCount);
     load({ graph: next, start: next.nodes.some((v) => v.id === start) ? start : "A" }, "random");
   };
 

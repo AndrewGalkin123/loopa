@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, use, useEffect, useReducer, type Dispatch, type ReactNode } from "react";
+import { createContext, use, useReducer, type Dispatch, type ReactNode } from "react";
 import type { AlgorithmDefinition, Model, Step } from "@/core/types";
+import { usePlaybackTimer } from "./usePlayerControls";
 import { createPlayerState, playerReducer, STEP_MS, type PlayerAction, type PlayerState } from "./playerState";
 
 interface PlayerContextValue {
@@ -36,12 +37,7 @@ export function PlayerProvider({ definition, model, children }: {
     ),
   );
 
-  // While playing, move one step forward every STEP_MS / speed milliseconds.
-  useEffect(() => {
-    if (!state.playing) return;
-    const timer = setInterval(() => dispatch({ type: "tick" }), STEP_MS / state.speed);
-    return () => clearInterval(timer);
-  }, [state.playing, state.speed]);
+  usePlaybackTimer(state.playing, STEP_MS / state.speed, dispatch);
 
   const value: PlayerContextValue = {
     state,

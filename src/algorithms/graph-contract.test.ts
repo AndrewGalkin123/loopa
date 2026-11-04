@@ -6,10 +6,10 @@ import { neighbours } from "@/models/graph/snapshot";
 import type { Graph } from "@/models/graph/types";
 
 /*
- * Rules every traversal of a graph must follow. A new graph algorithm is
+ * Rules every traversal of an unweighted graph must follow. A new traversal is
  * checked by these tests automatically, as soon as it is in the registry.
  */
-const graphAlgorithms = ALGORITHMS.filter((definition) => definition.model === "graph");
+const graphAlgorithms = ALGORITHMS.filter((definition) => definition.model === "graph").filter((d) => !d.weighted);
 const graphs = testGraphs(30, 9);
 
 /** Vertices reachable from `start`. */

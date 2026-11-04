@@ -133,10 +133,10 @@ export const mergeSortContent: AlgorithmContent = {
     </>
   ),
   compareWith: [
-    { name: "Quick Sort", complexity: "O(n log n)", href: "#" },
+    { name: "Quick Sort", complexity: "O(n log n)", href: "/compare?a=merge-sort&b=quick-sort" },
     { name: "Heap Sort", complexity: "O(n log n)", href: "#" },
-    { name: "Insertion Sort", complexity: "O(n²)", href: "#" },
-    { name: "Bubble Sort", complexity: "O(n²)", href: "#" },
+    { name: "Insertion Sort", complexity: "O(n²)", href: "/compare?a=merge-sort&b=insertion-sort" },
+    { name: "Bubble Sort", complexity: "O(n²)", href: "/compare?a=merge-sort&b=bubble-sort" },
   ],
   description,
   pseudocode: PSEUDOCODE,

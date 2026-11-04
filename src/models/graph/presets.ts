@@ -1,4 +1,5 @@
-import type { Graph, GraphNode } from "./types";
+import { edgesFrom } from "./snapshot";
+import type { Graph, GraphEdge, GraphNode, GraphPreset, WeightOptions } from "./types";
 
 /*
  * Prepared graphs for the player. Positions are in the 760 × 280 SVG of GraphView.
@@ -7,7 +8,7 @@ import type { Graph, GraphNode } from "./types";
 
 const node = (id: string, x: number, y: number): GraphNode => ({ id, x, y });
 
-export const PRESETS: { id: string; label: string; hint: string; graph: Graph }[] = [
+export const PRESETS: GraphPreset[] = [
   {
     id: "cycles",
     label: "cycles",
@@ -159,3 +160,129 @@ export function randomGraph(nodeCount = 12, edgeCount?: number, random: () => nu
 
   return { nodes, edges: chosen.map(([a, b]) => [nodes[a].id, nodes[b].id]) };
 }
+
+/** A random graph that fits a weighted algorithm: positive weights, or a directed graph with some negative edges. */
+export function randomWeightedGraph(
+  options: WeightOptions,
+  nodeCount?: number,
+  edgeCount?: number,
+  random: () => number = Math.random,
+): Graph {
+  const base = randomGraph(nodeCount, edgeCount, random);
+  const weight = () => 1 + Math.floor(random() * 9);
+  if (!options.directed) return { ...base, edges: base.edges.map(([a, b]) => [a, b, weight()]) };
+
+  // Edges of a tree from A lead away from A, so that everything is reachable from it.
+  const order = new Map<string, number>([[base.nodes[0].id, 0]]);
+  const queue = [base.nodes[0].id];
+  while (queue.length > 0) {
+    const u = queue.shift()!;
+    for (const { to } of edgesFrom(base, u)) {
+      if (!order.has(to)) {
+        order.set(to, order.size);
+        queue.push(to);
+      }
+    }
+  }
+
+  // w = positive + p(a) − p(b): some weights are negative, but every cycle stays positive.
+  const allowNegative = options.minWeight < 0;
+  const potential = new Map(base.nodes.map((n) => [n.id, allowNegative ? Math.floor(random() * 7) : 0]));
+  const edges = base.edges.map(([a, b]): GraphEdge => {
+    const [from, to] = order.get(a)! <= order.get(b)! ? [a, b] : [b, a];
+    return [from, to, weight() + potential.get(from)! - potential.get(to)!];
+  });
+  return { nodes: base.nodes, edges, directed: true };
+}
+
+/* Prepared weighted graphs. None of them is a graph from the research tests. */
+
+const CITY_NODES = [
+  node("A", 70, 140), node("B", 220, 60), node("C", 220, 220), node("D", 380, 140),
+  node("E", 540, 60), node("F", 540, 220), node("G", 690, 140),
+];
+
+/** Undirected graphs with non-negative weights (Dijkstra). */
+export const WEIGHTED_PRESETS: GraphPreset[] = [
+  {
+    id: "network",
+    label: "network",
+    hint: "síť s více cestami",
+    graph: {
+      nodes: CITY_NODES,
+      edges: [
+        ["A", "B", 7], ["A", "C", 3], ["B", "C", 2], ["B", "D", 4], ["C", "D", 8],
+        ["B", "E", 9], ["D", "E", 1], ["D", "F", 6], ["C", "F", 11], ["E", "G", 5], ["F", "G", 2],
+      ],
+    },
+  },
+  {
+    id: "detour",
+    label: "detour",
+    hint: "objížďka je kratší než přímá hrana",
+    graph: {
+      nodes: [node("A", 80, 140), node("B", 280, 50), node("C", 480, 50), node("D", 680, 140)],
+      edges: [["A", "D", 20], ["A", "B", 3], ["B", "C", 4], ["C", "D", 5]],
+    },
+  },
+  {
+    id: "components",
+    label: "components",
+    hint: "část grafu je nedosažitelná",
+    graph: {
+      nodes: [
+        node("A", 100, 90), node("B", 270, 60), node("C", 190, 220),
+        node("D", 470, 90), node("E", 660, 90), node("F", 560, 220),
+      ],
+      edges: [["A", "B", 4], ["A", "C", 2], ["B", "C", 1], ["D", "E", 3], ["D", "F", 5], ["E", "F", 2]],
+    },
+  },
+];
+
+const DIRECTED_NODES = [
+  node("A", 70, 140), node("B", 220, 60), node("C", 220, 220), node("D", 380, 60),
+  node("E", 380, 220), node("F", 540, 140), node("G", 690, 140),
+];
+
+/** Directed graphs, also with negative weights (Bellman–Ford, Levit). */
+export const DIRECTED_PRESETS: GraphPreset[] = [
+  {
+    id: "negative",
+    label: "negative",
+    hint: "záporné hrany, bez záporného cyklu",
+    graph: {
+      directed: true,
+      nodes: DIRECTED_NODES,
+      edges: [
+        ["A", "B", 4], ["A", "C", 5], ["C", "B", -3], ["B", "D", 3], ["C", "E", 6],
+        ["E", "D", -2], ["D", "F", 2], ["E", "F", 4], ["F", "G", 1], ["D", "G", 7],
+      ],
+    },
+  },
+  {
+    id: "positive",
+    label: "positive",
+    hint: "jen kladné hrany",
+    graph: {
+      directed: true,
+      nodes: DIRECTED_NODES,
+      edges: [
+        ["A", "B", 4], ["A", "C", 2], ["C", "B", 1], ["B", "D", 3], ["C", "E", 6],
+        ["E", "D", 2], ["D", "F", 2], ["E", "F", 4], ["F", "G", 1], ["D", "G", 7],
+      ],
+    },
+  },
+  {
+    id: "neg-cycle",
+    label: "neg-cycle",
+    hint: "záporný cyklus: nejkratší cesta neexistuje",
+    graph: {
+      directed: true,
+      nodes: [
+        node("A", 80, 140), node("B", 260, 60), node("C", 460, 60),
+        node("D", 360, 220), node("E", 640, 200),
+      ],
+      edges: [["A", "B", 2], ["B", "C", 1], ["C", "D", -3], ["D", "B", 1], ["D", "E", 2], ["A", "D", 6]],
+    },
+  },
+];

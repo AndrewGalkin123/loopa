@@ -100,6 +100,6 @@ export const bfsContent: AlgorithmContent = {
     badge: { variant: "shortest", icon: Route, label: "path" },
     complexity: "O(E log V)",
     level: "advanced",
-    href: "/algorithms",
+    href: "/algorithms/dijkstra",
   },
 };

@@ -3,8 +3,8 @@
 import { ChevronDown } from "lucide-react";
 import { Dropdown } from "@/components/Dropdown";
 import { usePlayer } from "@/core/player/PlayerProvider";
-import { PRESETS, randomGraph } from "./presets";
-import type { Graph, GraphInput } from "./types";
+import { PRESETS, randomGraph, randomWeightedGraph } from "./presets";
+import type { Graph, GraphAlgorithm, GraphInput } from "./types";
 
 /** The "graph" button under the player: prepared graphs and a random one. */
 export function GraphDataMenu() {
@@ -13,8 +13,10 @@ export function GraphDataMenu() {
   const { start } = state.input as GraphInput;
   // Keep the chosen start vertex if the new graph has it.
   const startIn = (graph: Graph) => (graph.nodes.some((n) => n.id === start) ? start : graph.nodes[0].id);
+  const { weighted } = definition as GraphAlgorithm;
+  const presets = weighted?.presets ?? PRESETS;
   // A prepared graph shows its name; otherwise "random" or "custom" (changed in the editor).
-  const label = PRESETS.find((p) => p.id === state.inputKind)?.label ?? state.inputKind;
+  const label = presets.find((p) => p.id === state.inputKind)?.label ?? state.inputKind;
 
   return (
     <Dropdown
@@ -29,7 +31,7 @@ export function GraphDataMenu() {
       }
     >
       <div className="head">graf</div>
-      {PRESETS.map((preset) => (
+      {presets.map((preset) => (
         <button
           key={preset.id}
           className={preset.id === state.inputKind ? "on" : undefined}
@@ -41,7 +43,7 @@ export function GraphDataMenu() {
       <button
         className={state.inputKind === "random" ? "on" : undefined}
         onClick={() => {
-          const graph = randomGraph();
+          const graph = weighted ? randomWeightedGraph(weighted) : randomGraph();
           load({ graph, start: startIn(graph) }, "random");
         }}
       >

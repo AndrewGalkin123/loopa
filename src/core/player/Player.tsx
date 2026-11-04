@@ -1,24 +1,15 @@
 "use client";
 
 import { ChevronDown, Pause, Play, RotateCcw, SkipBack, SkipForward } from "lucide-react";
-import { Fragment, useEffect, type PointerEvent } from "react";
+import type { PointerEvent } from "react";
 import { Dropdown } from "@/components/Dropdown";
-import type { NotePart } from "@/core/types";
 import { pad } from "@/lib/demoSteps";
+import { Note } from "./Note";
 import { usePlayer } from "./PlayerProvider";
 import { SPEEDS, STEP_MS } from "./playerState";
+import { useKeyboardControls } from "./usePlayerControls";
 
 const PROGRESS_TICKS = 24;
-
-/** Status line of a step: the parts joined by spaces, marked parts in the colour of their mark. */
-function Note({ parts }: { parts: NotePart[] }) {
-  return parts.map((part, i) => (
-    <Fragment key={i}>
-      {i > 0 && " "}
-      {typeof part === "string" ? part : <span style={{ color: `var(--viz-${part.mark})` }}>{part.text}</span>}
-    </Fragment>
-  ));
-}
 
 /**
  * The player: head with the status and counters, the stage drawn by the data model,
@@ -29,29 +20,7 @@ export function Player() {
   const last = state.steps.length - 1;
   const progress = last > 0 ? (state.index / last) * 100 : 0;
 
-  // Keyboard: space = play/pause, ← / → = step, R = back to the start.
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.altKey || event.ctrlKey || event.metaKey) return;
-      const target = event.target instanceof Element ? event.target : null;
-      // Typing into a field must not control the player.
-      if (target?.closest("input, textarea, select, [contenteditable]")) return;
-
-      if (event.key === " ") {
-        // A focused button already reacts to space by itself.
-        if (target?.closest("button, a")) return;
-        event.preventDefault();
-        dispatch({ type: "toggle" });
-      } else if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
-        event.preventDefault();
-        dispatch({ type: "step", delta: event.key === "ArrowRight" ? 1 : -1 });
-      } else if (event.key === "r" || event.key === "R") {
-        dispatch({ type: "reset" });
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [dispatch]);
+  useKeyboardControls(dispatch);
 
   // Clicking or dragging on the progress bar jumps to that point of the run.
   const seekTo = (event: PointerEvent<HTMLDivElement>) => {

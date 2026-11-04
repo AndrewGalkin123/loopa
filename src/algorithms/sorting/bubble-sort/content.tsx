@@ -1,4 +1,4 @@
-import { ArrowUpNarrowWide } from "lucide-react";
+import { Crosshair } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
@@ -126,10 +126,10 @@ export const bubbleSortContent: AlgorithmContent = {
     </>
   ),
   compareWith: [
-    { name: "Quick Sort", complexity: "O(n log n)", href: "/compare" },
-    { name: "Merge Sort", complexity: "O(n log n)", href: "#" },
-    { name: "Selection Sort", complexity: "O(n²)", href: "#" },
-    { name: "Insertion Sort", complexity: "O(n²)", href: "#" },
+    { name: "Quick Sort", complexity: "O(n log n)", href: "/compare?a=bubble-sort&b=quick-sort" },
+    { name: "Merge Sort", complexity: "O(n log n)", href: "/compare?a=bubble-sort&b=merge-sort" },
+    { name: "Selection Sort", complexity: "O(n²)", href: "/compare?a=bubble-sort&b=selection-sort" },
+    { name: "Insertion Sort", complexity: "O(n²)", href: "/compare?a=bubble-sort&b=insertion-sort" },
   ],
   description,
   pseudocode: PSEUDOCODE,
@@ -180,9 +180,9 @@ export const bubbleSortContent: AlgorithmContent = {
   next: {
     name: "Selection Sort",
     group: "sorting",
-    badge: { variant: "sorting", icon: ArrowUpNarrowWide, label: "sort" },
+    badge: { variant: "sorting", icon: Crosshair, label: "select" },
     complexity: "O(n²)",
     level: "beginner",
-    href: "/algorithms",
+    href: "/algorithms/selection-sort",
   },
 };

@@ -4,9 +4,14 @@ import type { Slug } from "./registry";
 import { binarySearchContent } from "./search/binary-search/content";
 import { interpolationSearchContent } from "./search/interpolation-search/content";
 import { linearSearchContent } from "./search/linear-search/content";
+import { bellmanFordContent } from "./shortest-paths/bellman-ford/content";
+import { dijkstraContent } from "./shortest-paths/dijkstra/content";
+import { levitContent } from "./shortest-paths/levit/content";
 import { bubbleSortContent } from "./sorting/bubble-sort/content";
+import { insertionSortContent } from "./sorting/insertion-sort/content";
 import { mergeSortContent } from "./sorting/merge-sort/content";
 import { quickSortContent } from "./sorting/quick-sort/content";
+import { selectionSortContent } from "./sorting/selection-sort/content";
 import type { AlgorithmContent } from "./types";
 
 /*
@@ -17,6 +22,8 @@ import type { AlgorithmContent } from "./types";
  */
 export const CONTENT: Record<Slug, AlgorithmContent> = {
   "bubble-sort": bubbleSortContent,
+  "selection-sort": selectionSortContent,
+  "insertion-sort": insertionSortContent,
   "quick-sort": quickSortContent,
   "merge-sort": mergeSortContent,
   "binary-search": binarySearchContent,
@@ -24,4 +31,7 @@ export const CONTENT: Record<Slug, AlgorithmContent> = {
   "interpolation-search": interpolationSearchContent,
   bfs: bfsContent,
   dfs: dfsContent,
+  dijkstra: dijkstraContent,
+  "bellman-ford": bellmanFordContent,
+  levit: levitContent,
 };

@@ -1,6 +1,6 @@
 import { mulberry32 } from "@/lib/random";
-import { MAX_RANDOM_NODES, maxRandomEdges, MIN_RANDOM_NODES, PRESETS, randomGraph } from "@/models/graph/presets";
-import type { Graph } from "@/models/graph/types";
+import { MAX_RANDOM_NODES, maxRandomEdges, MIN_RANDOM_NODES, PRESETS, randomGraph, randomWeightedGraph } from "@/models/graph/presets";
+import type { Graph, GraphEdge, WeightOptions } from "@/models/graph/types";
 import { makeValues, targetInside, targetOutside, type SearchDataset } from "@/models/search/datasets";
 import type { SearchInput } from "@/models/search/types";
 
@@ -37,8 +37,8 @@ export function ascending(n: number): number[] {
 }
 
 /** A graph from a list of edges (positions do not matter for the algorithms). */
-export function graphFrom(edges: [string, string][]): Graph {
-  const ids = [...new Set(edges.flat())].sort();
+export function graphFrom(edges: GraphEdge[]): Graph {
+  const ids = [...new Set(edges.flatMap(([a, b]) => [a, b]))].sort();
   return { nodes: ids.map((id) => ({ id, x: 0, y: 0 })), edges };
 }
 
@@ -62,4 +62,15 @@ export function testSearchInputs(count: number, sorted: boolean, seed = 1): Sear
     const values = makeValues(kinds[k % kinds.length], n, random);
     return { values, target: random() < 0.5 ? targetInside(values, random) : targetOutside(values, random) };
   });
+}
+
+/** The prepared graphs of a weighted algorithm plus `count` random ones of random sizes. */
+export function testWeightedGraphs(options: WeightOptions, count: number, seed = 1): Graph[] {
+  const random = mulberry32(seed);
+  const randomOne = () => {
+    const n = MIN_RANDOM_NODES + Math.floor(random() * (MAX_RANDOM_NODES - MIN_RANDOM_NODES + 1));
+    const m = n - 1 + Math.floor(random() * (maxRandomEdges(n) - n + 2));
+    return randomWeightedGraph(options, n, m, random);
+  };
+  return [...options.presets.map((p) => p.graph), ...Array.from({ length: count }, randomOne)];
 }

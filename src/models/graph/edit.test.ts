@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { addNode, MAX_NODES, moveNode, nextFreeId, removeNode, toggleEdge } from "./edit";
+import { addNode, MAX_NODES, moveNode, nextFreeId, removeNode, setWeight, toggleEdge } from "./edit";
 import type { GraphInput } from "./types";
 
 const triangle: GraphInput = {
@@ -65,5 +65,29 @@ describe("graph editor", () => {
     expect(moved.graph.nodes[2].x).toBeLessThan(760);
     expect(moved.graph.nodes[2].y).toBeGreaterThan(0);
     expect(triangle.graph.nodes[2]).toEqual({ id: "C", x: 200, y: 220 });
+  });
+});
+
+describe("weighted and directed graphs in the editor", () => {
+  const directed: GraphInput = {
+    graph: { directed: true, nodes: triangle.graph.nodes, edges: [["B", "A", 5]] },
+    start: "A",
+  };
+
+  test("a new edge keeps the clicked direction and gets the weight", () => {
+    expect(toggleEdge(directed, "C", "A", 1).graph.edges).toContainEqual(["C", "A", 1]);
+  });
+
+  test("toggling removes an edge in either direction", () => {
+    expect(toggleEdge(directed, "A", "B").graph.edges).toEqual([]);
+  });
+
+  test("the weight of an edge can be changed", () => {
+    expect(setWeight(directed, "B", "A", -3).graph.edges).toEqual([["B", "A", -3]]);
+    expect(directed.graph.edges).toEqual([["B", "A", 5]]);
+  });
+
+  test("removing a vertex keeps the graph directed", () => {
+    expect(removeNode(directed, "C").graph.directed).toBe(true);
   });
 });

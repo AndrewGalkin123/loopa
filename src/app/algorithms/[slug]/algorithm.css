@@ -755,6 +755,50 @@
   cursor: default;
 }
 
+/* Weighted and directed graphs. */
+.page-algorithm .graph-svg .arrow {
+  fill: var(--color-border-strong);
+  transition: fill var(--duration-fast) var(--ease-out);
+}
+
+.page-algorithm .graph-svg .arrow.tree { fill: var(--viz-done); }
+.page-algorithm .graph-svg .arrow.active { fill: var(--viz-compared); }
+
+.page-algorithm .graph-svg .edge.chosen {
+  stroke: var(--color-accent);
+  stroke-width: 3;
+}
+
+.page-algorithm .graph-svg .weight {
+  fill: var(--color-text-muted);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 600;
+  text-anchor: middle;
+  stroke: var(--color-bg);
+  stroke-width: 4px;
+  paint-order: stroke;
+  pointer-events: none;
+}
+
+.page-algorithm .graph-svg .weight.negative {
+  fill: var(--color-error);
+}
+
+.page-algorithm .weight-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--color-text-subtle);
+}
+
+.page-algorithm .weight-field .input-mono {
+  width: 64px;
+  height: 32px;
+}
+
 /* Start vertex buttons in the side panel. */
 .page-algorithm .vertex-picker {
   display: flex;
