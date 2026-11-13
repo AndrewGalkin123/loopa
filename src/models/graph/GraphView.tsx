@@ -3,6 +3,8 @@
 import { Check, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import { usePlayer } from "@/core/player/PlayerProvider";
+import { pickClass } from "@/core/prediction";
+import type { PredictionView } from "@/core/types";
 import { addNode, MAX_NODES, moveNode, removeNode, setWeight, toggleEdge } from "./edit";
 import { edgeKey } from "./snapshot";
 import type { GraphAlgorithm, GraphInput, GraphState } from "./types";
@@ -15,8 +17,9 @@ const DRAG_THRESHOLD = 4;
  * Player stage of the graph model. Normally it shows the step: coloured vertices
  * and edges, distances and the queue / stack. In edit mode ("Upravit graf") the
  * graph itself can be changed with the mouse; every change reruns the algorithm.
+ * During a question of the mode Předpověz the vertices can be clicked.
  */
-export function GraphView({ state }: { state: unknown }) {
+export function GraphView({ state, prediction }: { state: unknown; prediction?: PredictionView }) {
   const { state: player, load, dispatch, definition } = usePlayer();
   const input = player.input as GraphInput;
   const { weighted } = definition as GraphAlgorithm;
@@ -125,6 +128,7 @@ export function GraphView({ state }: { state: unknown }) {
   const { graph, marks, edgeMarks, badges, lists } = view;
   const position = new Map(graph.nodes.map((n) => [n.id, n]));
   const { directed } = graph;
+  const onPick = editing ? undefined : prediction?.onPick;
   const chosenEdge = selectedEdge && graph.edges.find(
     ([a, b]) => (a === selectedEdge[0] && b === selectedEdge[1]) || (a === selectedEdge[1] && b === selectedEdge[0]),
   );
@@ -197,8 +201,8 @@ export function GraphView({ state }: { state: unknown }) {
         ref={svgRef}
         className="graph-svg"
         viewBox="0 0 760 280"
-        aria-hidden={!editing}
-        aria-label={editing ? "Editor grafu" : undefined}
+        aria-hidden={!editing && !onPick}
+        aria-label={editing ? "Editor grafu" : onPick ? "Graf — klikni na vrchol" : undefined}
       >
         {editing && <rect className="edit-area" x={0} y={0} width={760} height={280} onClick={onBackgroundClick} />}
 
@@ -260,11 +264,25 @@ export function GraphView({ state }: { state: unknown }) {
         {graph.nodes.map((n) => (
           <g
             key={n.id}
-            className={`node ${marks[n.id] ?? ""}`}
+            className={`node ${marks[n.id] ?? ""} ${editing ? "" : pickClass(n.id, prediction)}`}
             transform={`translate(${n.x} ${n.y})`}
             onPointerDown={editing ? (event) => onNodeDown(event, n.id, n.x, n.y) : undefined}
             onPointerMove={editing ? onNodeMove : undefined}
             onPointerUp={editing ? () => onNodeUp(n.id) : undefined}
+            // A question of the mode Předpověz: the vertex is an answer (mouse, or Tab + Enter).
+            role={onPick ? "button" : undefined}
+            tabIndex={onPick ? 0 : undefined}
+            aria-label={onPick ? `vrchol ${n.id}` : undefined}
+            onClick={onPick && (() => onPick(n.id))}
+            onKeyDown={
+              onPick &&
+              ((event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onPick(n.id);
+                }
+              })
+            }
           >
             <circle r={RADIUS} />
             <text className="label" dy="0.35em">
@@ -290,7 +308,7 @@ export function GraphView({ state }: { state: unknown }) {
         </ul>
       ) : (
         <div className="graph-lists">
-          {lists.map((list) => (
+          {lists.filter((list) => !prediction?.hide?.includes(list.label)).map((list) => (
             <div className="graph-list" key={list.label}>
               <span className="lbl">{list.label}</span>
               {list.items.length === 0 && <span className="empty">—</span>}

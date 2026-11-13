@@ -8,6 +8,7 @@ import { bellmanFordContent } from "./shortest-paths/bellman-ford/content";
 import { dijkstraContent } from "./shortest-paths/dijkstra/content";
 import { levitContent } from "./shortest-paths/levit/content";
 import { bubbleSortContent } from "./sorting/bubble-sort/content";
+import { heapSortContent } from "./sorting/heap-sort/content";
 import { insertionSortContent } from "./sorting/insertion-sort/content";
 import { mergeSortContent } from "./sorting/merge-sort/content";
 import { quickSortContent } from "./sorting/quick-sort/content";
@@ -26,6 +27,7 @@ export const CONTENT: Record<Slug, AlgorithmContent> = {
   "insertion-sort": insertionSortContent,
   "quick-sort": quickSortContent,
   "merge-sort": mergeSortContent,
+  "heap-sort": heapSortContent,
   "binary-search": binarySearchContent,
   "linear-search": linearSearchContent,
   "interpolation-search": interpolationSearchContent,

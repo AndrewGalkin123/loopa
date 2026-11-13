@@ -22,8 +22,8 @@ export function useKeyboardControls(dispatch: Dispatch<PlayerAction>) {
       if (target?.closest("input, textarea, select, [contenteditable]")) return;
 
       if (event.key === " ") {
-        // A focused button already reacts to space by itself.
-        if (target?.closest("button, a")) return;
+        // A focused button (also a clickable bar or vertex) already reacts to space by itself.
+        if (target?.closest("button, a, [role=button]")) return;
         event.preventDefault();
         dispatch({ type: "toggle" });
       } else if (event.key === "ArrowRight" || event.key === "ArrowLeft") {

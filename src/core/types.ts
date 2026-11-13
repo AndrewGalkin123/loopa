@@ -22,7 +22,7 @@ export type NotePart = string | { text: string; mark: string };
 export interface Step<S = unknown, E = unknown> {
   /** The data after this step, including how to colour it. */
   state: S;
-  /** What happened, machine-readable (for tests and the future modes Předpověz / Najdi chybu). */
+  /** What happened, machine-readable (for tests, the questions of Předpověz and the future Najdi chybu). */
   event: E;
   /** Human-readable status line shown after "step N / M", e.g. ["comparing", [3], [4]]. */
   note: NotePart[];
@@ -30,6 +30,46 @@ export interface Step<S = unknown, E = unknown> {
   line: number;
   /** Counters so far, e.g. { cmp: 4, swp: 1 }. */
   counters: Record<string, number>;
+}
+
+/**
+ * A question of the mode "Předpověz" (predict the next step): the player stops at
+ * step `at` and asks what happens next. The whole run is recorded in advance,
+ * so the right answer is already known.
+ */
+export interface Question {
+  /** Index of the step on screen while the question is asked. */
+  at: number;
+  /** The question including how to answer it, e.g. ["Klíč", "2", "— kam se vloží? Klikni na sloupec."]. */
+  prompt: NotePart[];
+  answer: Answer;
+  /** Why the right answer is right; shown after answering. */
+  explain: NotePart[];
+  /** Parts of the picture that would give the answer away, hidden while the question waits (e.g. the list "queue"). */
+  hide?: string[];
+}
+
+/** The right answer and how it is given. Ids are what the picture shows: bar indices ("3") or vertices ("B"). */
+export type Answer =
+  /** One click on the picture; any id in `correct` is right (usually there is only one). */
+  | { kind: "pick"; correct: string[] }
+  /** Clicks on the picture in this order; an empty list means "none". */
+  | { kind: "sequence"; correct: string[] }
+  | { kind: "yes-no"; correct: boolean };
+
+/** What the user answered: the clicked ids, or yes / no. */
+export type Reply = string[] | boolean;
+
+/** What the picture of a model needs while a question is on screen. */
+export interface PredictionView {
+  /** Present while the answer is given by clicking: the bars / vertices become clickable. */
+  onPick?: (id: string) => void;
+  /** Clicked so far, or the given answer. */
+  chosen: string[];
+  /** After the answer: the right ids. */
+  correct?: string[];
+  /** Parts of the picture to hide (see Question.hide). */
+  hide?: string[];
 }
 
 /** Data models the player can show. */
@@ -69,12 +109,14 @@ export interface AlgorithmDefinition<Input = unknown, S = unknown, E = unknown> 
   initialInputKind?: string;
   /** What a prepared input means for this algorithm, e.g. { sorted: "nejlepší případ" }. */
   inputHints?: Record<string, string>;
+  /** Questions of the mode "Předpověz" for one recorded run. Without them the algorithm has no such mode. */
+  questions?(steps: Step<S, E>[]): Question[];
 }
 
 /** A data model: how its steps are drawn and how the user changes the input. */
 export interface Model {
-  /** Draws the state of one step in the player stage. */
-  View: ComponentType<{ state: unknown }>;
+  /** Draws the state of one step in the player stage (and, during a question, lets the user click on it). */
+  View: ComponentType<{ state: unknown; prediction?: PredictionView }>;
   /** Side panel next to the player for changing the input. */
   InputPanel: ComponentType;
   /** Button with prepared inputs next to the speed button. */

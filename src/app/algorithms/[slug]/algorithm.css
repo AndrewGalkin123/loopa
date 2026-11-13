@@ -1748,3 +1748,139 @@
 .page-algorithm .chart-legend {
   flex-wrap: wrap;
 }
+
+/* ───────── Mode Předpověz (not in the design) ───────── */
+
+.page-algorithm .player-head .title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.page-algorithm .mode-switch {
+  display: inline-flex;
+  padding: 2px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+.page-algorithm .mode-switch button {
+  padding: 3px 10px;
+  background: transparent;
+  border: 0;
+  border-radius: calc(var(--radius-md) - 2px);
+  color: var(--color-text-subtle);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.page-algorithm .mode-switch button:hover {
+  color: var(--color-text);
+}
+
+.page-algorithm .mode-switch button.on {
+  background: var(--color-accent);
+  color: #0a0a0b;
+}
+
+.page-algorithm .question-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px 16px;
+  flex-wrap: wrap;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-accent) 6%, var(--color-surface));
+  font-size: 14px;
+}
+
+.page-algorithm .question-bar.right {
+  background: color-mix(in srgb, var(--color-success) 10%, var(--color-surface));
+}
+
+.page-algorithm .question-bar.wrong {
+  background: color-mix(in srgb, var(--color-error) 10%, var(--color-surface));
+}
+
+.page-algorithm .question-bar .q-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-accent);
+}
+
+.page-algorithm .question-bar.right .q-label {
+  color: var(--color-success);
+}
+
+.page-algorithm .question-bar.wrong .q-label {
+  color: var(--color-error);
+}
+
+.page-algorithm .question-bar .q-text {
+  flex: 1 1 280px;
+  color: var(--color-text);
+}
+
+.page-algorithm .question-bar .q-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-algorithm .question-bar .q-chosen {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* Bars and vertices as answers: clickable, chosen, right (green) or wrong (red). */
+.page-algorithm .viz-bars button.bar {
+  padding: 0;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.page-algorithm .viz-bars .bar:is(.pickable:hover, :focus-visible, .pick-chosen) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.page-algorithm .viz-bars .bar.pick-right {
+  outline: 2px solid var(--color-success);
+  outline-offset: 3px;
+}
+
+.page-algorithm .viz-bars .bar.pick-wrong {
+  outline: 2px dashed var(--color-error);
+  outline-offset: 3px;
+}
+
+.page-algorithm .graph-svg .node.pickable {
+  cursor: pointer;
+}
+
+.page-algorithm .graph-svg .node:focus {
+  outline: none;
+}
+
+.page-algorithm .graph-svg .node:is(.pickable:hover, :focus-visible, .pick-chosen) circle {
+  stroke: var(--color-accent);
+}
+
+.page-algorithm .graph-svg .node.pick-right circle {
+  stroke: var(--color-success);
+}
+
+.page-algorithm .graph-svg .node.pick-wrong circle {
+  stroke: var(--color-error);
+  stroke-dasharray: 5 3;
+}

@@ -1,6 +1,7 @@
 import { GitBranch } from "lucide-react";
 import { PRESETS } from "@/models/graph/presets";
 import { defineGraphAlgorithm } from "@/models/graph/types";
+import { bfsQuestions } from "./questions";
 import { bfsTrace } from "./trace";
 
 export const bfs = defineGraphAlgorithm({
@@ -15,6 +16,7 @@ export const bfs = defineGraphAlgorithm({
     badge: { variant: "graph", icon: GitBranch, label: "bfs" },
   },
   trace: bfsTrace,
+  questions: bfsQuestions,
   // 1–3 prepare the arrays (one step at line 4), 5 is the loop, 7 the for, 9–10 belong to the enqueue.
   lineAliases: { 1: 4, 2: 4, 3: 4, 5: 6, 7: 8, 9: 11, 10: 11 },
   counters: [

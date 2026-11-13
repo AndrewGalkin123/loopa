@@ -33,6 +33,7 @@ const ORDER = [
   "insertion-sort",
   "quick-sort",
   "merge-sort",
+  "heap-sort",
   "binary-search",
   "linear-search",
   "interpolation-search",

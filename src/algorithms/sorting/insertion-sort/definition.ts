@@ -1,5 +1,6 @@
 import { ArrowDownToLine } from "lucide-react";
 import { defineArrayAlgorithm } from "@/models/array/types";
+import { insertionSortQuestions } from "./questions";
 import { insertionSortTrace } from "./trace";
 
 export const insertionSort = defineArrayAlgorithm({
@@ -14,6 +15,7 @@ export const insertionSort = defineArrayAlgorithm({
     badge: { variant: "sorting", icon: ArrowDownToLine, label: "insert" },
   },
   trace: insertionSortTrace,
+  questions: insertionSortQuestions,
   // 2 and 4 only prepare the pass, 7 only moves the index j.
   lineAliases: { 2: 3, 4: 3, 7: 6 },
   // Insertion Sort does not swap, it shifts values to the right.

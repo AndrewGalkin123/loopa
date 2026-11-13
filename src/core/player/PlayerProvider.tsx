@@ -29,13 +29,10 @@ export function PlayerProvider({ definition, model, children }: {
   model: Model;
   children: ReactNode;
 }) {
-  const [state, dispatch] = useReducer(playerReducer, null, () =>
-    createPlayerState(
-      definition.initialInput,
-      definition.initialInputKind ?? "random",
-      definition.trace(definition.initialInput),
-    ),
-  );
+  const [state, dispatch] = useReducer(playerReducer, null, () => {
+    const steps = definition.trace(definition.initialInput);
+    return createPlayerState(definition.initialInput, definition.initialInputKind ?? "random", steps, definition.questions?.(steps));
+  });
 
   usePlaybackTimer(state.playing, STEP_MS / state.speed, dispatch);
 
@@ -43,7 +40,10 @@ export function PlayerProvider({ definition, model, children }: {
     state,
     step: state.steps[state.index],
     dispatch,
-    load: (input, inputKind) => dispatch({ type: "load", input, inputKind, steps: definition.trace(input) }),
+    load: (input, inputKind) => {
+      const steps = definition.trace(input);
+      dispatch({ type: "load", input, inputKind, steps, questions: definition.questions?.(steps) });
+    },
     definition,
     model,
   };

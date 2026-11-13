@@ -1,12 +1,14 @@
 "use client";
 
 import { ChevronDown, Pause, Play, RotateCcw, SkipBack, SkipForward } from "lucide-react";
-import type { PointerEvent } from "react";
+import { useState, type PointerEvent } from "react";
 import { Dropdown } from "@/components/Dropdown";
+import type { PredictionView, Reply } from "@/core/types";
 import { pad } from "@/lib/demoSteps";
 import { Note } from "./Note";
 import { usePlayer } from "./PlayerProvider";
 import { SPEEDS, STEP_MS } from "./playerState";
+import { QuestionBar } from "./QuestionBar";
 import { useKeyboardControls } from "./usePlayerControls";
 
 const PROGRESS_TICKS = 24;
@@ -14,6 +16,7 @@ const PROGRESS_TICKS = 24;
 /**
  * The player: head with the status and counters, the stage drawn by the data model,
  * the progress bar and the controls. It works the same for every algorithm and model.
+ * In the mode Předpověz a question bar appears under the head and the picture can be clicked.
  */
 export function Player() {
   const { state, step, dispatch, definition, model } = usePlayer();
@@ -21,6 +24,32 @@ export function Player() {
   const progress = last > 0 ? (state.index / last) * 100 : 0;
 
   useKeyboardControls(dispatch);
+
+  // The mode Předpověz: the question on screen, its result and the vertices clicked so far (for a sequence).
+  const asking = state.asking;
+  const question = asking ? state.questions[asking.question] : null;
+  const result = asking ? state.results[asking.question] : undefined;
+  const [draft, setDraft] = useState<{ question: number; ids: string[] }>({ question: -1, ids: [] });
+  const chosen = asking && draft.question === asking.question ? draft.ids : [];
+  const answered = Object.values(state.results).filter((r) => r.reply !== null);
+
+  const reply = (value: Reply) => dispatch({ type: "answer", reply: value });
+  const onPick = (id: string) => {
+    if (!asking || !question) return;
+    if (question.answer.kind === "pick") return reply([id]);
+    // A sequence: a click adds the vertex, a second click takes it back.
+    setDraft({ question: asking.question, ids: chosen.includes(id) ? chosen.filter((c) => c !== id) : [...chosen, id] });
+  };
+
+  const clickable = question !== null && question.answer.kind !== "yes-no";
+  const prediction: PredictionView | undefined = question
+    ? {
+        onPick: clickable && !result ? onPick : undefined,
+        chosen: result ? (Array.isArray(result.reply) ? result.reply : []) : chosen,
+        correct: result && question.answer.kind !== "yes-no" ? question.answer.correct : undefined,
+        hide: result ? undefined : question.hide,
+      }
+    : undefined;
 
   // Clicking or dragging on the progress bar jumps to that point of the run.
   const seekTo = (event: PointerEvent<HTMLDivElement>) => {
@@ -33,10 +62,31 @@ export function Player() {
     <div className="player">
       <div className="player-head">
         <div>
-          <div className="title">{definition.name}</div>
+          <div className="title">
+            {definition.name}
+            {definition.questions && (
+              <div className="mode-switch" role="group" aria-label="Režim přehrávače">
+                <button
+                  className={state.mode === "watch" ? "on" : undefined}
+                  aria-pressed={state.mode === "watch"}
+                  onClick={() => dispatch({ type: "mode", mode: "watch" })}
+                >
+                  Sleduj
+                </button>
+                <button
+                  className={state.mode === "predict" ? "on" : undefined}
+                  aria-pressed={state.mode === "predict"}
+                  onClick={() => dispatch({ type: "mode", mode: "predict" })}
+                >
+                  Předpověz
+                </button>
+              </div>
+            )}
+          </div>
           <div className="status">
             step <span className="accent">{pad(state.index + 1)}</span> / {state.steps.length} &nbsp;·&nbsp;{" "}
-            <Note parts={step.note} />
+            {/* The status line could give the answer away. */}
+            {question && !result ? "čeká na tvou předpověď" : <Note parts={step.note} />}
           </div>
         </div>
         <div className="head-metrics">
@@ -46,6 +96,14 @@ export function Player() {
               <span className="v">{pad(step.counters[counter.key] ?? 0)}</span>
             </div>
           ))}
+          {state.mode === "predict" && (
+            <div className="metric" title="správné předpovědi / zodpovězené otázky">
+              <span className="k">předpovědi</span>
+              <span className="v">
+                {answered.filter((r) => r.correct).length}/{answered.length}
+              </span>
+            </div>
+          )}
           {/* Time the run takes up to this step at speed 1× (independent of the chosen speed). */}
           <div className="metric accent">
             <span className="k">elapsed</span>
@@ -54,8 +112,18 @@ export function Player() {
         </div>
       </div>
 
+      {question && (
+        <QuestionBar
+          question={question}
+          result={result}
+          chosen={chosen}
+          onReply={reply}
+          onNext={() => dispatch({ type: "step", delta: 1 })}
+        />
+      )}
+
       <div className="player-stage">
-        <model.View state={step.state} />
+        <model.View state={step.state} prediction={prediction} />
       </div>
 
       <div

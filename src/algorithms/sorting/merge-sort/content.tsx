@@ -1,5 +1,6 @@
 import { Pyramid } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
+import { ComplexityChart, GROWTH } from "@/components/ComplexityChart";
 import { IMPLEMENTATIONS, PSEUDOCODE } from "./code";
 
 /* Everything the Merge Sort page shows besides the player. */
@@ -76,54 +77,6 @@ const description = (
   </>
 );
 
-/** Size of the input → running time: Merge Sort O(n log n) against Bubble Sort O(n²). */
-const complexityChart = (
-  <>
-    <div className="chart-head">
-      <div className="t">velikost pole&nbsp;→&nbsp;čas</div>
-      <div className="chart-legend">
-        <span className="lg">
-          <span className="ln" /> merge sort · O(n log n)
-        </span>
-        <span className="lg dash">
-          <span className="ln" /> bubble · O(n²)
-        </span>
-      </div>
-    </div>
-    <svg className="chart-svg" viewBox="0 0 720 240" preserveAspectRatio="none" aria-hidden="true">
-      {/* grid */}
-      <g stroke="#1f1f23" strokeWidth="1">
-        <line x1="0" y1="60" x2="720" y2="60" />
-        <line x1="0" y1="120" x2="720" y2="120" />
-        <line x1="0" y1="180" x2="720" y2="180" />
-      </g>
-      {/* axes */}
-      <g stroke="#2a2a2f" strokeWidth="1">
-        <line x1="0" y1="220" x2="720" y2="220" />
-        <line x1="1" y1="20" x2="1" y2="220" />
-      </g>
-      {/* bubble n^2 (dashed subtle) */}
-      <path
-        d="M0,219 C150,210 270,188 390,150 C500,116 590,74 690,24"
-        fill="none"
-        stroke="#71717a"
-        strokeWidth="2"
-        strokeDasharray="5 5"
-      />
-      {/* merge sort n log n (accent) */}
-      <path d="M0,218 C120,206 260,188 400,168 C520,150 620,134 720,120" fill="none" stroke="#a3e635" strokeWidth="2.5" />
-      {/* end dots */}
-      <circle cx="690" cy="24" r="3" fill="#71717a" />
-      <circle cx="720" cy="120" r="3.5" fill="#a3e635" />
-    </svg>
-    <div className="chart-axis">
-      <span>n = 0</span>
-      <span>velikost vstupu</span>
-      <span>n = 1000</span>
-    </div>
-  </>
-);
-
 export const mergeSortContent: AlgorithmContent = {
   readMinutes: 6,
   lede: (
@@ -180,7 +133,16 @@ export const mergeSortContent: AlgorithmContent = {
       tone: "bad",
     },
   ],
-  complexityChart,
+  complexityChart: (
+    <ComplexityChart
+      title="velikost pole&nbsp;→&nbsp;čas"
+      axis="velikost vstupu n · bez konstant"
+      curves={[
+        { label: "merge sort · O(n log n)", grows: GROWTH.nLogN },
+        { label: "bubble · O(n²)", grows: GROWTH.n2, style: "dash" },
+      ]}
+    />
+  ),
   related: ["quick-sort", "bubble-sort"],
   next: {
     name: "Heap Sort",

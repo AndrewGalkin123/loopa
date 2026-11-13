@@ -1,5 +1,6 @@
 import { Zap } from "lucide-react";
 import { defineArrayAlgorithm } from "@/models/array/types";
+import { quickSortQuestions } from "./questions";
 import { quickSortTrace } from "./trace";
 
 export const quickSort = defineArrayAlgorithm({
@@ -14,6 +15,7 @@ export const quickSort = defineArrayAlgorithm({
     badge: { variant: "sorting", icon: Zap, label: "fast" },
   },
   trace: quickSortTrace,
+  questions: quickSortQuestions,
   // Lines 3–5 are the recursion, 9 and 12 only move the index i, 15 returns.
   lineAliases: { 3: 8, 4: 8, 5: 8, 7: 8, 9: 11, 10: 11, 12: 13, 15: 14 },
   counters: [
