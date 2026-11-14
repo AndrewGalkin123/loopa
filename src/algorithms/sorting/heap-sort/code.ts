@@ -25,6 +25,7 @@ procedure siftDown(A, i, size)
     siftDown(A, largest, size)
 `,
   "pseudo",
+  ["downto"],
 );
 
 const JS = `

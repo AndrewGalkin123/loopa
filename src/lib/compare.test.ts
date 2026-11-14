@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { ALGORITHMS } from "@/algorithms/registry";
 import { ascending, randomArrays, sortedCopy } from "@/algorithms/testUtils";
 import { buildTimeline, COMPARABLE, operations, resolveSlots } from "./compare";
 
@@ -8,7 +9,10 @@ const pairName = ([a, b]: readonly [{ slug: string }, { slug: string }]) => `${a
 
 describe("compare timeline", () => {
   test("offers all the sorting algorithms and only them", () => {
-    expect(COMPARABLE.map((d) => d.slug)).toEqual(["bubble-sort", "selection-sort", "insertion-sort", "quick-sort", "merge-sort", "heap-sort"]);
+    // Taken from the registry, so a new sorting algorithm does not need a change here.
+    const sorting = ALGORITHMS.filter((d) => d.group === "sorting").map((d) => d.slug);
+    expect(COMPARABLE.map((d) => d.slug)).toEqual(sorting);
+    expect(sorting).toContain("bubble-sort");
   });
 
   test.each(pairs.map((pair) => [pairName(pair), pair] as const))("%s: one frame per operation of the slower one", (_, [a, b]) => {
