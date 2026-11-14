@@ -57,6 +57,14 @@ export type Answer =
   | { kind: "sequence"; correct: string[] }
   | { kind: "yes-no"; correct: boolean };
 
+/** A moment of the run shown as a still picture (the control condition of the research, VO2). */
+export interface KeyState {
+  /** Index of the step. */
+  step: number;
+  /** What the picture shows, e.g. ["after pass i = 3: key 1 at", "[0]"]. */
+  caption: NotePart[];
+}
+
 /** What the user answered: the clicked ids, or yes / no. */
 export type Reply = string[] | boolean;
 
@@ -111,6 +119,8 @@ export interface AlgorithmDefinition<Input = unknown, S = unknown, E = unknown> 
   inputHints?: Record<string, string>;
   /** Questions of the mode "Předpověz" for one recorded run. Without them the algorithm has no such mode. */
   questions?(steps: Step<S, E>[]): Question[];
+  /** Key moments of a run, shown as still pictures instead of the player (the research, VO2). */
+  keyStates?(steps: Step<S, E>[]): KeyState[];
 }
 
 /** A data model: how its steps are drawn and how the user changes the input. */

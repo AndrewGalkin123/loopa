@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import { Activity, ArrowRight, BarChart2, ChevronDown, Clock, MousePointerClick } from "lucide-react";
+import { Activity, ArrowRight, BarChart2, ChevronDown, Clock } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CONTENT } from "@/algorithms/content";
 import { ALGORITHMS, findAlgorithm } from "@/algorithms/registry";
 import { AiFab } from "@/components/AiFab";
 import { AlgorithmCard } from "@/components/AlgorithmCard";
-import { CodeTabs } from "@/components/algorithm/CodeTabs";
-import { ContentTabs } from "@/components/algorithm/ContentTabs";
-import { Pseudocode } from "@/components/algorithm/Pseudocode";
+import { AlgorithmSections } from "@/components/algorithm/AlgorithmSections";
+import { PlayerLegend } from "@/components/algorithm/Legend";
 import { Badge } from "@/components/Badge";
 import { Dropdown } from "@/components/Dropdown";
 import { Player } from "@/core/player/Player";
@@ -39,13 +38,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const definition = findAlgorithm((await params).slug);
   return { title: definition ? `${definition.name} — Loopa` : "Loopa" };
 }
-
-const CONTENT_TABS = [
-  { id: "popis", label: "Popis" },
-  { id: "pseudokod", label: "Pseudokód" },
-  { id: "implementace", label: "Implementace" },
-  { id: "slozitost", label: "Složitost" },
-];
 
 export default async function AlgorithmPage({ params }: Props) {
   const definition = findAlgorithm((await params).slug);
@@ -145,62 +137,12 @@ export default async function AlgorithmPage({ params }: Props) {
 
             <aside className="side-panel">
               <model.InputPanel />
-              <div className="panel-card">
-                <div className="panel-label">Color legend</div>
-                <div className="legend">
-                  {definition.legend.map((mark) => (
-                    <div className="item" key={mark}>
-                      <span
-                        className="sw"
-                        style={{ background: model.legend[mark].color, opacity: model.legend[mark].dim ? 0.35 : undefined }}
-                      />{" "}
-                      {mark}{" "}
-                      <span className="desc">{definition.legendDescriptions?.[mark] ?? model.legend[mark].desc}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <PlayerLegend />
             </aside>
           </section>
 
           {/* ───────── TABS + CONTENT ───────── */}
-          <section className="content-section">
-            <ContentTabs tabs={CONTENT_TABS} />
-
-            <article className="article" id="popis">
-              <div className="prose">{content.description}</div>
-            </article>
-
-            <div id="pseudokod">
-              <div className="block-title">02 / Pseudokód</div>
-              <Pseudocode lines={content.pseudocode} />
-              <div className="pseudo-hint">
-                <MousePointerClick /> Klikni na&nbsp;řádek a&nbsp;přehrávač skočí na&nbsp;odpovídající krok.
-              </div>
-            </div>
-
-            <div id="implementace">
-              <div className="block-title">03 / Implementace</div>
-              <CodeTabs implementations={content.implementations} />
-            </div>
-
-            <div id="slozitost">
-              <div className="block-title">04 / Složitost</div>
-              <div className="cx-table">
-                {content.complexityCases.map((row) => (
-                  <div key={`${row.label}-${row.sub}`} className={row.tone ? `cx-row ${row.tone}` : "cx-row"}>
-                    <div className="case">
-                      {row.label}
-                      <span className="sub">{row.sub}</span>
-                    </div>
-                    <div className="big-o">{row.bigO}</div>
-                    <div className="note">{row.note}</div>
-                  </div>
-                ))}
-              </div>
-              {content.complexityChart && <div className="chart-wrap">{content.complexityChart}</div>}
-            </div>
-          </section>
+          <AlgorithmSections content={content} linkedToPlayer />
 
           {/* ───────── RELATED ───────── */}
           <section className="related">

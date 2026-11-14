@@ -2,7 +2,7 @@
 
 import { Check, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
-import { usePlayer } from "@/core/player/PlayerProvider";
+import { useOptionalPlayer } from "@/core/player/PlayerProvider";
 import { pickClass } from "@/core/prediction";
 import type { PredictionView } from "@/core/types";
 import { addNode, MAX_NODES, moveNode, removeNode, setWeight, toggleEdge } from "./edit";
@@ -17,12 +17,14 @@ const DRAG_THRESHOLD = 4;
  * Player stage of the graph model. Normally it shows the step: coloured vertices
  * and edges, distances and the queue / stack. In edit mode ("Upravit graf") the
  * graph itself can be changed with the mouse; every change reruns the algorithm.
- * During a question of the mode Předpověz the vertices can be clicked.
+ * During a question of the mode Předpověz the vertices can be clicked. Outside of the
+ * player (a still picture of a key state) the graph is only drawn.
  */
 export function GraphView({ state, prediction }: { state: unknown; prediction?: PredictionView }) {
-  const { state: player, load, dispatch, definition } = usePlayer();
-  const input = player.input as GraphInput;
-  const { weighted } = definition as GraphAlgorithm;
+  const player = useOptionalPlayer();
+  // Used only while editing, and editing needs the player.
+  const input = player?.state.input as GraphInput;
+  const weighted = (player?.definition as GraphAlgorithm | undefined)?.weighted;
   // Weighted graphs: the selected edge, whose weight can be changed in the toolbar.
   const [selectedEdge, setSelectedEdge] = useState<[string, string] | null>(null);
   const [weightDraft, setWeightDraft] = useState<string | null>(null);
@@ -32,7 +34,7 @@ export function GraphView({ state, prediction }: { state: unknown; prediction?: 
   const svgRef = useRef<SVGSVGElement>(null);
 
   const edit = (next: GraphInput) => {
-    if (next !== input) load(next, "custom");
+    if (next !== input) player?.load(next, "custom");
   };
 
   // In edit mode: Delete / Backspace removes the selected vertex, Esc cancels the selection.
@@ -42,11 +44,11 @@ export function GraphView({ state, prediction }: { state: unknown; prediction?: 
       if (event.target instanceof Element && event.target.closest("input, textarea")) return;
       if ((event.key === "Delete" || event.key === "Backspace") && selected) {
         event.preventDefault();
-        load(removeNode(input, selected), "custom");
+        player?.load(removeNode(input, selected), "custom");
         setSelected(null);
       } else if ((event.key === "Delete" || event.key === "Backspace") && selectedEdge) {
         event.preventDefault();
-        load(toggleEdge(input, selectedEdge[0], selectedEdge[1]), "custom");
+        player?.load(toggleEdge(input, selectedEdge[0], selectedEdge[1]), "custom");
         setSelectedEdge(null);
       } else if (event.key === "Escape") {
         setSelected(null);
@@ -55,7 +57,7 @@ export function GraphView({ state, prediction }: { state: unknown; prediction?: 
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [editing, selected, selectedEdge, input, load]);
+  }, [editing, selected, selectedEdge, input, player]);
 
   /** Screen point → coordinates of the 760 × 280 picture. */
   const toPicture = (clientX: number, clientY: number) => {
@@ -64,7 +66,7 @@ export function GraphView({ state, prediction }: { state: unknown; prediction?: 
   };
 
   const startEditing = () => {
-    dispatch({ type: "reset" }); // stop the playback and show the graph from the first step
+    player?.dispatch({ type: "reset" }); // stop the playback and show the graph from the first step
     setEditing(true);
   };
   const stopEditing = () => {
@@ -135,67 +137,69 @@ export function GraphView({ state, prediction }: { state: unknown; prediction?: 
 
   return (
     <div className={editing ? "graph-view editing" : "graph-view"}>
-      <div className="graph-toolbar">
-        {editing && selected && (
-          <button
-            className="btn btn-secondary btn-sm"
-            disabled={graph.nodes.length <= 1}
-            onClick={() => {
-              edit(removeNode(input, selected));
-              setSelected(null);
-            }}
-          >
-            <Trash2 size={13} /> Smazat vrchol {selected}
-          </button>
-        )}
-        {editing && chosenEdge && weighted && (
-          <>
-            <label className="weight-field">
-              váha {edgeKey(chosenEdge[0], chosenEdge[1], directed)}
-              <input
-                type="number"
-                className="input-mono"
-                min={weighted.minWeight}
-                max={weighted.maxWeight}
-                value={weightDraft ?? chosenEdge[2] ?? 1}
-                onChange={(event) => {
-                  setWeightDraft(event.target.value);
-                  const value = Number(event.target.value);
-                  if (
-                    event.target.value !== "" &&
-                    Number.isInteger(value) &&
-                    value >= weighted.minWeight &&
-                    value <= weighted.maxWeight
-                  ) {
-                    edit(setWeight(input, chosenEdge[0], chosenEdge[1], value));
-                  }
-                }}
-                onBlur={() => setWeightDraft(null)}
-              />
-            </label>
+      {player && (
+        <div className="graph-toolbar">
+          {editing && selected && (
             <button
               className="btn btn-secondary btn-sm"
+              disabled={graph.nodes.length <= 1}
               onClick={() => {
-                edit(toggleEdge(input, chosenEdge[0], chosenEdge[1]));
-                setSelectedEdge(null);
+                edit(removeNode(input, selected));
+                setSelected(null);
               }}
             >
-              <Trash2 size={13} /> Smazat hranu
+              <Trash2 size={13} /> Smazat vrchol {selected}
             </button>
-          </>
-        )}
-        <button className="btn btn-secondary btn-sm" onClick={editing ? stopEditing : startEditing}>
-          {editing ? (
+          )}
+          {editing && chosenEdge && weighted && (
             <>
-              <Check size={13} /> Hotovo
-            </>
-          ) : (
-            <>
-              <Pencil size={13} /> Upravit graf
+              <label className="weight-field">
+                váha {edgeKey(chosenEdge[0], chosenEdge[1], directed)}
+                <input
+                  type="number"
+                  className="input-mono"
+                  min={weighted.minWeight}
+                  max={weighted.maxWeight}
+                  value={weightDraft ?? chosenEdge[2] ?? 1}
+                  onChange={(event) => {
+                    setWeightDraft(event.target.value);
+                    const value = Number(event.target.value);
+                    if (
+                      event.target.value !== "" &&
+                      Number.isInteger(value) &&
+                      value >= weighted.minWeight &&
+                      value <= weighted.maxWeight
+                    ) {
+                      edit(setWeight(input, chosenEdge[0], chosenEdge[1], value));
+                    }
+                  }}
+                  onBlur={() => setWeightDraft(null)}
+                />
+              </label>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() => {
+                  edit(toggleEdge(input, chosenEdge[0], chosenEdge[1]));
+                  setSelectedEdge(null);
+                }}
+              >
+                <Trash2 size={13} /> Smazat hranu
+              </button>
             </>
           )}
-        </button>
-      </div>
+          <button className="btn btn-secondary btn-sm" onClick={editing ? stopEditing : startEditing}>
+            {editing ? (
+              <>
+                <Check size={13} /> Hotovo
+              </>
+            ) : (
+              <>
+                <Pencil size={13} /> Upravit graf
+              </>
+            )}
+          </button>
+        </div>
+      )}
 
       <svg
         ref={svgRef}

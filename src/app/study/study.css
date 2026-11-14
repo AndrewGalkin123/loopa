@@ -1,0 +1,250 @@
+/* The research session (/study): the algorithm page styles plus the bar with the time and the researcher's screens. */
+
+.page-study .study-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 52px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.page-study .study-brand {
+  font-weight: 600;
+}
+
+.page-study .study-algorithm {
+  color: var(--color-text-muted);
+  margin-right: auto;
+}
+
+.page-study .study-timer {
+  font-family: var(--font-mono), monospace;
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.page-study .study-timer.low {
+  color: var(--color-warning);
+}
+
+/* The bar of the site is not here, so the sticky parts sit just under the study bar. */
+.page-study .tabs {
+  top: 52px;
+}
+
+.page-study .algo-hero {
+  padding: 40px 0 32px;
+}
+
+/* ───────── The control condition: still pictures ───────── */
+
+.page-study .key-states {
+  padding: 40px 0;
+}
+
+.page-study .key-head p {
+  margin: 8px 0 20px;
+  color: var(--color-text-muted);
+}
+
+.page-study .key-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+.page-study .key-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.page-study .key-grid.graph {
+  grid-template-columns: 1fr;
+}
+
+.page-study .key-state {
+  margin: 0;
+  padding: 14px 16px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.page-study .key-state figcaption {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-bottom: 12px;
+}
+
+.page-study .key-state figcaption .n {
+  color: var(--color-accent);
+}
+
+.page-study .key-picture .viz-bars {
+  height: 150px;
+  gap: 3px;
+  margin-bottom: 22px;
+}
+
+.page-study .key-picture .viz-bars .bar .lab {
+  bottom: -20px;
+  font-size: 10px;
+}
+
+.page-study .key-picture .graph-lists {
+  font-size: 11px;
+}
+
+.page-study .key-counters {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--color-text-subtle);
+  margin-top: 8px;
+}
+
+/* ───────── The researcher's screens ───────── */
+
+.page-study .study-screen {
+  max-width: 680px;
+  padding: 64px 24px 96px;
+}
+
+.page-study .study-screen h1 {
+  font-size: 40px;
+  letter-spacing: -0.02em;
+  margin: 8px 0 12px;
+}
+
+.page-study .study-screen .lede {
+  font-size: 18px;
+  color: var(--color-text-muted);
+  margin-bottom: 28px;
+}
+
+.page-study .study-note {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  margin: 16px 0;
+}
+
+.page-study .study-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.page-study .study-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+}
+
+.page-study .study-field .flabel,
+.page-study .study-field legend {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-subtle);
+  margin-bottom: 4px;
+}
+
+.page-study .study-field .input-mono {
+  max-width: 200px;
+}
+
+.page-study .study-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.page-study .study-radio input {
+  accent-color: var(--color-accent);
+}
+
+.page-study .field-error {
+  font-size: 12px;
+  color: var(--color-error);
+}
+
+.page-study .study-form .btn-primary {
+  align-self: flex-start;
+}
+
+.page-study .study-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.page-study .study-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.page-study .study-who {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
+
+.page-study .study-block {
+  padding: 16px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.page-study .study-block .title {
+  font-weight: 500;
+}
+
+.page-study .study-block .meta {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+.page-study .measures {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 14px 0 0;
+  font-size: 13px;
+}
+
+.page-study .measures dt {
+  color: var(--color-text-muted);
+}
+
+.page-study .measures dd {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+}
+
+@media (max-width: 980px) {
+  .page-study .key-layout {
+    grid-template-columns: 1fr;
+  }
+}

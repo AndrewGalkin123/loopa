@@ -62,8 +62,14 @@ export type PlayerAction =
   /** The answer to the question on screen. */
   | { type: "answer"; reply: Reply };
 
-export function createPlayerState(input: unknown, inputKind: string, steps: Step[], questions: Question[] = []): PlayerState {
-  return { input, inputKind, steps, index: 0, playing: false, speed: 1, mode: "watch", questions, results: {}, asking: null };
+export function createPlayerState(
+  input: unknown,
+  inputKind: string,
+  steps: Step[],
+  questions: Question[] = [],
+  mode: Mode = "watch",
+): PlayerState {
+  return { input, inputKind, steps, index: 0, playing: false, speed: 1, mode, questions, results: {}, asking: null };
 }
 
 export function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {

@@ -1,6 +1,7 @@
 import { Route } from "lucide-react";
 import { WEIGHTED_PRESETS } from "@/models/graph/presets";
 import { defineGraphAlgorithm } from "@/models/graph/types";
+import { dijkstraKeyStates } from "./keyStates";
 import { dijkstraQuestions } from "./questions";
 import { dijkstraTrace } from "./trace";
 
@@ -17,6 +18,7 @@ export const dijkstra = defineGraphAlgorithm({
   },
   trace: dijkstraTrace,
   questions: dijkstraQuestions,
+  keyStates: dijkstraKeyStates,
   // 1–4 prepare the arrays (one step at line 5); 6, 8 belong to closing a vertex; 9 to the check; 12 to the update.
   lineAliases: { 1: 5, 2: 5, 3: 5, 4: 5, 6: 7, 8: 7, 9: 10, 12: 11 },
   counters: [

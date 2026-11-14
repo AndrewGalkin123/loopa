@@ -3,7 +3,7 @@
 import { createContext, use, useReducer, type Dispatch, type ReactNode } from "react";
 import type { AlgorithmDefinition, Model, Step } from "@/core/types";
 import { usePlaybackTimer } from "./usePlayerControls";
-import { createPlayerState, playerReducer, STEP_MS, type PlayerAction, type PlayerState } from "./playerState";
+import { createPlayerState, playerReducer, STEP_MS, type Mode, type PlayerAction, type PlayerState } from "./playerState";
 
 interface PlayerContextValue {
   state: PlayerState;
@@ -24,17 +24,29 @@ const PlayerContext = createContext<PlayerContextValue | null>(null);
  * Holds the player state for the whole algorithm page, so that the sub-navigation,
  * the player, the input panel and the pseudocode all show the same step.
  */
-export function PlayerProvider({ definition, model, children }: {
+export function PlayerProvider({ definition, model, initialMode = "watch", onAction, children }: {
   definition: AlgorithmDefinition;
   model: Model;
+  /** The mode the player starts in ("Sleduj" on the site, "Předpověz" in the research session). */
+  initialMode?: Mode;
+  /** Called with every action of the user and the state before it (the research session records them). */
+  onAction?: (action: PlayerAction, state: PlayerState) => void;
   children: ReactNode;
 }) {
-  const [state, dispatch] = useReducer(playerReducer, null, () => {
+  const [state, reduce] = useReducer(playerReducer, null, () => {
     const steps = definition.trace(definition.initialInput);
-    return createPlayerState(definition.initialInput, definition.initialInputKind ?? "random", steps, definition.questions?.(steps));
+    const questions = definition.questions?.(steps);
+    return createPlayerState(definition.initialInput, definition.initialInputKind ?? "random", steps, questions, initialMode);
   });
 
-  usePlaybackTimer(state.playing, STEP_MS / state.speed, dispatch);
+  // The timer's ticks are not actions of the user, so they go straight to the reducer.
+  usePlaybackTimer(state.playing, STEP_MS / state.speed, reduce);
+  const dispatch = onAction
+    ? (action: PlayerAction) => {
+        onAction(action, state);
+        reduce(action);
+      }
+    : reduce;
 
   const value: PlayerContextValue = {
     state,
@@ -56,4 +68,9 @@ export function usePlayer(): PlayerContextValue {
   const player = use(PlayerContext);
   if (!player) throw new Error("usePlayer() must be used inside <PlayerProvider>");
   return player;
+}
+
+/** The player, or null for a picture shown outside of it (a still picture of a key state). */
+export function useOptionalPlayer(): PlayerContextValue | null {
+  return use(PlayerContext);
 }

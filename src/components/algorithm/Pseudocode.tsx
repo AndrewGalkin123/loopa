@@ -37,3 +37,18 @@ export function Pseudocode({ lines }: { lines: ReactNode[] }) {
     </div>
   );
 }
+
+/** Pseudocode without the player: no highlighted line, nothing to click (the control condition of the research). */
+export function StaticPseudocode({ lines }: { lines: ReactNode[] }) {
+  return (
+    <div className="code">
+      <pre className="code-body" style={{ margin: 0 }}>
+        {lines.map((line, i) => (
+          <CodeLine key={i} n={i + 1}>
+            {line}
+          </CodeLine>
+        ))}
+      </pre>
+    </div>
+  );
+}

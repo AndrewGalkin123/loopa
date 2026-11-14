@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
 // next/font downloads the fonts at build time and serves them from our own
@@ -36,11 +34,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       data-scroll-behavior="smooth"
       className={`${inter.variable} ${serif.variable} ${mono.variable}`}
     >
-      <body>
-        <SiteHeader />
-        {children}
-        <SiteFooter />
-      </body>
+      {/* The site header and footer are in app/(site)/layout.tsx. */}
+      <body>{children}</body>
     </html>
   );
 }
