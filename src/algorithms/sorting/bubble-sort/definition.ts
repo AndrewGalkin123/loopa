@@ -1,5 +1,6 @@
 import { ArrowUpNarrowWide } from "lucide-react";
 import { defineArrayAlgorithm } from "@/models/array/types";
+import { bubbleSortTasks } from "./tasks";
 import { bubbleSortTrace } from "./trace";
 
 export const bubbleSort = defineArrayAlgorithm({
@@ -14,6 +15,7 @@ export const bubbleSort = defineArrayAlgorithm({
     badge: { variant: "sorting", icon: ArrowUpNarrowWide, label: "sort" },
   },
   trace: bubbleSortTrace,
+  tasks: bubbleSortTasks,
   // Lines 1, 3, 5 and 8 have no step of their own.
   lineAliases: { 1: 2, 3: 4, 5: 6, 8: 7 },
   counters: [

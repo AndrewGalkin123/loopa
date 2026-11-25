@@ -1,6 +1,7 @@
 import { Repeat } from "lucide-react";
 import { DIRECTED_PRESETS } from "@/models/graph/presets";
 import { defineGraphAlgorithm } from "@/models/graph/types";
+import { bellmanFordTasks } from "./tasks";
 import { bellmanFordTrace } from "./trace";
 
 export const bellmanFord = defineGraphAlgorithm({
@@ -15,6 +16,7 @@ export const bellmanFord = defineGraphAlgorithm({
     badge: { variant: "shortest", icon: Repeat, label: "bf" },
   },
   trace: bellmanFordTrace,
+  tasks: bellmanFordTasks,
   // 1–2 prepare the arrays; 4 and 6 belong to a pass and to checking an edge; 9 to the update; 10 to the end.
   lineAliases: { 1: 3, 2: 3, 4: 5, 6: 7, 9: 8, 10: 11 },
   counters: [

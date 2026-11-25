@@ -2,6 +2,7 @@ import { ArrowDownToLine } from "lucide-react";
 import { defineArrayAlgorithm } from "@/models/array/types";
 import { insertionSortKeyStates } from "./keyStates";
 import { insertionSortQuestions } from "./questions";
+import { insertionSortTasks } from "./tasks";
 import { insertionSortTrace } from "./trace";
 
 export const insertionSort = defineArrayAlgorithm({
@@ -16,6 +17,7 @@ export const insertionSort = defineArrayAlgorithm({
     badge: { variant: "sorting", icon: ArrowDownToLine, label: "insert" },
   },
   trace: insertionSortTrace,
+  tasks: insertionSortTasks,
   questions: insertionSortQuestions,
   keyStates: insertionSortKeyStates,
   // 2 and 4 only prepare the pass, 7 only moves the index j.

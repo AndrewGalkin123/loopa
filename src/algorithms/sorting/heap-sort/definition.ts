@@ -1,5 +1,6 @@
 import { Pyramid } from "lucide-react";
 import { defineArrayAlgorithm } from "@/models/array/types";
+import { heapSortTasks } from "./tasks";
 import { heapSortTrace } from "./trace";
 
 export const heapSort = defineArrayAlgorithm({
@@ -14,6 +15,7 @@ export const heapSort = defineArrayAlgorithm({
     badge: { variant: "sorting", icon: Pyramid, label: "heap" },
   },
   trace: heapSortTrace,
+  tasks: heapSortTasks,
   // 1 has no step of its own; the calls (4, 7, 19) and the procedure (9) start sifting at line 10;
   // 11, 12 and 14 lead to the comparison on line 13, 16 to the one on line 15.
   lineAliases: { 1: 2, 4: 10, 7: 10, 9: 10, 11: 13, 12: 13, 14: 13, 16: 15, 19: 10 },

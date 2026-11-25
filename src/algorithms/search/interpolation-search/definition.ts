@@ -1,5 +1,6 @@
 import { Crosshair } from "lucide-react";
 import { defineSearchAlgorithm } from "@/models/search/types";
+import { interpolationSearchTasks } from "./tasks";
 import { interpolationSearchTrace } from "./trace";
 
 const COUNTERS = [
@@ -20,6 +21,7 @@ export const interpolationSearch = defineSearchAlgorithm({
     badge: { variant: "search-sorted", icon: Crosshair, label: "int" },
   },
   trace: interpolationSearchTrace,
+  tasks: interpolationSearchTasks,
   // 1 → the start; 3, 4, 6 lead to the estimate; 10 to moving lo, 12 to moving hi.
   lineAliases: { 1: 2, 3: 7, 4: 7, 6: 7, 10: 11, 12: 13 },
   counters: COUNTERS,

@@ -1,3 +1,4 @@
+import type { Step, Task } from "@/core/types";
 import { mulberry32 } from "@/lib/random";
 import { MAX_RANDOM_NODES, maxRandomEdges, MIN_RANDOM_NODES, PRESETS, randomGraph, randomWeightedGraph } from "@/models/graph/presets";
 import type { Graph, GraphEdge, WeightOptions } from "@/models/graph/types";
@@ -73,4 +74,11 @@ export function testWeightedGraphs(options: WeightOptions, count: number, seed =
     return randomWeightedGraph(options, n, m, random);
   };
   return [...options.presets.map((p) => p.graph), ...Array.from({ length: count }, randomOne)];
+}
+
+/** Does the input solve the task of the algorithm? (Unknown task ids fail loudly.) */
+export function solves<I, S, E>(tasks: Task<I, S, E>[], trace: (input: I) => Step<S, E>[], id: string, input: I): boolean {
+  const task = tasks.find((t) => t.id === id);
+  if (!task) throw new Error(`No task "${id}"`);
+  return task.check(input, trace(input)).done;
 }

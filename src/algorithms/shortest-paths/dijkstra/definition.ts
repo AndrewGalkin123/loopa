@@ -3,6 +3,7 @@ import { WEIGHTED_PRESETS } from "@/models/graph/presets";
 import { defineGraphAlgorithm } from "@/models/graph/types";
 import { dijkstraKeyStates } from "./keyStates";
 import { dijkstraQuestions } from "./questions";
+import { dijkstraTasks } from "./tasks";
 import { dijkstraTrace } from "./trace";
 
 export const dijkstra = defineGraphAlgorithm({
@@ -17,6 +18,7 @@ export const dijkstra = defineGraphAlgorithm({
     badge: { variant: "shortest", icon: Route, label: "path" },
   },
   trace: dijkstraTrace,
+  tasks: dijkstraTasks,
   questions: dijkstraQuestions,
   keyStates: dijkstraKeyStates,
   // 1–4 prepare the arrays (one step at line 5); 6, 8 belong to closing a vertex; 9 to the check; 12 to the update.

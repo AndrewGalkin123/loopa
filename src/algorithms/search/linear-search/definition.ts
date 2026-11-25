@@ -1,5 +1,6 @@
 import { ListOrdered } from "lucide-react";
 import { defineSearchAlgorithm } from "@/models/search/types";
+import { linearSearchTasks } from "./tasks";
 import { linearSearchTrace } from "./trace";
 
 const COUNTERS = [
@@ -20,6 +21,7 @@ export const linearSearch = defineSearchAlgorithm({
     badge: { variant: "search-sorted", icon: ListOrdered, label: "lin" },
   },
   trace: linearSearchTrace,
+  tasks: linearSearchTasks,
   // Line 2 is the loop: it leads to the comparison.
   lineAliases: { 2: 3 },
   counters: COUNTERS,

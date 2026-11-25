@@ -1,5 +1,6 @@
 import { Crosshair } from "lucide-react";
 import { defineArrayAlgorithm } from "@/models/array/types";
+import { selectionSortTasks } from "./tasks";
 import { selectionSortTrace } from "./trace";
 
 export const selectionSort = defineArrayAlgorithm({
@@ -14,6 +15,7 @@ export const selectionSort = defineArrayAlgorithm({
     badge: { variant: "sorting", icon: Crosshair, label: "select" },
   },
   trace: selectionSortTrace,
+  tasks: selectionSortTasks,
   // Line 1 has no step of its own, 3 and 5 are only the loops.
   lineAliases: { 1: 2, 3: 4, 5: 6 },
   counters: [

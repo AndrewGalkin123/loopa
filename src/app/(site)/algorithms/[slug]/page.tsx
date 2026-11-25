@@ -8,6 +8,7 @@ import { AiFab } from "@/components/AiFab";
 import { AlgorithmCard } from "@/components/AlgorithmCard";
 import { AlgorithmSections } from "@/components/algorithm/AlgorithmSections";
 import { PlayerLegend } from "@/components/algorithm/Legend";
+import { TaskList } from "@/components/algorithm/TaskList";
 import { Badge } from "@/components/Badge";
 import { Dropdown } from "@/components/Dropdown";
 import { Player } from "@/core/player/Player";
@@ -140,6 +141,9 @@ export default async function AlgorithmPage({ params }: Props) {
               <PlayerLegend />
             </aside>
           </section>
+
+          {/* ───────── TASKS "find an input such that …" ───────── */}
+          <TaskList />
 
           {/* ───────── TABS + CONTENT ───────── */}
           <AlgorithmSections content={content} linkedToPlayer />

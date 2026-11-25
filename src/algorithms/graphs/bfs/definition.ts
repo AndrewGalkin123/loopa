@@ -3,6 +3,7 @@ import { PRESETS } from "@/models/graph/presets";
 import { defineGraphAlgorithm } from "@/models/graph/types";
 import { bfsKeyStates } from "./keyStates";
 import { bfsQuestions } from "./questions";
+import { bfsTasks } from "./tasks";
 import { bfsTrace } from "./trace";
 
 export const bfs = defineGraphAlgorithm({
@@ -17,6 +18,7 @@ export const bfs = defineGraphAlgorithm({
     badge: { variant: "graph", icon: GitBranch, label: "bfs" },
   },
   trace: bfsTrace,
+  tasks: bfsTasks,
   questions: bfsQuestions,
   keyStates: bfsKeyStates,
   // 1–3 prepare the arrays (one step at line 4), 5 is the loop, 7 the for, 9–10 belong to the enqueue.

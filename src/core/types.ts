@@ -65,6 +65,28 @@ export interface KeyState {
   caption: NotePart[];
 }
 
+/**
+ * A task "find an input such that …" (úlohy na hledání vstupů). After every change
+ * of the input it is checked on the newly recorded run.
+ */
+export interface Task<Input = unknown, S = unknown, E = unknown> {
+  /** Unique within the algorithm; the browser remembers solved tasks by it. */
+  id: string;
+  text: string;
+  hint: string;
+  /** Why an input that solves the task works — or, for an impossible task, why there is none. */
+  explain: string;
+  /** A task without a solution: the student finds out why and answers "Myslím, že to nejde". */
+  impossible?: boolean;
+  check(input: Input, steps: Step<S, E>[]): TaskCheck;
+}
+
+export interface TaskCheck {
+  done: boolean;
+  /** How far the current run is, e.g. "výměny: 12 · cíl 28", or what to change first. */
+  status?: string;
+}
+
 /** What the user answered: the clicked ids, or yes / no. */
 export type Reply = string[] | boolean;
 
@@ -121,6 +143,8 @@ export interface AlgorithmDefinition<Input = unknown, S = unknown, E = unknown> 
   questions?(steps: Step<S, E>[]): Question[];
   /** Key moments of a run, shown as still pictures instead of the player (the research, VO2). */
   keyStates?(steps: Step<S, E>[]): KeyState[];
+  /** Tasks "find an input such that …" shown under the player. */
+  tasks?: Task<Input, S, E>[];
 }
 
 /** A data model: how its steps are drawn and how the user changes the input. */

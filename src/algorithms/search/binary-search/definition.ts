@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import { defineSearchAlgorithm } from "@/models/search/types";
+import { binarySearchTasks } from "./tasks";
 import { binarySearchTrace } from "./trace";
 
 const COUNTERS = [
@@ -20,6 +21,7 @@ export const binarySearch = defineSearchAlgorithm({
     badge: { variant: "search-sorted", icon: Search, label: "bin" },
   },
   trace: binarySearchTrace,
+  tasks: binarySearchTasks,
   // 3–4 lead to the comparison, 7 to moving lo, 9 to moving hi.
   lineAliases: { 1: 2, 3: 5, 4: 5, 7: 8, 9: 10 },
   counters: COUNTERS,

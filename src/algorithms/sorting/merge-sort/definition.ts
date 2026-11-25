@@ -1,5 +1,6 @@
 import { Layers } from "lucide-react";
 import { defineArrayAlgorithm } from "@/models/array/types";
+import { mergeSortTasks } from "./tasks";
 import { mergeSortTrace } from "./trace";
 
 export const mergeSort = defineArrayAlgorithm({
@@ -14,6 +15,7 @@ export const mergeSort = defineArrayAlgorithm({
     badge: { variant: "sorting", icon: Layers, label: "stable" },
   },
   trace: mergeSortTrace,
+  tasks: mergeSortTasks,
   // 2, 4, 5: recursion → split; 6, 8: merge; 10, 11, 16: loop bookkeeping → compare; 14 → else branch.
   lineAliases: { 2: 3, 4: 3, 5: 3, 6: 9, 8: 9, 10: 12, 11: 12, 14: 15, 16: 12 },
   // Merge Sort does not swap, it writes values into the array.

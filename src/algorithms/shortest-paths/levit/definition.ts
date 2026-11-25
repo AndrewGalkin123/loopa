@@ -1,6 +1,7 @@
 import { ArrowLeftRight } from "lucide-react";
 import { DIRECTED_PRESETS } from "@/models/graph/presets";
 import { defineGraphAlgorithm } from "@/models/graph/types";
+import { levitTasks } from "./tasks";
 import { levitTrace } from "./trace";
 
 export const levit = defineGraphAlgorithm({
@@ -15,6 +16,7 @@ export const levit = defineGraphAlgorithm({
     badge: { variant: "shortest", icon: ArrowLeftRight, label: "lev" },
   },
   trace: levitTrace,
+  tasks: levitTasks,
   // 1–3 prepare the arrays; 5 is the loop; 7 the for; 10 and 12 lead to moving the vertex into M1.
   lineAliases: { 1: 4, 2: 4, 3: 4, 5: 6, 7: 8, 10: 11, 12: 13 },
   counters: [

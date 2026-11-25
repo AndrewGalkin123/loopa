@@ -1,6 +1,7 @@
 import { GitFork } from "lucide-react";
 import { PRESETS } from "@/models/graph/presets";
 import { defineGraphAlgorithm } from "@/models/graph/types";
+import { dfsTasks } from "./tasks";
 import { dfsTrace } from "./trace";
 
 export const dfs = defineGraphAlgorithm({
@@ -15,6 +16,7 @@ export const dfs = defineGraphAlgorithm({
     badge: { variant: "graph", icon: GitFork, label: "dfs" },
   },
   trace: dfsTrace,
+  tasks: dfsTasks,
   // 1–2 prepare the array (one step at line 3), 5 enters visit, 7 is the for, 9 calls visit again.
   lineAliases: { 1: 3, 2: 3, 5: 6, 7: 8, 9: 6 },
   counters: [
