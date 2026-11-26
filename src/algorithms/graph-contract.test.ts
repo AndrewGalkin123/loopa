@@ -28,7 +28,7 @@ function reachable(graph: Graph, start: string): Set<string> {
 }
 
 describe.each(graphAlgorithms)("$slug follows the graph contract", (definition) => {
-  const pseudocodeLines = CONTENT[definition.slug].pseudocode.length;
+  const pseudocodeLines = CONTENT[definition.slug].cs.pseudocode.length;
 
   test("starts with 'start' and ends with 'done'", () => {
     for (const graph of graphs) {

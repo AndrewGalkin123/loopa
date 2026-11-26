@@ -27,7 +27,7 @@ function reference(graph: Graph, start: string) {
 
 describe.each(algorithms)("$slug follows the shortest-path contract", (definition) => {
   const graphs = testWeightedGraphs(definition.weighted, 80, 11);
-  const pseudocodeLines = CONTENT[definition.slug].pseudocode.length;
+  const pseudocodeLines = CONTENT[definition.slug].cs.pseudocode.length;
   const runs = graphs.flatMap((graph) => graph.nodes.slice(0, 4).map(({ id }) => ({ graph, start: id })));
 
   test("the distances are the shortest ones and a negative cycle is reported", () => {

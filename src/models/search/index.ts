@@ -9,10 +9,10 @@ export const searchModel: Model = {
   InputPanel: SearchInputPanel,
   DataMenu: SearchDataMenu,
   legend: {
-    default: { color: "var(--viz-default)", desc: "ještě možné" },
-    compared: { color: "var(--viz-compared)", desc: "právě zkoumaný" },
-    sorted: { color: "var(--viz-sorted)", desc: "nalezeno" },
-    dimmed: { color: "var(--viz-default)", desc: "vyřazeno", dim: true },
-    target: { color: "var(--viz-target)", desc: "hledaná hodnota" },
+    default: { color: "var(--viz-default)", desc: { cs: "ještě možné", en: "still possible" } },
+    compared: { color: "var(--viz-compared)", desc: { cs: "právě zkoumaný", en: "being checked" } },
+    sorted: { color: "var(--viz-sorted)", desc: { cs: "nalezeno", en: "found" } },
+    dimmed: { color: "var(--viz-default)", desc: { cs: "vyřazeno", en: "ruled out" }, dim: true },
+    target: { color: "var(--viz-target)", desc: { cs: "hledaná hodnota", en: "the wanted value" } },
   },
 };

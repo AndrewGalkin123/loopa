@@ -12,7 +12,7 @@ export const PRESETS: GraphPreset[] = [
   {
     id: "cycles",
     label: "cycles",
-    hint: "graf s cykly",
+    hint: { cs: "graf s cykly", en: "a graph with cycles" },
     graph: {
       nodes: [
         node("A", 70, 140),
@@ -33,7 +33,7 @@ export const PRESETS: GraphPreset[] = [
   {
     id: "tree",
     label: "tree",
-    hint: "strom",
+    hint: { cs: "strom", en: "a tree" },
     graph: {
       nodes: [
         node("A", 380, 45),
@@ -50,7 +50,7 @@ export const PRESETS: GraphPreset[] = [
   {
     id: "grid",
     label: "grid",
-    hint: "mřížka 3 × 3",
+    hint: { cs: "mřížka 3 × 3", en: "a 3 × 3 grid" },
     graph: {
       nodes: [
         node("A", 230, 50), node("B", 380, 50), node("C", 530, 50),
@@ -66,7 +66,7 @@ export const PRESETS: GraphPreset[] = [
   {
     id: "components",
     label: "components",
-    hint: "dvě komponenty",
+    hint: { cs: "dvě komponenty", en: "two components" },
     graph: {
       nodes: [
         node("A", 100, 90),
@@ -207,7 +207,7 @@ export const WEIGHTED_PRESETS: GraphPreset[] = [
   {
     id: "network",
     label: "network",
-    hint: "síť s více cestami",
+    hint: { cs: "síť s více cestami", en: "a network with several ways" },
     graph: {
       nodes: CITY_NODES,
       edges: [
@@ -219,7 +219,7 @@ export const WEIGHTED_PRESETS: GraphPreset[] = [
   {
     id: "detour",
     label: "detour",
-    hint: "objížďka je kratší než přímá hrana",
+    hint: { cs: "objížďka je kratší než přímá hrana", en: "the detour is shorter than the direct edge" },
     graph: {
       nodes: [node("A", 80, 140), node("B", 280, 50), node("C", 480, 50), node("D", 680, 140)],
       edges: [["A", "D", 20], ["A", "B", 3], ["B", "C", 4], ["C", "D", 5]],
@@ -228,7 +228,7 @@ export const WEIGHTED_PRESETS: GraphPreset[] = [
   {
     id: "components",
     label: "components",
-    hint: "část grafu je nedosažitelná",
+    hint: { cs: "část grafu je nedosažitelná", en: "part of the graph cannot be reached" },
     graph: {
       nodes: [
         node("A", 100, 90), node("B", 270, 60), node("C", 190, 220),
@@ -249,7 +249,7 @@ export const DIRECTED_PRESETS: GraphPreset[] = [
   {
     id: "negative",
     label: "negative",
-    hint: "záporné hrany, bez záporného cyklu",
+    hint: { cs: "záporné hrany, bez záporného cyklu", en: "negative edges, no negative cycle" },
     graph: {
       directed: true,
       nodes: DIRECTED_NODES,
@@ -262,7 +262,7 @@ export const DIRECTED_PRESETS: GraphPreset[] = [
   {
     id: "positive",
     label: "positive",
-    hint: "jen kladné hrany",
+    hint: { cs: "jen kladné hrany", en: "positive edges only" },
     graph: {
       directed: true,
       nodes: DIRECTED_NODES,
@@ -275,7 +275,7 @@ export const DIRECTED_PRESETS: GraphPreset[] = [
   {
     id: "neg-cycle",
     label: "neg-cycle",
-    hint: "záporný cyklus: nejkratší cesta neexistuje",
+    hint: { cs: "záporný cyklus: nejkratší cesta neexistuje", en: "a negative cycle: no shortest path exists" },
     graph: {
       directed: true,
       nodes: [

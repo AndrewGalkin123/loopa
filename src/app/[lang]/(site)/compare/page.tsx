@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AiFab } from "@/components/AiFab";
 import { CompareWorkspace } from "@/components/compare/CompareWorkspace";
+import { getTranslator } from "@/i18n/server";
 import { resolveSlots } from "@/lib/compare";
 import "./compare.css";
 
@@ -16,12 +17,13 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 export default async function ComparePage({ searchParams }: Props) {
   const { a, b } = await searchParams;
   const [first, second] = resolveSlots(a, b);
+  const { t } = await getTranslator();
   return (
     <>
       <main className="page-compare">
         <CompareWorkspace slugA={first.slug} slugB={second.slug} />
       </main>
-      <AiFab label="Zeptej se na&nbsp;porovnání" ariaLabel="Zeptej se na porovnání" />
+      <AiFab label={t("compare.ask")} ariaLabel={t("compare.askAria")} />
     </>
   );
 }

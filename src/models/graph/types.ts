@@ -1,4 +1,5 @@
 import type { AlgorithmDefinition, Step } from "@/core/types";
+import type { Text } from "@/i18n/config";
 
 /*
  * The "graph" data model: vertices and edges drawn as an SVG picture
@@ -88,7 +89,7 @@ export type GraphStep = Step<GraphState, GraphEvent>;
 export interface GraphPreset {
   id: string;
   label: string;
-  hint: string;
+  hint: Text;
   graph: Graph;
 }
 

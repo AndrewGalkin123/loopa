@@ -11,7 +11,10 @@ export const bubbleSort = defineArrayAlgorithm({
   complexity: "O(n²)",
   card: {
     tagline: "simple",
-    description: "Jednoduchý algoritmus třídění. Porovnává a\u00a0vyměňuje sousední prvky, dokud není pole seřazené.",
+    description: {
+      cs: "Jednoduchý algoritmus třídění. Porovnává a\u00a0vyměňuje sousední prvky, dokud není pole seřazené.",
+      en: "A simple sorting algorithm. It compares and swaps neighbouring elements until the array is sorted.",
+    },
     badge: { variant: "sorting", icon: ArrowUpNarrowWide, label: "sort" },
   },
   trace: bubbleSortTrace,
@@ -25,5 +28,8 @@ export const bubbleSort = defineArrayAlgorithm({
   legend: ["default", "active", "compared", "sorted"],
   // The bars of the design: a shuffled 1..15.
   initialInput: [4, 7, 2, 11, 9, 14, 6, 12, 3, 15, 1, 8, 13, 5, 10],
-  inputHints: { sorted: "nejlepší případ", reversed: "nejhorší případ" },
+  inputHints: {
+    sorted: { cs: "nejlepší případ", en: "best case" },
+    reversed: { cs: "nejhorší případ", en: "worst case" },
+  },
 });

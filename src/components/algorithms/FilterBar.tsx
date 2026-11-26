@@ -3,6 +3,7 @@
 import { ChevronDown, Search } from "lucide-react";
 import type { Ref } from "react";
 import { Dropdown } from "@/components/Dropdown";
+import { useT } from "@/i18n/client";
 import { CATEGORIES, LEVELS, SORTS, type CatalogFilters } from "@/lib/catalogFilters";
 
 interface Chip<Id extends string> {
@@ -44,6 +45,7 @@ export function FilterBar({ filters, counts, onChange, searchRef }: {
   onChange: (change: Partial<CatalogFilters>) => void;
   searchRef: Ref<HTMLInputElement>;
 }) {
+  const { t } = useT();
   const sortLabel = SORTS.find((s) => s.id === filters.sort)!.label;
 
   return (
@@ -54,8 +56,8 @@ export function FilterBar({ filters, counts, onChange, searchRef }: {
           <input
             ref={searchRef}
             type="text"
-            placeholder="Hledat algoritmus…"
-            aria-label="Hledat algoritmus"
+            placeholder={t("catalog.search")}
+            aria-label={t("catalog.searchAria")}
             value={filters.query}
             onChange={(event) => onChange({ query: event.target.value })}
             // Esc clears the search.

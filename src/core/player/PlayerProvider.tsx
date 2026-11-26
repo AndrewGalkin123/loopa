@@ -2,6 +2,7 @@
 
 import { createContext, use, useReducer, type Dispatch, type ReactNode } from "react";
 import type { AlgorithmDefinition, Model, Step } from "@/core/types";
+import { useLocale } from "@/i18n/client";
 import { usePlaybackTimer } from "./usePlayerControls";
 import { createPlayerState, playerReducer, STEP_MS, type Mode, type PlayerAction, type PlayerState } from "./playerState";
 
@@ -33,9 +34,11 @@ export function PlayerProvider({ definition, model, initialMode = "watch", onAct
   onAction?: (action: PlayerAction, state: PlayerState) => void;
   children: ReactNode;
 }) {
+  // Questions are texts, so they are made in the language of the page.
+  const locale = useLocale();
   const [state, reduce] = useReducer(playerReducer, null, () => {
     const steps = definition.trace(definition.initialInput);
-    const questions = definition.questions?.(steps);
+    const questions = definition.questions?.(steps, locale);
     return createPlayerState(definition.initialInput, definition.initialInputKind ?? "random", steps, questions, initialMode);
   });
 
@@ -54,7 +57,7 @@ export function PlayerProvider({ definition, model, initialMode = "watch", onAct
     dispatch,
     load: (input, inputKind) => {
       const steps = definition.trace(input);
-      dispatch({ type: "load", input, inputKind, steps, questions: definition.questions?.(steps) });
+      dispatch({ type: "load", input, inputKind, steps, questions: definition.questions?.(steps, locale) });
     },
     definition,
     model,

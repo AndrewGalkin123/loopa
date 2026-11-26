@@ -593,3 +593,63 @@ footer.page-foot {
     display: none;
   }
 }
+
+/* Language menu in the header (not in the design). */
+.lang-wrap {
+  position: relative;
+}
+
+.lang-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 180px;
+  z-index: 60;
+  display: none;
+  padding: 6px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.lang-menu.open {
+  display: block;
+}
+
+.lang-menu a {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.lang-menu a:hover {
+  background: var(--color-surface);
+}
+
+.lang-menu a.cur {
+  color: var(--color-accent);
+}
+
+.lang-menu .code {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+}
+
+/* A page shown in Czech because its text is not translated yet (not in the design). */
+.untranslated {
+  max-width: var(--max-w);
+  margin: 16px auto 0;
+  padding: 10px 16px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: 13px;
+}

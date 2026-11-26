@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
 import { ArrowRight, AtSign, BookOpen, Check, GitBranch, Layers, Mail, ShieldCheck } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/Link";
 import { ALGORITHMS } from "@/algorithms/registry";
 import { AiFab } from "@/components/AiFab";
+import { hasTranslation, pick } from "@/i18n/config";
+import { getLocale, getTranslator } from "@/i18n/server";
+import { ABOUT } from "../texts/about";
 import "./about.css";
 
-export const metadata: Metadata = {
-  title: "Proč Loopa? — About",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: pick(ABOUT, await getLocale()).metaTitle };
+}
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const { t, locale } = await getTranslator();
+  const text = pick(ABOUT, locale);
   return (
     <div className="page-about">
       <main>
+        {!hasTranslation(ABOUT, locale) && <p className="untranslated">{t("untranslated")}</p>}
         {/* HERO */}
         <section className="about-hero">
           <div className="crumbs">
@@ -20,49 +26,39 @@ export default function AboutPage() {
             <span className="sep">/</span>
             <span className="here">about</span>
           </div>
-          <h1>Proč Loopa?</h1>
-          <p className="lede">
-            Algoritmy jsou srdcem programování. Skoro nikdo je ale nevysvětluje <em>pořádně.</em>
-          </p>
+          <h1>{text.title}</h1>
+          <p className="lede">{text.lede}</p>
         </section>
 
         {/* 01 STORY */}
         <section className="block">
           <div className="marker">01 / Story</div>
-          <h2>
-            Začalo to <em>frustrací.</em>
-          </h2>
+          <h2>{text.story.title}</h2>
           <div className="story-grid">
             <div className="prose">
-              <p>
-                Jsem student programování. Když jsem se poprvé setkal s&nbsp;algoritmy na&nbsp;přednáškách, většina
-                z&nbsp;nich mi přišla jako šum. Bubble sort? Dijkstra? Gradient descent? Slyšel jsem ta slova, viděl
-                pseudokód, ale <strong>opravdu rozumět</strong> tomu, co se uvnitř děje — to byl jiný level.
-              </p>
-              <p>
-                Existují skvělé zdroje. <em>3Blue1Brown</em> dělá kouzla s&nbsp;matematikou. <em>Visualgo</em> má
-                solidní vizualizace. <em>Brilliant</em> je dobře designovaný. Ale nic z&nbsp;toho mi nestačilo. Chtěl
-                jsem nástroj, kde si můžu <strong>pohrát</strong> s&nbsp;algoritmem — měnit data, srovnávat, ptát se.
-              </p>
-              <p>Tak jsem si ho začal stavět sám. Loopa je výsledek.</p>
+              {text.story.paragraphs.map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
             </div>
             <aside className="story-aside">
               <div className="aside-card">
                 <div className="aside-item">
-                  <div className="k">autor</div>
+                  <div className="k">{text.story.author}</div>
                   <div className="v">Andrew Halkin</div>
                 </div>
                 <div className="aside-item">
-                  <div className="k">typ</div>
-                  <div className="v">Bakalářská práce</div>
+                  <div className="k">{text.story.kind}</div>
+                  <div className="v">{text.story.kindValue}</div>
                 </div>
                 <div className="aside-item">
-                  <div className="k">rok</div>
+                  <div className="k">{text.story.year}</div>
                   <div className="v accent">2026</div>
                 </div>
                 <div className="aside-item">
-                  <div className="k">algoritmů</div>
-                  <div className="v">{ALGORITHMS.length} · a&nbsp;roste</div>
+                  <div className="k">{text.story.count}</div>
+                  <div className="v">
+                    {ALGORITHMS.length} · {text.story.growing}
+                  </div>
                 </div>
               </div>
             </aside>
@@ -72,9 +68,7 @@ export default function AboutPage() {
         {/* 02 MISSION */}
         <section className="block">
           <div className="marker">02 / Mission</div>
-          <h2>
-            Tři pravidla, <em>žádné výjimky.</em>
-          </h2>
+          <h2>{text.mission.title}</h2>
           <div className="principles">
             <div className="principle">
               <div className="icon">
@@ -83,13 +77,8 @@ export default function AboutPage() {
               <div className="pn">
                 <span className="accent">A</span> / depth
               </div>
-              <h3>
-                Hloubka před <em>šířkou</em>
-              </h3>
-              <p>
-                Devět algoritmů vysvětlených pořádně je víc než padesát s&nbsp;třemi řádky textu. Každý má teorii,
-                vizualizaci, kód, složitost a&nbsp;kontext.
-              </p>
+              <h3>{text.mission.principles[0].title}</h3>
+              <p>{text.mission.principles[0].text}</p>
             </div>
             <div className="principle">
               <div className="icon">
@@ -98,13 +87,8 @@ export default function AboutPage() {
               <div className="pn">
                 <span className="accent">B</span> / honesty
               </div>
-              <h3>
-                Bez <em>gamifikace</em>
-              </h3>
-              <p>
-                Žádné odznáčky, série, virtuální měna, dopamin-hits. Jen znalosti, vizualizace a&nbsp;čas
-                na&nbsp;přemýšlení. Učení nemusí být zábavné — musí být srozumitelné.
-              </p>
+              <h3>{text.mission.principles[1].title}</h3>
+              <p>{text.mission.principles[1].text}</p>
             </div>
             <div className="principle">
               <div className="icon">
@@ -113,13 +97,8 @@ export default function AboutPage() {
               <div className="pn">
                 <span className="accent">C</span> / open
               </div>
-              <h3>
-                Zdarma <em>navždy</em>
-              </h3>
-              <p>
-                Základ je zdarma a&nbsp;vždy bude. Pro pokročilé funkce existuje Pro tier, ale 95&nbsp;% obsahu je
-                dostupné komukoliv bez registrace.
-              </p>
+              <h3>{text.mission.principles[2].title}</h3>
+              <p>{text.mission.principles[2].text}</p>
             </div>
           </div>
         </section>
@@ -127,13 +106,8 @@ export default function AboutPage() {
         {/* 03 BUILT WITH */}
         <section className="block">
           <div className="marker">03 / Built With</div>
-          <h2>
-            Postaveno na&nbsp;<em>solidních základech</em>
-          </h2>
-          <p className="stack-intro">
-            Loopa běží na&nbsp;moderním stacku. Žádné magické black boxy — všechno je <em>standardní</em>,
-            otestované, otevřené.
-          </p>
+          <h2>{text.stack.title}</h2>
+          <p className="stack-intro">{text.stack.intro}</p>
           <div className="stack-table">
             <div className="stack-row">
               <div className="label">frontend</div>
@@ -172,42 +146,26 @@ export default function AboutPage() {
         {/* 04 STATUS */}
         <section className="block">
           <div className="marker">04 / Status</div>
-          <h2>
-            Co je <em>hotové</em> a&nbsp;co <em>přijde</em>
-          </h2>
+          <h2>{text.status.title}</h2>
           <div className="status-grid">
             <div className="status-col done">
-              <div className="col-label">hotovo</div>
+              <div className="col-label">{text.status.done}</div>
               <div className="status-list">
-                <div className="status-item">
-                  <Check className="mk" size={18} /> 9 algoritmů s&nbsp;plnou teorií
-                </div>
-                <div className="status-item">
-                  <Check className="mk" size={18} /> Režim porovnání
-                </div>
-                <div className="status-item">
-                  <Check className="mk" size={18} /> AI asistent
-                </div>
-                <div className="status-item">
-                  <Check className="mk" size={18} /> Česká a&nbsp;anglická verze
-                </div>
+                {text.status.doneItems.map((item, i) => (
+                  <div className="status-item" key={i}>
+                    <Check className="mk" size={18} /> {item}
+                  </div>
+                ))}
               </div>
             </div>
             <div className="status-col next">
-              <div className="col-label">na cestě</div>
+              <div className="col-label">{text.status.next}</div>
               <div className="status-list">
-                <div className="status-item">
-                  <span className="mk">—</span> Cvičení s&nbsp;kontrolou
-                </div>
-                <div className="status-item">
-                  <span className="mk">—</span> Mobilní aplikace
-                </div>
-                <div className="status-item">
-                  <span className="mk">—</span> Učitelský režim
-                </div>
-                <div className="status-item">
-                  <span className="mk">—</span> Více algoritmů
-                </div>
+                {text.status.nextItems.map((item, i) => (
+                  <div className="status-item" key={i}>
+                    <span className="mk">—</span> {item}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -216,10 +174,8 @@ export default function AboutPage() {
         {/* 05 CONNECT (contacts are placeholders) */}
         <section className="block">
           <div className="marker">05 / Connect</div>
-          <h2>
-            Máte <em>otázku?</em>
-          </h2>
-          <p className="connect-text">Našli jste chybu? Máte návrh? Chcete spolupracovat? Ozvěte se.</p>
+          <h2>{text.connect.title}</h2>
+          <p className="connect-text">{text.connect.text}</p>
           <div className="links-row">
             <a className="link-card" href="mailto:andrew@loopa.cz">
               <div className="icon">
@@ -259,24 +215,22 @@ export default function AboutPage() {
 
         {/* FINAL CTA */}
         <section className="final">
-          <h2>
-            Připraveni <em>začít?</em>
-          </h2>
+          <h2>{text.final.title}</h2>
           <div className="ctas">
             <Link href="/algorithms" className="btn btn-primary btn-lg">
-              Procházet algoritmy <ArrowRight size={16} />
+              {text.final.algorithms} <ArrowRight size={16} />
             </Link>
             <Link href="/compare" className="btn btn-secondary btn-lg">
-              Otevřít porovnání
+              {text.final.compare}
             </Link>
           </div>
           <div className="signoff">
-            <span className="c">{"//"}</span> Loopa · bakalářská práce 2026 · Andrew Halkin
+            <span className="c">{"//"}</span> {text.final.signoff}
           </div>
         </section>
       </main>
 
-      <AiFab label="Zeptej se" ariaLabel="Máte otázku?" />
+      <AiFab label={text.ask} ariaLabel={text.askAria} />
     </div>
   );
 }

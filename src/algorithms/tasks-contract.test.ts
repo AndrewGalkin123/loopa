@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import { ALGORITHMS } from "@/algorithms/registry";
 import { randomArrays, testGraphs, testSearchInputs, testWeightedGraphs } from "@/algorithms/testUtils";
 import type { Step } from "@/core/types";
+import { LOCALES, tx } from "@/i18n/config";
 
 /*
  * Rules every task "find an input such that …" must follow. A new algorithm with
@@ -24,12 +25,14 @@ test("every algorithm has tasks", () => {
 describe.each(withTasks)("$slug: tasks follow the rules", (definition) => {
   const tasks = definition.tasks!;
 
-  test("unique ids; a text, a hint and an explanation each", () => {
+  test("unique ids; a text, a hint and an explanation each, in every language", () => {
     expect(new Set(tasks.map((t) => t.id)).size).toBe(tasks.length);
     for (const task of tasks) {
-      expect(task.text.length).toBeGreaterThan(0);
-      expect(task.hint.length).toBeGreaterThan(0);
-      expect(task.explain.length).toBeGreaterThan(0);
+      for (const locale of LOCALES) {
+        expect(tx(task.text, locale).length).toBeGreaterThan(0);
+        expect(tx(task.hint, locale).length).toBeGreaterThan(0);
+        expect(tx(task.explain, locale).length).toBeGreaterThan(0);
+      }
     }
   });
 

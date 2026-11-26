@@ -2,6 +2,7 @@
 
 import { Pencil, Shuffle } from "lucide-react";
 import { usePlayer } from "@/core/player/PlayerProvider";
+import { useT } from "@/i18n/client";
 import { MAX_RANDOM_NODES, maxRandomEdges, MIN_RANDOM_NODES, randomGraph, randomWeightedGraph } from "./presets";
 import type { GraphAlgorithm, GraphInput } from "./types";
 
@@ -11,6 +12,7 @@ import type { GraphAlgorithm, GraphInput } from "./types";
  */
 export function GraphInputPanel() {
   const { state, load, definition } = usePlayer();
+  const { t } = useT();
   const { weighted } = definition as GraphAlgorithm;
   const { graph, start } = state.input as GraphInput;
   const n = graph.nodes.length;
@@ -33,10 +35,10 @@ export function GraphInputPanel() {
       <div className="panel-label">Input</div>
       <div className="field">
         <div className="flabel">
-          <span className="name">Startovní vrchol</span>
+          <span className="name">{t("input.start")}</span>
           <span className="num">{start}</span>
         </div>
-        <div className="vertex-picker" role="group" aria-label="Startovní vrchol">
+        <div className="vertex-picker" role="group" aria-label={t("input.start")}>
           {graph.nodes.map(({ id }) => (
             <button
               key={id}
@@ -51,7 +53,7 @@ export function GraphInputPanel() {
       </div>
       <div className="field">
         <div className="flabel">
-          <span className="name">Vrcholy</span>
+          <span className="name">{t("input.vertices")}</span>
           <span className="num">{n}</span>
         </div>
         <input
@@ -60,7 +62,7 @@ export function GraphInputPanel() {
           min={MIN_RANDOM_NODES}
           max={MAX_RANDOM_NODES}
           value={nodesValue}
-          aria-label="Počet vrcholů náhodného grafu"
+          aria-label={t("input.verticesAria")}
           onChange={(event) => {
             const nodes = Number(event.target.value);
             // Keep the number of edges if the new number of vertices allows it.
@@ -70,7 +72,7 @@ export function GraphInputPanel() {
       </div>
       <div className="field">
         <div className="flabel">
-          <span className="name">Hrany</span>
+          <span className="name">{t("input.edges")}</span>
           <span className="num">{m}</span>
         </div>
         <input
@@ -80,19 +82,17 @@ export function GraphInputPanel() {
           max={maxEdges}
           value={edgesValue}
           disabled={minEdges === maxEdges}
-          aria-label="Počet hran náhodného grafu"
+          aria-label={t("input.edgesAria")}
           onChange={(event) => generate(nodesValue, Number(event.target.value))}
         />
-        <div className="field-note">
-          {minEdges}–{maxEdges}: od stromu po&nbsp;nejvíc hran bez křížení
-        </div>
+        <div className="field-note">{t("input.edgesRange", { min: minEdges, max: maxEdges })}</div>
       </div>
       <div className="field">
         <button className="btn btn-secondary btn-sm" onClick={() => generate(nodesValue, edgesValue)}>
-          <Shuffle size={13} /> Nový náhodný graf
+          <Shuffle size={13} /> {t("input.randomGraph")}
         </button>
         <div className="field-note">
-          <Pencil size={11} /> Graf můžeš upravit i&nbsp;přímo v&nbsp;přehrávači.
+          <Pencil size={11} /> {t("input.editHint")}
         </div>
       </div>
     </div>

@@ -10,7 +10,7 @@ import { testSearchInputs } from "@/algorithms/testUtils";
 const searchAlgorithms = ALGORITHMS.filter((definition) => definition.model === "search");
 
 describe.each(searchAlgorithms)("$slug follows the search contract", (definition) => {
-  const pseudocodeLines = CONTENT[definition.slug].pseudocode.length;
+  const pseudocodeLines = CONTENT[definition.slug].cs.pseudocode.length;
   const inputs = [
     ...testSearchInputs(300, definition.requiresSorted),
     { values: [5, 5, 5, 5], target: 5 },

@@ -1,18 +1,19 @@
+import type { Text } from "@/i18n/config";
 /* Input arrays of the search model. Values are 0–99, as in the array model. */
 
 export type SearchDataset = "random" | "uniform" | "skewed" | "shuffled" | "sorted";
 
 /** Prepared arrays for algorithms that need sorted input. */
-export const SORTED_DATASETS: { id: SearchDataset; hint: string }[] = [
-  { id: "random", hint: "náhodné hodnoty" },
-  { id: "uniform", hint: "rovnoměrné rozestupy" },
-  { id: "skewed", hint: "hodnoty se nakupí vlevo" },
+export const SORTED_DATASETS: { id: SearchDataset; hint: Text }[] = [
+  { id: "random", hint: { cs: "náhodné hodnoty", en: "random values" } },
+  { id: "uniform", hint: { cs: "rovnoměrné rozestupy", en: "even gaps" } },
+  { id: "skewed", hint: { cs: "hodnoty se nakupí vlevo", en: "values crowd on the left" } },
 ];
 
 /** Prepared arrays for algorithms that accept any order. */
-export const ANY_ORDER_DATASETS: { id: SearchDataset; hint: string }[] = [
-  { id: "shuffled", hint: "náhodné pořadí" },
-  { id: "sorted", hint: "seřazené" },
+export const ANY_ORDER_DATASETS: { id: SearchDataset; hint: Text }[] = [
+  { id: "shuffled", hint: { cs: "náhodné pořadí", en: "random order" } },
+  { id: "sorted", hint: { cs: "seřazené", en: "sorted" } },
 ];
 
 const MAX_VALUE = 99;

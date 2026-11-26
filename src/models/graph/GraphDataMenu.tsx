@@ -3,12 +3,14 @@
 import { ChevronDown } from "lucide-react";
 import { Dropdown } from "@/components/Dropdown";
 import { usePlayer } from "@/core/player/PlayerProvider";
+import { useT } from "@/i18n/client";
 import { PRESETS, randomGraph, randomWeightedGraph } from "./presets";
 import type { Graph, GraphAlgorithm, GraphInput } from "./types";
 
 /** The "graph" button under the player: prepared graphs and a random one. */
 export function GraphDataMenu() {
   const { state, load, definition } = usePlayer();
+  const { t, tx } = useT();
   const hints = definition.inputHints ?? {};
   const { start } = state.input as GraphInput;
   // Keep the chosen start vertex if the new graph has it.
@@ -30,14 +32,14 @@ export function GraphDataMenu() {
         </>
       }
     >
-      <div className="head">graf</div>
+      <div className="head">{t("data.graph")}</div>
       {presets.map((preset) => (
         <button
           key={preset.id}
           className={preset.id === state.inputKind ? "on" : undefined}
           onClick={() => load({ graph: preset.graph, start: startIn(preset.graph) }, preset.id)}
         >
-          {preset.label} <span className="c">{hints[preset.id] ?? preset.hint}</span>
+          {preset.label} <span className="c">{tx(hints[preset.id] ?? preset.hint)}</span>
         </button>
       ))}
       <button
@@ -47,7 +49,7 @@ export function GraphDataMenu() {
           load({ graph, start: startIn(graph) }, "random");
         }}
       >
-        random <span className="c">{hints.random ?? "náhodný souvislý graf"}</span>
+        random <span className="c">{tx(hints.random ?? { cs: "náhodný souvislý graf", en: "a random connected graph" })}</span>
       </button>
     </Dropdown>
   );

@@ -3,6 +3,7 @@
 import { Check, Circle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { usePlayer } from "@/core/player/PlayerProvider";
+import { useT } from "@/i18n/client";
 import { forgetSolved, markSolved, useSolved } from "./taskProgress";
 
 /**
@@ -11,6 +12,7 @@ import { forgetSolved, markSolved, useSolved } from "./taskProgress";
  */
 export function TaskList() {
   const { state, definition } = usePlayer();
+  const { t, tx } = useT();
   const tasks = definition.tasks;
   const solved = useSolved(definition.slug);
   const checks = useMemo(() => tasks?.map((task) => task.check(state.input, state.steps)) ?? [], [tasks, state.input, state.steps]);
@@ -30,17 +32,17 @@ export function TaskList() {
   return (
     <section className="tasks">
       <div className="tasks-head">
-        <div className="block-title">Úkoly</div>
+        <div className="block-title">{t("tasks.title")}</div>
         <span className="tasks-count">
-          {count} / {tasks.length} splněno
+          {t("tasks.solved", { done: count, total: tasks.length })}
         </span>
         {count > 0 && (
           <button className="btn btn-ghost btn-sm" onClick={() => forgetSolved(definition.slug)}>
-            Začít znovu
+            {t("tasks.restart")}
           </button>
         )}
       </div>
-      <p className="tasks-intro">Změň vstup v&nbsp;přehrávači (data, velikost, graf) a&nbsp;úkol se zkontroluje sám.</p>
+      <p className="tasks-intro">{t("tasks.intro")}</p>
       <ol className="task-list">
         {tasks.map((task, i) => {
           const done = isSolved(i);
@@ -49,27 +51,27 @@ export function TaskList() {
             <li key={task.id} className={done ? "task solved" : "task"}>
               <span className="mark">{done ? <Check size={16} /> : <Circle size={16} />}</span>
               <div className="body">
-                <div className="text">{task.text}</div>
+                <div className="text">{tx(task.text)}</div>
                 {done ? (
-                  <div className="explain">{task.explain}</div>
+                  <div className="explain">{tx(task.explain)}</div>
                 ) : (
                   <div className="meta">
-                    {checks[i].status && <span className="status">{checks[i].status}</span>}
+                    {checks[i].status && <span className="status">{tx(checks[i].status)}</span>}
                     <button
                       className="link"
                       aria-expanded={hintOpen}
                       onClick={() => setHints(hintOpen ? hints.filter((id) => id !== task.id) : [...hints, task.id])}
                     >
-                      Nápověda
+                      {t("tasks.hint")}
                     </button>
                     {task.impossible && (
                       <button className="btn btn-secondary btn-sm" onClick={() => markSolved(definition.slug, task.id)}>
-                        Myslím, že to nejde
+                        {t("tasks.impossible")}
                       </button>
                     )}
                   </div>
                 )}
-                {!done && hintOpen && <div className="hint">{task.hint}</div>}
+                {!done && hintOpen && <div className="hint">{tx(task.hint)}</div>}
               </div>
             </li>
           );

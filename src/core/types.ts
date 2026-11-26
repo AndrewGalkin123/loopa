@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import type { AlgorithmCardData } from "@/components/AlgorithmCard";
+import type { Locale, Text } from "@/i18n/config";
 
 /*
  * The contract between the three layers:
@@ -72,10 +73,10 @@ export interface KeyState {
 export interface Task<Input = unknown, S = unknown, E = unknown> {
   /** Unique within the algorithm; the browser remembers solved tasks by it. */
   id: string;
-  text: string;
-  hint: string;
+  text: Text;
+  hint: Text;
   /** Why an input that solves the task works — or, for an impossible task, why there is none. */
-  explain: string;
+  explain: Text;
   /** A task without a solution: the student finds out why and answers "Myslím, že to nejde". */
   impossible?: boolean;
   check(input: Input, steps: Step<S, E>[]): TaskCheck;
@@ -84,7 +85,7 @@ export interface Task<Input = unknown, S = unknown, E = unknown> {
 export interface TaskCheck {
   done: boolean;
   /** How far the current run is, e.g. "výměny: 12 · cíl 28", or what to change first. */
-  status?: string;
+  status?: Text;
 }
 
 /** What the user answered: the clicked ids, or yes / no. */
@@ -105,7 +106,11 @@ export interface PredictionView {
 /** Data models the player can show. */
 export type ModelId = "array" | "graph" | "search";
 
-/** Everything the site needs to know about one algorithm, except the long texts (those are in content.tsx). */
+/**
+ * Everything the site needs to know about one algorithm, except the long texts
+ * (those are in content.<language>.tsx). Texts are of type Text: { cs, en, … },
+ * or a plain string, which is Czech not translated yet.
+ */
 export interface AlgorithmDefinition<Input = unknown, S = unknown, E = unknown> {
   /** Part of the URL: /algorithms/<slug> */
   slug: string;
@@ -116,7 +121,7 @@ export interface AlgorithmDefinition<Input = unknown, S = unknown, E = unknown> 
   level: "beginner" | "intermediate" | "advanced";
   complexity: string;
   /** Catalog card. */
-  card: { tagline: string; description: string; badge: AlgorithmCardData["badge"] };
+  card: { tagline: string; description: Text; badge: AlgorithmCardData["badge"] };
   /**
    * Runs the algorithm on the input and records every step.
    * (Method syntax on purpose: a definition with concrete types then fits where any definition is expected.)
@@ -132,15 +137,15 @@ export interface AlgorithmDefinition<Input = unknown, S = unknown, E = unknown> 
   /** Marks shown in the colour legend next to the player. */
   legend: string[];
   /** Descriptions that replace the model's ones in the legend, e.g. { frontier: "ve frontě" }. */
-  legendDescriptions?: Record<string, string>;
+  legendDescriptions?: Record<string, Text>;
   /** Input the player starts with. */
   initialInput: Input;
   /** What kind of input that is (shown on the data button); "random" by default. */
   initialInputKind?: string;
   /** What a prepared input means for this algorithm, e.g. { sorted: "nejlepší případ" }. */
-  inputHints?: Record<string, string>;
-  /** Questions of the mode "Předpověz" for one recorded run. Without them the algorithm has no such mode. */
-  questions?(steps: Step<S, E>[]): Question[];
+  inputHints?: Record<string, Text>;
+  /** Questions of the mode "Předpověz" for one recorded run, in the language of the page. Without them the algorithm has no such mode. */
+  questions?(steps: Step<S, E>[], locale: Locale): Question[];
   /** Key moments of a run, shown as still pictures instead of the player (the research, VO2). */
   keyStates?(steps: Step<S, E>[]): KeyState[];
   /** Tasks "find an input such that …" shown under the player. */
@@ -156,5 +161,5 @@ export interface Model {
   /** Button with prepared inputs next to the speed button. */
   DataMenu: ComponentType;
   /** Colour and description of every mark, for the legend. */
-  legend: Record<string, { color: string; desc: string; dim?: boolean }>;
+  legend: Record<string, { color: string; desc: Text; dim?: boolean }>;
 }

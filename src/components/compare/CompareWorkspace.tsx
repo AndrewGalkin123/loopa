@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowDown, ArrowRight, ChevronDown, Pause, Play, RotateCcw, Settings2, Shuffle, SkipBack, SkipForward, Zap } from "lucide-react";
-import Link from "next/link";
 import { useReducer, useState, type PointerEvent, type ReactNode } from "react";
 import { Dropdown } from "@/components/Dropdown";
 import { createPlayerState, playerReducer, SPEEDS } from "@/core/player/playerState";
 import { useKeyboardControls, usePlaybackTimer } from "@/core/player/usePlayerControls";
+import { useT } from "@/i18n/client";
+import { Link } from "@/i18n/Link";
+import type { MessageKey } from "@/i18n/translate";
 import { buildTimeline, COMPARABLE, compareHref, operations, type Comparable, type CompareFrame } from "@/lib/compare";
 import { mulberry32, seedFrom, seededShuffle } from "@/lib/random";
 import { makeArray, type DatasetKind } from "@/models/array/datasets";
@@ -16,11 +18,11 @@ import { DatasetChoices, DataSettings } from "./DataControls";
 const OP_MS = 100;
 const INITIAL_SIZE = 20;
 
-/** The second counter of the sorting algorithms: what it counts besides comparisons. */
-const UNITS: Record<string, { name: string; czech: string }> = {
-  swp: { name: "Swaps", czech: "výměny" },
-  wrt: { name: "Writes", czech: "zápisy" },
-  shf: { name: "Shifts", czech: "posuny" },
+/** The second counter of the sorting algorithms: what it counts besides comparisons (the word in the language is a message). */
+const UNITS: Record<string, { name: string; word: MessageKey }> = {
+  swp: { name: "Swaps", word: "compare.unit.swp" },
+  wrt: { name: "Writes", word: "compare.unit.wrt" },
+  shf: { name: "Shifts", word: "compare.unit.shf" },
 };
 
 /** The starting array is always the same, so the server and the browser render the same page. */
@@ -30,11 +32,6 @@ const INITIAL_INPUT = seededShuffle(
 );
 
 const seconds = (ops: number) => ((ops * OP_MS) / 1000).toFixed(2);
-
-/** "za 1 operaci", "za 3 operace", "za 12 operací" */
-function operationCount(count: number) {
-  return `${count} ${count === 1 ? "operaci" : count <= 4 ? "operace" : "operací"}`;
-}
 
 /** Row of the metrics table: the numbers of both sides and how they differ. */
 function MetricRow({ name, sub, a, b, diff }: { name: string; sub: string; a: ReactNode; b: ReactNode; diff: ReactNode }) {
@@ -51,9 +48,9 @@ function MetricRow({ name, sub, a, b, diff }: { name: string; sub: string; a: Re
   );
 }
 
-/** "−87 % Quick Sort": who needed less, and by how much. */
-function lessDiff(a: number, b: number, nameA: string, nameB: string): ReactNode {
-  if (a === b) return <span className="tag">stejně</span>;
+/** "−87 % Quick Sort": who needed less, and by how much; `same` is the word for a tie. */
+function lessDiff(a: number, b: number, nameA: string, nameB: string, same: string): ReactNode {
+  if (a === b) return <span className="tag">{same}</span>;
   const [less, more, name] = a < b ? [a, b, nameA] : [b, a, nameB];
   return (
     <>
@@ -62,9 +59,9 @@ function lessDiff(a: number, b: number, nameA: string, nameB: string): ReactNode
   );
 }
 
-/** "5.5× Quick Sort": who is faster, and how many times. */
-function timesDiff(a: number, b: number, nameA: string, nameB: string): ReactNode {
-  if (a === b) return <span className="tag">stejně</span>;
+/** "5.5× Quick Sort": who is faster, and how many times; `same` is the word for a tie. */
+function timesDiff(a: number, b: number, nameA: string, nameB: string, same: string): ReactNode {
+  if (a === b) return <span className="tag">{same}</span>;
   const [less, more, name] = a < b ? [a, b, nameA] : [b, a, nameB];
   if (less === 0) return <span className="tag">{name}</span>;
   return (
@@ -80,6 +77,7 @@ function timeline(a: Comparable, b: Comparable, input: number[]) {
 
 /** The compare mode: two sorting algorithms on the same array, driven by one player. */
 export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: string }) {
+  const { t, tn } = useT();
   const a = COMPARABLE.find((definition) => definition.slug === slugA)!;
   const b = COMPARABLE.find((definition) => definition.slug === slugB)!;
   const [state, dispatch] = useReducer(playerReducer, null, () =>
@@ -164,7 +162,7 @@ export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: strin
               {a.name} <span className="x">✕</span> {b.name}
             </h1>
             <p className="sub">
-              Stejná data. <em>Různé strategie.</em>
+              {t("compare.subtitle")} <em>{t("compare.subtitleEm")}</em>
             </p>
           </div>
           <div className="head-actions">
@@ -175,7 +173,7 @@ export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: strin
               menuClassName="swap-menu"
               label={
                 <>
-                  <Settings2 size={15} /> Nastavení dat
+                  <Settings2 size={15} /> {t("compare.dataSettings")}
                 </>
               }
             >
@@ -193,7 +191,7 @@ export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: strin
               menuClassName="swap-menu"
               label={
                 <>
-                  Změnit algoritmy <ChevronDown size={14} />
+                  {t("compare.changeAlgorithms")} <ChevronDown size={14} />
                 </>
               }
             >
@@ -241,8 +239,8 @@ export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: strin
             <div className="up-left">
               <button
                 className="btn btn-secondary btn-icon btn-sm"
-                aria-label="Reset"
-                title="Na začátek (R)"
+                aria-label={t("player.reset")}
+                title={t("player.resetTitle")}
                 disabled={state.index === 0}
                 onClick={() => dispatch({ type: "reset" })}
               >
@@ -250,8 +248,8 @@ export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: strin
               </button>
               <button
                 className="btn btn-secondary btn-icon btn-sm"
-                aria-label="Krok zpět"
-                title="Krok zpět (←)"
+                aria-label={t("player.back")}
+                title={t("player.backTitle")}
                 disabled={state.index === 0}
                 onClick={() => dispatch({ type: "step", delta: -1 })}
               >
@@ -259,16 +257,16 @@ export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: strin
               </button>
               <button
                 className="btn btn-primary btn-icon"
-                aria-label={state.playing ? "Pozastavit" : "Přehrát"}
-                title={state.playing ? "Pozastavit (mezerník)" : "Přehrát (mezerník)"}
+                aria-label={state.playing ? t("player.pause") : t("player.play")}
+                title={state.playing ? t("player.pauseTitle") : t("player.playTitle")}
                 onClick={() => dispatch({ type: "toggle" })}
               >
                 {state.playing ? <Pause size={16} /> : <Play size={16} />}
               </button>
               <button
                 className="btn btn-secondary btn-icon btn-sm"
-                aria-label="Krok vpřed"
-                title="Krok vpřed (→)"
+                aria-label={t("player.forward")}
+                title={t("player.forwardTitle")}
                 disabled={state.index === lastFrame}
                 onClick={() => dispatch({ type: "step", delta: 1 })}
               >
@@ -279,10 +277,10 @@ export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: strin
               {/* The shared bar follows the slower algorithm; the marker shows where the faster one ended. */}
               <div
                 className="up-progress"
-                title="společný postup"
+                title={t("compare.shared")}
                 role="slider"
                 tabIndex={0}
-                aria-label="Společný postup"
+                aria-label={t("compare.sharedAria")}
                 aria-valuemin={0}
                 aria-valuemax={lastFrame}
                 aria-valuenow={state.index}
@@ -298,7 +296,7 @@ export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: strin
                 <div
                   className="marker"
                   style={{ left: `${lastFrame > 0 ? (firstOps / lastFrame) * 100 : 100}%` }}
-                  title={`${totalA <= totalB ? a.name : b.name} dokončil`}
+                  title={t("compare.finished", { name: totalA <= totalB ? a.name : b.name })}
                 />
                 <div className="handle" style={{ left: `${progress}%` }} />
               </div>
@@ -315,7 +313,7 @@ export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: strin
                   </>
                 }
               >
-                <div className="head">rychlost</div>
+                <div className="head">{t("player.speed")}</div>
                 {SPEEDS.map((speed) => (
                   <button
                     key={speed}
@@ -337,15 +335,14 @@ export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: strin
                   </>
                 }
               >
-                <div className="head">vstupní data</div>
+                <div className="head">{t("data.head")}</div>
                 <DatasetChoices kind={state.inputKind} onChoose={(kind) => newArray(kind)} />
               </Dropdown>
             </div>
           </div>
           <div className="up-hint">
-            <span className="c">{"//"}</span> oba algoritmy běží na&nbsp;stejných datech <span className="c">·</span>{" "}
-            <span className="accent">plays at fixed ops/sec</span> <span className="c">·</span> operace = porovnání,
-            výměna nebo zápis
+            <span className="c">{"//"}</span> {t("compare.hintData")} <span className="c">·</span>{" "}
+            <span className="accent">plays at fixed ops/sec</span> <span className="c">·</span> {t("compare.hintOperation")}
           </div>
         </div>
       </section>
@@ -355,51 +352,51 @@ export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: strin
         <div className="ms-head">
           <div className="section-marker">live metrics</div>
           <h2>
-            Reálný rozdíl <em>v číslech</em>
+            {t("compare.metrics")} <em>{t("compare.metricsEm")}</em>
           </h2>
         </div>
 
         <div className="mtable">
           <div className="row header">
-            <span className="h">metrika</span>
+            <span className="h">{t("compare.metric")}</span>
             <span className="h algo">{a.name}</span>
             <span className="h algo">{b.name}</span>
             <span className="h">difference</span>
           </div>
           <MetricRow
             name="Comparisons"
-            sub="porovnání"
+            sub={t("compare.subComparisons")}
             a={frame.a.counters.cmp}
             b={frame.b.counters.cmp}
-            diff={lessDiff(frame.a.counters.cmp, frame.b.counters.cmp, a.name, b.name)}
+            diff={lessDiff(frame.a.counters.cmp, frame.b.counters.cmp, a.name, b.name, t("compare.same"))}
           />
           <MetricRow
             name={sameUnit ? unitA.name : `${unitA.name} / ${unitB.name.toLowerCase()}`}
-            sub={sameUnit ? unitA.czech : `${unitA.czech} / ${unitB.czech}`}
+            sub={sameUnit ? t(unitA.word) : `${t(unitA.word)} / ${t(unitB.word)}`}
             a={`${frame.a.counters[secondA.key]}${sameUnit ? "" : ` ${secondA.label}`}`}
             b={`${frame.b.counters[secondB.key]}${sameUnit ? "" : ` ${secondB.label}`}`}
             // A swap, a write and a shift are different work: no percentage between them.
             diff={
               sameUnit ? (
-                lessDiff(frame.a.counters[secondA.key], frame.b.counters[secondB.key], a.name, b.name)
+                lessDiff(frame.a.counters[secondA.key], frame.b.counters[secondB.key], a.name, b.name, t("compare.same"))
               ) : (
-                <span className="tag">různé jednotky</span>
+                <span className="tag">{t("compare.otherUnits")}</span>
               )
             }
           />
           <MetricRow
             name="Operations"
-            sub="operace celkem"
+            sub={t("compare.subOperations")}
             a={frame.opsA}
             b={frame.opsB}
-            diff={timesDiff(frame.opsA, frame.opsB, a.name, b.name)}
+            diff={timesDiff(frame.opsA, frame.opsB, a.name, b.name, t("compare.same"))}
           />
           <MetricRow
             name="Time at 1×"
-            sub="čas při 1×"
+            sub={t("compare.subTime")}
             a={`${seconds(frame.opsA)}s`}
             b={`${seconds(frame.opsB)}s`}
-            diff={timesDiff(frame.opsA, frame.opsB, a.name, b.name)}
+            diff={timesDiff(frame.opsA, frame.opsB, a.name, b.name, t("compare.same"))}
           />
         </div>
       </section>
@@ -410,33 +407,32 @@ export function CompareWorkspace({ slugA, slugB }: { slugA: string; slugB: strin
           <div className="label">— result</div>
           {faster ? (
             <p>
-              {faster.name} dokončil za&nbsp;<span className="mono-n">{operationCount(fewer)}</span>. {slower.name}{" "}
-              potřeboval <span className="mono-n">{more}</span> — <em>{(more / fewer).toFixed(1)}× více</em>.
+              {t("compare.fasterDone", { name: faster.name })}
+              <span className="mono-n">{tn("compare.ops", fewer)}</span>. {t("compare.slowerNeeded", { name: slower.name })}{" "}
+              <span className="mono-n">{more}</span> — <em>{t("compare.times", { k: (more / fewer).toFixed(1) })}</em>.
             </p>
           ) : (
             <p>
-              Oba algoritmy potřebovaly stejně: <span className="mono-n">{operationCount(fewer)}</span>.
+              {t("compare.tie")} <span className="mono-n">{tn("compare.ops", fewer)}</span>.
             </p>
           )}
           <p className="dim">
             {a.complexity === b.complexity
-              ? `Oba mají složitost ${a.complexity}, takže rozdíl dělají konstanta a konkrétní data.`
-              : `Rozdíl mezi ${a.complexity} a ${b.complexity} roste s velikostí vstupu — na malém poli skoro neznatelný, na velkém propastný.`}{" "}
-            {faster && faster.complexity === "O(n²)" && slower.complexity !== "O(n²)"
-              ? "Tady přesto vyhrál algoritmus s horší složitostí: ta popisuje růst v horším či průměrném případě, ne každý vstup."
-              : ""}
-            {sameUnit ? "" : ` Pozor: ${unitA.czech} a ${unitB.czech} nejsou stejná práce, operace je jen hrubá míra.`}
-            {a.slug === "merge-sort" || b.slug === "merge-sort" ? " Merge Sort navíc potřebuje pomocnou paměť." : ""}
+              ? t("compare.sameComplexity", { c: a.complexity })
+              : t("compare.diffComplexity", { a: a.complexity, b: b.complexity })}{" "}
+            {faster && faster.complexity === "O(n²)" && slower.complexity !== "O(n²)" ? t("compare.worseWon") : ""}
+            {sameUnit ? "" : ` ${t("compare.unitsWarning", { a: t(unitA.word), b: t(unitB.word) })}`}
+            {a.slug === "merge-sort" || b.slug === "merge-sort" ? ` ${t("compare.mergeMemory")}` : ""}
           </p>
           <div className="actions">
             {third && (
               // The new algorithm takes the place of the slower one.
               <Link className="btn btn-primary" href={faster === b ? hrefA(third) : hrefB(third)} replace scroll={false}>
-                Porovnat s&nbsp;{third.name} <ArrowRight size={14} />
+                {t("compare.compareWith", { name: third.name })} <ArrowRight size={14} />
               </Link>
             )}
             <button className="btn btn-secondary" onClick={() => newArray(currentKind)}>
-              <Shuffle size={14} /> Zkusit s&nbsp;jinými daty
+              <Shuffle size={14} /> {t("compare.otherData")}
             </button>
           </div>
         </div>

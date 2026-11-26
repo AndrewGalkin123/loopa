@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from 
 import { useOptionalPlayer } from "@/core/player/PlayerProvider";
 import { pickClass } from "@/core/prediction";
 import type { PredictionView } from "@/core/types";
+import { useT } from "@/i18n/client";
 import { addNode, MAX_NODES, moveNode, removeNode, setWeight, toggleEdge } from "./edit";
 import { edgeKey } from "./snapshot";
 import type { GraphAlgorithm, GraphInput, GraphState } from "./types";
@@ -22,6 +23,7 @@ const DRAG_THRESHOLD = 4;
  */
 export function GraphView({ state, prediction }: { state: unknown; prediction?: PredictionView }) {
   const player = useOptionalPlayer();
+  const { t } = useT();
   // Used only while editing, and editing needs the player.
   const input = player?.state.input as GraphInput;
   const weighted = (player?.definition as GraphAlgorithm | undefined)?.weighted;
@@ -148,13 +150,13 @@ export function GraphView({ state, prediction }: { state: unknown; prediction?: 
                 setSelected(null);
               }}
             >
-              <Trash2 size={13} /> Smazat vrchol {selected}
+              <Trash2 size={13} /> {t("graph.deleteVertex", { id: selected })}
             </button>
           )}
           {editing && chosenEdge && weighted && (
             <>
               <label className="weight-field">
-                váha {edgeKey(chosenEdge[0], chosenEdge[1], directed)}
+                {t("graph.weight", { edge: edgeKey(chosenEdge[0], chosenEdge[1], directed) })}
                 <input
                   type="number"
                   className="input-mono"
@@ -183,18 +185,18 @@ export function GraphView({ state, prediction }: { state: unknown; prediction?: 
                   setSelectedEdge(null);
                 }}
               >
-                <Trash2 size={13} /> Smazat hranu
+                <Trash2 size={13} /> {t("graph.deleteEdge")}
               </button>
             </>
           )}
           <button className="btn btn-secondary btn-sm" onClick={editing ? stopEditing : startEditing}>
             {editing ? (
               <>
-                <Check size={13} /> Hotovo
+                <Check size={13} /> {t("graph.done")}
               </>
             ) : (
               <>
-                <Pencil size={13} /> Upravit graf
+                <Pencil size={13} /> {t("graph.edit")}
               </>
             )}
           </button>
@@ -206,7 +208,7 @@ export function GraphView({ state, prediction }: { state: unknown; prediction?: 
         className="graph-svg"
         viewBox="0 0 760 280"
         aria-hidden={!editing && !onPick}
-        aria-label={editing ? "Editor grafu" : onPick ? "Graf — klikni na vrchol" : undefined}
+        aria-label={editing ? t("graph.editorAria") : onPick ? t("graph.pickAria") : undefined}
       >
         {editing && <rect className="edit-area" x={0} y={0} width={760} height={280} onClick={onBackgroundClick} />}
 
@@ -248,7 +250,7 @@ export function GraphView({ state, prediction }: { state: unknown; prediction?: 
                     }
                   }}
                 >
-                  <title>{weighted ? `Upravit hranu ${key}` : `Smazat hranu ${key}`}</title>
+                  <title>{weighted ? t("graph.editEdgeTitle", { edge: key }) : t("graph.deleteEdgeTitle", { edge: key })}</title>
                 </line>
               )}
               {weight !== undefined && (
@@ -276,7 +278,7 @@ export function GraphView({ state, prediction }: { state: unknown; prediction?: 
             // A question of the mode Předpověz: the vertex is an answer (mouse, or Tab + Enter).
             role={onPick ? "button" : undefined}
             tabIndex={onPick ? 0 : undefined}
-            aria-label={onPick ? `vrchol ${n.id}` : undefined}
+            aria-label={onPick ? t("graph.vertexAria", { id: n.id }) : undefined}
             onClick={onPick && (() => onPick(n.id))}
             onKeyDown={
               onPick &&
@@ -303,12 +305,15 @@ export function GraphView({ state, prediction }: { state: unknown; prediction?: 
 
       {editing ? (
         <ul className="graph-hint">
-          <li>klik do plochy — nový vrchol{graph.nodes.length >= MAX_NODES ? ` (max ${MAX_NODES})` : ""}</li>
-          <li>klik na dva vrcholy — přidat / odebrat hranu</li>
-          <li>{weighted ? "klik na hranu — změnit váhu nebo smazat" : "klik na hranu — smazat"}</li>
-          <li>táhni vrchol — přesunout</li>
-          <li>{weighted ? "Delete — smazat vybraný vrchol nebo hranu" : "Delete — smazat vybraný vrchol"}</li>
-          {directed && <li>hrana vede od prvního vrcholu k druhému</li>}
+          <li>
+            {t("graph.hintAdd")}
+            {graph.nodes.length >= MAX_NODES ? ` (max ${MAX_NODES})` : ""}
+          </li>
+          <li>{t("graph.hintEdge")}</li>
+          <li>{weighted ? t("graph.hintEdgeWeighted") : t("graph.hintEdgeDelete")}</li>
+          <li>{t("graph.hintMove")}</li>
+          <li>{weighted ? t("graph.hintDeleteWeighted") : t("graph.hintDelete")}</li>
+          {directed && <li>{t("graph.hintDirected")}</li>}
         </ul>
       ) : (
         <div className="graph-lists">

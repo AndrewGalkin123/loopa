@@ -12,7 +12,7 @@ const arrayAlgorithms = ALGORITHMS.filter((definition) => definition.model === "
 const inputs = [...randomArrays(150, 7), [1, 2], [2, 1], [5, 5, 5, 5], [3, 1, 2]];
 
 describe.each(arrayAlgorithms)("$slug follows the array contract", (definition) => {
-  const pseudocodeLines = CONTENT[definition.slug].pseudocode.length;
+  const pseudocodeLines = CONTENT[definition.slug].cs.pseudocode.length;
 
   test("starts with 'start', ends with 'done' and a sorted array", () => {
     for (const input of inputs) {

@@ -2,6 +2,7 @@ import { Check } from "lucide-react";
 import { Badge } from "@/components/Badge";
 import { VizBars } from "@/components/VizBars";
 import { Note } from "@/core/player/Note";
+import { useT } from "@/i18n/client";
 import { pad } from "@/lib/demoSteps";
 import type { Comparable } from "@/lib/compare";
 import type { ArrayStep } from "@/models/array/types";
@@ -19,6 +20,7 @@ export function CompareColumn({ side, definition, step, ops, total, seconds, sta
   /** The other algorithm is still running. */
   waiting: boolean;
 }) {
+  const { t } = useT();
   const done = ops >= total;
   return (
     <div className={`col ${side}`}>
@@ -65,7 +67,7 @@ export function CompareColumn({ side, definition, step, ops, total, seconds, sta
         <span>
           op <span className={done ? "done-c" : "accent"}>{ops}</span> / {total}
         </span>
-        <span className={done ? "done-c" : undefined}>{done ? (waiting ? "✓ seřazeno · čeká" : "✓ seřazeno") : <Note parts={step.note} />}</span>
+        <span className={done ? "done-c" : undefined}>{done ? (waiting ? t("compare.sortedWaiting") : t("compare.sorted")) : <Note parts={step.note} />}</span>
       </div>
     </div>
   );

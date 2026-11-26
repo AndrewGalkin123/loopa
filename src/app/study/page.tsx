@@ -3,7 +3,7 @@ import { CONTENT } from "@/algorithms/content";
 import { AlgorithmSections } from "@/components/algorithm/AlgorithmSections";
 import { StudySession, type StudyTexts } from "@/components/study/StudySession";
 import { VARIANTS } from "@/lib/study";
-import "../(site)/algorithms/[slug]/algorithm.css";
+import "../[lang]/(site)/algorithms/[slug]/algorithm.css";
 import "./study.css";
 
 /*
@@ -25,9 +25,9 @@ export default function StudyPage() {
       .map((slug) => [
         slug,
         {
-          lede: CONTENT[slug].lede,
-          trainer: <AlgorithmSections content={CONTENT[slug]} linkedToPlayer />,
-          control: <AlgorithmSections content={CONTENT[slug]} linkedToPlayer={false} />,
+          lede: CONTENT[slug].cs.lede,
+          trainer: <AlgorithmSections content={CONTENT[slug].cs} locale="cs" linkedToPlayer />,
+          control: <AlgorithmSections content={CONTENT[slug].cs} locale="cs" linkedToPlayer={false} />,
         },
       ]),
   );

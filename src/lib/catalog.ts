@@ -2,6 +2,7 @@ import { PLANNED } from "@/algorithms/planned";
 import { ALGORITHMS } from "@/algorithms/registry";
 import type { AlgorithmCardData } from "@/components/AlgorithmCard";
 import type { AlgorithmDefinition } from "@/core/types";
+import type { Text } from "@/i18n/config";
 
 /*
  * Cards of the algorithm catalog. Cards of algorithms that have a page are built
@@ -10,7 +11,8 @@ import type { AlgorithmDefinition } from "@/core/types";
  * never changes this file. The landing page has its own, slightly different texts.
  */
 
-export type CatalogCard = AlgorithmCardData & { slug: string };
+/** A card of the catalog; its description is shown in the language of the page. */
+export type CatalogCard = Omit<AlgorithmCardData, "description"> & { slug: string; description: Text };
 
 function cardOf(definition: AlgorithmDefinition): Omit<CatalogCard, "num"> {
   return {

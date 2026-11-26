@@ -3,6 +3,8 @@
 import { Shuffle, Target } from "lucide-react";
 import { useState } from "react";
 import { usePlayer } from "@/core/player/PlayerProvider";
+import { useT } from "@/i18n/client";
+import type { Text } from "@/i18n/config";
 import { formatArray, MAX_SIZE, MAX_VALUE, parseArray } from "@/models/array/datasets";
 import { makeValues, targetInside, targetOutside, type SearchDataset } from "./datasets";
 import type { SearchAlgorithm, SearchInput } from "./types";
@@ -13,6 +15,7 @@ const SLIDER_MIN = 5;
 /** Side panel "Input": the wanted value, array size, own array and a new random array. */
 export function SearchInputPanel() {
   const { state, load, definition } = usePlayer();
+  const { t, tx } = useT();
   const { values, target } = state.input as SearchInput;
   const requiresSorted = (definition as SearchAlgorithm).requiresSorted;
   const current = formatArray(values);
@@ -22,7 +25,7 @@ export function SearchInputPanel() {
   // The text being typed into the target field; null = show the current target.
   const [targetDraft, setTargetDraft] = useState<string | null>(null);
   // The error belongs to the array it was typed over; once the array changes, it disappears.
-  const [error, setError] = useState<{ over: string; message: string } | null>(null);
+  const [error, setError] = useState<{ over: string; message: Text } | null>(null);
   const shownError = error?.over === current ? error.message : null;
 
   /** A new array; the target stays when it is still in the array. */
@@ -49,7 +52,7 @@ export function SearchInputPanel() {
       <div className="panel-label">Input</div>
       <div className="field">
         <div className="flabel">
-          <span className="name">Hledaná hodnota</span>
+          <span className="name">{t("input.target")}</span>
           <span className="num">{target}</span>
         </div>
         <input
@@ -58,7 +61,7 @@ export function SearchInputPanel() {
           min={0}
           max={MAX_VALUE}
           value={targetDraft ?? target}
-          aria-label="Hledaná hodnota"
+          aria-label={t("input.target")}
           onChange={(event) => {
             setTargetDraft(event.target.value);
             const value = Number(event.target.value);
@@ -79,7 +82,7 @@ export function SearchInputPanel() {
       </div>
       <div className="field">
         <div className="flabel">
-          <span className="name">Velikost pole</span>
+          <span className="name">{t("input.size")}</span>
           <span className="num">{values.length}</span>
         </div>
         <input
@@ -88,13 +91,13 @@ export function SearchInputPanel() {
           max={MAX_SIZE}
           value={Math.max(SLIDER_MIN, values.length)}
           className="slider"
-          aria-label="Velikost pole"
+          aria-label={t("input.size")}
           onChange={(event) => loadValues(makeValues(kind, Number(event.target.value)), kind)}
         />
       </div>
       <div className="field">
         <div className="flabel">
-          <span className="name">Vlastní vstup</span>
+          <span className="name">{t("input.own")}</span>
         </div>
         {/* The field always shows the array in the player; key resets it when that array changes. */}
         <input
@@ -102,7 +105,7 @@ export function SearchInputPanel() {
           type="text"
           className={shownError ? "input-mono invalid" : "input-mono"}
           defaultValue={current}
-          aria-label="Vlastní vstup"
+          aria-label={t("input.own")}
           aria-invalid={shownError !== null}
           aria-describedby={shownError ? "input-error" : undefined}
           spellCheck={false}
@@ -113,14 +116,14 @@ export function SearchInputPanel() {
         />
         {shownError && (
           <div className="field-error" id="input-error">
-            {shownError}
+            {tx(shownError)}
           </div>
         )}
-        {requiresSorted && <div className="field-note">Algoritmus potřebuje seřazené pole, vstup se seřadí.</div>}
+        {requiresSorted && <div className="field-note">{t("input.needsSorted")}</div>}
       </div>
       <div className="field">
         <button className="btn btn-secondary btn-sm" onClick={() => loadValues(makeValues(kind, values.length), kind)}>
-          <Shuffle size={13} /> Nové náhodné pole
+          <Shuffle size={13} /> {t("input.randomArray")}
         </button>
       </div>
     </div>

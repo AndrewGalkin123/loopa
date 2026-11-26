@@ -3,6 +3,7 @@
 import { SearchX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AlgorithmCard } from "@/components/AlgorithmCard";
+import { useT } from "@/i18n/client";
 import { CATALOG } from "@/lib/catalog";
 import {
   CATEGORIES,
@@ -21,6 +22,7 @@ const COUNTS = Object.fromEntries(
 
 /** The interactive part of the catalog: filters, result strip and the grid of cards. */
 export function CatalogBrowser() {
+  const { t, tx } = useT();
   const [filters, setFilters] = useState<CatalogFilters>(DEFAULT_FILTERS);
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -74,7 +76,7 @@ export function CatalogBrowser() {
       {/* ───────── GRID ───────── */}
       <section className="grid">
         {cards.map((card) => (
-          <AlgorithmCard key={card.num} {...card} />
+          <AlgorithmCard key={card.num} {...card} description={tx(card.description)} />
         ))}
 
         {cards.length === 0 && (
@@ -82,11 +84,11 @@ export function CatalogBrowser() {
             <div className="icon-wrap">
               <SearchX size={20} />
             </div>
-            <h3>Nic nenalezeno</h3>
+            <h3>{t("catalog.empty")}</h3>
             <p>
-              Zkuste jiný dotaz nebo{" "}
+              {t("catalog.emptyTry")}{" "}
               <button className="link" onClick={reset}>
-                resetujte filtry
+                {t("catalog.emptyReset")}
               </button>
               .
             </p>

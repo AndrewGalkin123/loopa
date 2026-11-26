@@ -39,6 +39,9 @@ export const SORTS: { id: SortOrder; label: string }[] = [
 
 const LEVEL_ORDER = ["beginner", "intermediate", "advanced"];
 
+/** What the filters need to know about a card. */
+type FilteredCard = Pick<AlgorithmCardData, "num" | "group" | "title" | "level">;
+
 /** "Řazení" → "razeni": lower case without diacritics, so the search ignores both. */
 function normalize(text: string): string {
   return text
@@ -47,13 +50,13 @@ function normalize(text: string): string {
     .toLowerCase();
 }
 
-export function inCategory(card: AlgorithmCardData, category: Category): boolean {
+export function inCategory(card: FilteredCard, category: Category): boolean {
   if (category === "all") return true;
   return CATEGORIES.find((c) => c.id === category)!.groups.includes(card.group);
 }
 
 /** Cards that pass all filters, in the chosen order. */
-export function filterCatalog(cards: AlgorithmCardData[], filters: CatalogFilters): AlgorithmCardData[] {
+export function filterCatalog<Card extends FilteredCard>(cards: Card[], filters: CatalogFilters): Card[] {
   const query = normalize(filters.query.trim());
   const result = cards.filter(
     (card) =>

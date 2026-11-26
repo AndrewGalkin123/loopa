@@ -1,41 +1,46 @@
 import { MousePointerClick } from "lucide-react";
 import type { AlgorithmContent } from "@/algorithms/types";
+import type { Locale } from "@/i18n/config";
+import { messagesFor } from "@/i18n/messages";
+import { makeTranslator } from "@/i18n/translate";
 import { CodeTabs } from "./CodeTabs";
 import { ContentTabs } from "./ContentTabs";
 import { Pseudocode, StaticPseudocode } from "./Pseudocode";
-
-const TABS = [
-  { id: "popis", label: "Popis" },
-  { id: "pseudokod", label: "Pseudokód" },
-  { id: "implementace", label: "Implementace" },
-  { id: "slozitost", label: "Složitost" },
-];
 
 /**
  * The texts under the player: description, pseudocode, implementations, complexity.
  * Shared by the algorithm page and the research session, where both conditions get
  * the same texts; only the control one has the pseudocode without the player.
  */
-export function AlgorithmSections({ content, linkedToPlayer }: {
+export function AlgorithmSections({ content, locale, linkedToPlayer }: {
   content: AlgorithmContent;
+  /** The language of the headings (the research session has no language in its address, so it is passed in). */
+  locale: Locale;
   /** The pseudocode highlights the current step and clicking a line moves the player. */
   linkedToPlayer: boolean;
 }) {
+  const { t } = makeTranslator(locale, messagesFor(locale));
+  const tabs = [
+    { id: "popis", label: t("sections.description") },
+    { id: "pseudokod", label: t("sections.pseudocode") },
+    { id: "implementace", label: t("sections.implementation") },
+    { id: "slozitost", label: t("sections.complexity") },
+  ];
   return (
     <section className="content-section">
-      <ContentTabs tabs={TABS} />
+      <ContentTabs tabs={tabs} />
 
       <article className="article" id="popis">
         <div className="prose">{content.description}</div>
       </article>
 
       <div id="pseudokod">
-        <div className="block-title">02 / Pseudokód</div>
+        <div className="block-title">02 / {t("sections.pseudocode")}</div>
         {linkedToPlayer ? (
           <>
             <Pseudocode lines={content.pseudocode} />
             <div className="pseudo-hint">
-              <MousePointerClick /> Klikni na&nbsp;řádek a&nbsp;přehrávač skočí na&nbsp;odpovídající krok.
+              <MousePointerClick /> {t("sections.pseudoHint")}
             </div>
           </>
         ) : (
@@ -44,12 +49,12 @@ export function AlgorithmSections({ content, linkedToPlayer }: {
       </div>
 
       <div id="implementace">
-        <div className="block-title">03 / Implementace</div>
+        <div className="block-title">03 / {t("sections.implementation")}</div>
         <CodeTabs implementations={content.implementations} />
       </div>
 
       <div id="slozitost">
-        <div className="block-title">04 / Složitost</div>
+        <div className="block-title">04 / {t("sections.complexity")}</div>
         <div className="cx-table">
           {content.complexityCases.map((row) => (
             <div key={`${row.label}-${row.sub}`} className={row.tone ? `cx-row ${row.tone}` : "cx-row"}>

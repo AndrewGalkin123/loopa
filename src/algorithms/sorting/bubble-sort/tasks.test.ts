@@ -13,5 +13,8 @@ test("Bubble Sort tasks: a solution and a non-solution of each", () => {
 });
 
 test("a task about length 8 asks for the length first", () => {
-  expect(tasks[0].check([1, 2, 3], trace([1, 2, 3]))).toEqual({ done: false, status: "nastav velikost pole na 8" });
+  expect(tasks[0].check([1, 2, 3], trace([1, 2, 3]))).toEqual({
+    done: false,
+    status: { cs: "nastav velikost pole na 8", en: "set the array size to 8" },
+  });
 });

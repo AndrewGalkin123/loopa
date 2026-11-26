@@ -9,11 +9,11 @@ export const arrayModel: Model = {
   InputPanel: ArrayInputPanel,
   DataMenu: ArrayDataMenu,
   legend: {
-    default: { color: "var(--viz-default)", desc: "neaktivní" },
-    active: { color: "var(--viz-active)", desc: "právě teď" },
-    compared: { color: "var(--viz-compared)", desc: "porovnání" },
-    pivot: { color: "var(--viz-pivot)", desc: "pivot" },
-    sorted: { color: "var(--viz-sorted)", desc: "hotovo" },
-    dimmed: { color: "var(--viz-default)", desc: "mimo úsek", dim: true },
+    default: { color: "var(--viz-default)", desc: { cs: "neaktivní", en: "inactive" } },
+    active: { color: "var(--viz-active)", desc: { cs: "právě teď", en: "right now" } },
+    compared: { color: "var(--viz-compared)", desc: { cs: "porovnání", en: "compared" } },
+    pivot: { color: "var(--viz-pivot)", desc: { cs: "pivot", en: "pivot" } },
+    sorted: { color: "var(--viz-sorted)", desc: { cs: "hotovo", en: "done" } },
+    dimmed: { color: "var(--viz-default)", desc: { cs: "mimo úsek", en: "outside the part" }, dim: true },
   },
 };

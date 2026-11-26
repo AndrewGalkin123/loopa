@@ -23,7 +23,7 @@ test("every algorithm is in the catalog and links to its page", () => {
 
 test('"related" cards on the algorithm pages exist in the catalog', () => {
   for (const [slug, content] of Object.entries(CONTENT)) {
-    for (const related of content.related) {
+    for (const related of content.cs.related) {
       expect(CATALOG.map((c) => c.slug), `${slug} → ${related}`).toContain(related);
     }
   }

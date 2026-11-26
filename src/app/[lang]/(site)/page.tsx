@@ -13,20 +13,23 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/Link";
 import { AlgorithmCard, type AlgorithmCardData } from "@/components/AlgorithmCard";
 import { CompareDemo } from "@/components/landing/CompareDemo";
 import { HeroDemo } from "@/components/landing/HeroDemo";
+import { hasTranslation, pick } from "@/i18n/config";
+import { getTranslator } from "@/i18n/server";
+import { LANDING } from "./texts/landing";
 import "./landing.css";
 
-const FEATURED: AlgorithmCardData[] = [
+/** The featured cards; their descriptions are in the texts of the language. */
+const FEATURED: Omit<AlgorithmCardData, "description">[] = [
   {
     num: "01",
     group: "sorting",
     badge: { variant: "sorting", icon: ArrowUpNarrowWide, label: "sort" },
     title: "Bubble Sort",
     tagline: "simple",
-    description: "Jednoduchý algoritmus třídění. Ideální pro pochopení principů porovnání a\u00a0výměn sousedních prvků.",
     complexity: "O(n²)",
     level: "beginner",
     href: "/algorithms/bubble-sort",
@@ -37,8 +40,6 @@ const FEATURED: AlgorithmCardData[] = [
     badge: { variant: "sorting", icon: Zap, label: "fast" },
     title: "Quicksort",
     tagline: "divide",
-    description:
-      "Rozděl a\u00a0panuj. Volí pivot a\u00a0rekurzivně třídí dvě poloviny. Mistr v\u00a0praxi, choulostivý v\u00a0nejhorším případě.",
     complexity: "O(n log n)",
     level: "intermediate",
     href: "/algorithms/quick-sort",
@@ -49,7 +50,6 @@ const FEATURED: AlgorithmCardData[] = [
     badge: { variant: "search-sorted", icon: Search, label: "bin" },
     title: "Binary Search",
     tagline: "halve",
-    description: "Vyhledávání v\u00a0seřazeném poli. V\u00a0každém kroku zahodí polovinu prostoru. Logaritmické, elegantní.",
     complexity: "O(log n)",
     level: "beginner",
     href: "/algorithms/binary-search",
@@ -60,7 +60,6 @@ const FEATURED: AlgorithmCardData[] = [
     badge: { variant: "graph", icon: GitBranch, label: "bfs" },
     title: "Breadth-First",
     tagline: "ripples",
-    description: "Prochází graf vrstvu po\u00a0vrstvě jako vlna na\u00a0hladině. Najde nejkratší cestu v\u00a0neváženém grafu.",
     complexity: "O(V + E)",
     level: "intermediate",
     href: "/algorithms/bfs",
@@ -71,7 +70,6 @@ const FEATURED: AlgorithmCardData[] = [
     badge: { variant: "shortest", icon: Route, label: "path" },
     title: "Dijkstra",
     tagline: "greedy",
-    description: "Najde nejkratší cestu z\u00a0jednoho zdroje ve\u00a0váženém grafu s\u00a0nezápornými hranami.",
     complexity: "O((V+E) log V)",
     level: "advanced",
     href: "/algorithms/dijkstra",
@@ -82,63 +80,38 @@ const FEATURED: AlgorithmCardData[] = [
     badge: { variant: "optimization", icon: Grid3x3, label: "dp" },
     title: "Knapsack",
     tagline: "pack",
-    description: "Klasický problém dynamického programování. Maximalizuj hodnotu při omezené kapacitě.",
     complexity: "O(nW)",
     level: "advanced",
   },
 ];
 
+/** The three features; their titles and texts are in the texts of the language. */
 const FEATURES = [
-  {
-    icon: BookOpen,
-    letter: "A",
-    tag: "depth",
-    title: "Hluboká",
-    em: "vysvětlení",
-    text: "Ne tři řádky a\u00a0animace. Celá teorie — invarianty, hraniční případy, důkaz správnosti, kompromisy v\u00a0praxi.",
-  },
-  {
-    icon: GitCompare,
-    letter: "B",
-    tag: "compare",
-    title: "Skutečné",
-    em: "srovnání",
-    text: "Postavte dva algoritmy proti sobě na\u00a0stejných datech a\u00a0uvidíte rozdíl vlastníma očima. Žádné tabulky složitostí v\u00a0knize.",
-  },
-  {
-    icon: ShieldOff,
-    letter: "C",
-    tag: "focus",
-    title: "Bez",
-    em: "gamifikace",
-    text: "Žádné mise, žádné série, žádná virtuální měna. Jen znalosti, vizualizace a\u00a0čas na\u00a0přemýšlení.",
-  },
+  { icon: BookOpen, letter: "A", tag: "depth" },
+  { icon: GitCompare, letter: "B", tag: "compare" },
+  { icon: ShieldOff, letter: "C", tag: "focus" },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const { t, locale } = await getTranslator();
+  const text = pick(LANDING, locale);
   return (
     <main className="page-landing">
+      {!hasTranslation(LANDING, locale) && <p className="untranslated">{t("untranslated")}</p>}
       {/* ───────── HERO ───────── */}
       <section className="hero">
         <div className="eyebrow">
           <span>▲ Interactive Algorithm Visualizer</span>
           <span className="v">· v1.0</span>
         </div>
-        <h1>
-          Algoritmy,
-          <br />
-          vysvětlené <em>vizuálně</em>.
-        </h1>
-        <p className="lede">
-          Interaktivní vizualizace matematických a algoritmických postupů. Pro studenty, kteří chtějí&nbsp;skutečně
-          rozumět.
-        </p>
+        <h1>{text.hero.title}</h1>
+        <p className="lede">{text.hero.lede}</p>
         <div className="hero-ctas">
           <Link href="/algorithms/bubble-sort" className="btn btn-primary">
-            Začít teď <ArrowRight size={14} />
+            {text.hero.start} <ArrowRight size={14} />
           </Link>
           <Link href="/algorithms" className="btn btn-secondary">
-            Procházet katalog
+            {text.hero.catalog}
           </Link>
           <a href="#" className="docs-link">
             <span>
@@ -156,19 +129,17 @@ export default function LandingPage() {
         <div className="section-head">
           <div className="section-head-left">
             <div className="eyebrow">01 / Explore</div>
-            <h2>
-              Pochopte do hloubky, <em>jak fungují</em>.
-            </h2>
-            <p>Šest klasiků na začátek. Pošlapaná teorie z přednášek, převedená do kroků, které vidíte a ovládáte.</p>
+            <h2>{text.explore.title}</h2>
+            <p>{text.explore.text}</p>
           </div>
           <Link href="/algorithms" className="head-cta">
-            Všechny algoritmy <ArrowRight />
+            {text.explore.all} <ArrowRight />
           </Link>
         </div>
 
         <div className="cards-grid">
-          {FEATURED.map((card) => (
-            <AlgorithmCard key={card.num} {...card} />
+          {FEATURED.map((card, i) => (
+            <AlgorithmCard key={card.num} {...card} description={text.featured[i]} />
           ))}
         </div>
       </section>
@@ -178,16 +149,11 @@ export default function LandingPage() {
         <div className="section-head">
           <div className="section-head-left">
             <div className="eyebrow">02 / Signature Feature</div>
-            <h2>
-              Dva algoritmy. Jeden vstup. <em>Jedna pravda.</em>
-            </h2>
-            <p>
-              Spusťte Bubble Sort a&nbsp;Quicksort na&nbsp;identickém poli a&nbsp;sledujte, jak se rozcházejí — krok za
-              krokem, porovnání za porovnáním. Žádná teorie. Konkrétní čísla.
-            </p>
+            <h2>{text.compare.title}</h2>
+            <p>{text.compare.text}</p>
           </div>
           <Link href="/compare" className="head-cta">
-            Otevřít srovnání <ArrowRight />
+            {text.compare.open} <ArrowRight />
           </Link>
         </div>
 
@@ -198,7 +164,7 @@ export default function LandingPage() {
               running on identical input · <span className="accent">n = 16</span> · live
             </div>
             <Link href="/compare" className="btn btn-secondary btn-sm">
-              Otevřít plné srovnání <ArrowRight size={13} />
+              {text.compare.openFull} <ArrowRight size={13} />
             </Link>
           </div>
         </div>
@@ -209,31 +175,20 @@ export default function LandingPage() {
         <div className="section-head">
           <div className="section-head-left">
             <div className="eyebrow">03 / AI Powered</div>
-            <h2>
-              Zeptej se na <em>cokoli</em>.
-            </h2>
-            <p>
-              Vestavěný asistent vysvětluje libovolný algoritmus na&nbsp;základě ověřeného materiálu. Žádné halucinace —
-              jen prověřené znalosti.
-            </p>
+            <h2>{text.ai.title}</h2>
+            <p>{text.ai.text}</p>
           </div>
         </div>
 
         <div className="ai-grid">
           <div className="ai-copy">
             <ul className="ai-features">
-              <li>
-                <b>Ověřený korpus</b> — zdrojem jsou učebnice, ne web
-              </li>
-              <li>
-                <b>Krokově přesný</b> — ví, kde je plejer právě teď
-              </li>
-              <li>
-                <b>Citace na kliknutí</b> — každé tvrzení s&nbsp;odkazem
-              </li>
+              {text.ai.features.map((feature, i) => (
+                <li key={i}>{feature}</li>
+              ))}
             </ul>
             <a href="#" className="btn btn-primary">
-              Vyzkoušet <ArrowRight size={14} />
+              {text.ai.tryIt} <ArrowRight size={14} />
             </a>
           </div>
 
@@ -250,26 +205,19 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="body">
-              <div className="msg user">Proč se bubble sort nazývá „bubble&quot;?</div>
+              <div className="msg user">{text.ai.question1}</div>
               <div className="msg ai">
                 <Sparkles className="spark" size={14} />
-                <div>
-                  Větší prvky postupně „probublávají&quot; ke&nbsp;konci pole — v&nbsp;každém průchodu se největší
-                  zbývající hodnota usadí na&nbsp;své finální místo, podobně jako vzduchová bublina stoupající
-                  k&nbsp;hladině.
-                </div>
+                <div>{text.ai.answer1}</div>
               </div>
-              <div className="msg user">A nejhorší případ?</div>
+              <div className="msg user">{text.ai.question2}</div>
               <div className="msg ai">
                 <Sparkles className="spark" size={14} />
-                <div>
-                  O(n²) — když je vstup seřazen sestupně. Tehdy provede <span className="mono-inline">n(n−1)/2</span>{" "}
-                  porovnání a&nbsp;stejný počet výměn.
-                </div>
+                <div>{text.ai.answer2}</div>
               </div>
             </div>
             <div className="input-row">
-              <span>Zeptej se na cokoli o&nbsp;tomto algoritmu…</span>
+              <span>{text.ai.placeholder}</span>
               <span className="send">
                 <ArrowUp size={12} />
               </span>
@@ -283,25 +231,20 @@ export default function LandingPage() {
         <div className="section-head">
           <div className="section-head-left">
             <div className="eyebrow">04 / For You</div>
-            <h2>
-              Není to <em>Brilliant.</em> Není to <em>visualgo.</em>
-            </h2>
-            <p>
-              Stavíme pro lidi, kteří chtějí algoritmům opravdu rozumět — ne sbírat odznáčky a&nbsp;procházet padesát
-              kvízů, než se dostanou k&nbsp;první myšlence.
-            </p>
+            <h2>{text.forYou.title}</h2>
+            <p>{text.forYou.text}</p>
           </div>
         </div>
 
         <div className="position-line">
           <div className="lhs">positioning</div>
           <div className="rhs">
-            <s>Hra. Mise. Odznáčky.</s> &nbsp;→&nbsp; <b>Hloubka místo šířky. Pochopení místo postupu.</b>
+            <s>{text.forYou.crossed}</s> &nbsp;→&nbsp; <b>{text.forYou.claim}</b>
           </div>
         </div>
 
         <div className="features-row">
-          {FEATURES.map(({ icon: Icon, letter, tag, title, em, text }) => (
+          {FEATURES.map(({ icon: Icon, letter, tag }, i) => (
             <div className="feature" key={letter}>
               <div className="icon">
                 <Icon size={18} />
@@ -310,9 +253,9 @@ export default function LandingPage() {
                 <span className="accent">{letter}</span> / {tag}
               </div>
               <h3>
-                {title} <em>{em}</em>
+                {text.features[i].title} <em>{text.features[i].em}</em>
               </h3>
-              <p>{text}</p>
+              <p>{text.features[i].text}</p>
             </div>
           ))}
         </div>
@@ -323,16 +266,14 @@ export default function LandingPage() {
         <div className="eyebrow" style={{ justifyContent: "center" }}>
           — Ready
         </div>
-        <h2>
-          Připraveni rozumět <em>algoritmům?</em>
-        </h2>
-        <p>Začněte s&nbsp;Bubble Sort. Nebo se ponořte rovnou do&nbsp;Dijkstry. Bez registrace, bez závazku.</p>
+        <h2>{text.final.title}</h2>
+        <p>{text.final.text}</p>
         <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
           <Link href="/algorithms/bubble-sort" className="btn btn-primary btn-lg">
-            Začít <ArrowRight size={16} />
+            {text.final.start} <ArrowRight size={16} />
           </Link>
           <Link href="/algorithms" className="btn btn-secondary btn-lg">
-            Procházet katalog
+            {text.final.catalog}
           </Link>
         </div>
       </section>

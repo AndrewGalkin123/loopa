@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/Link";
 import type { CSSProperties, ReactNode } from "react";
 import { Badge, type BadgeProps } from "./Badge";
 

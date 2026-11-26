@@ -3,6 +3,7 @@
 import { Check, Copy } from "lucide-react";
 import { useRef, useState, type ReactNode } from "react";
 import { CodeLine } from "@/components/code/tokens";
+import { useT } from "@/i18n/client";
 
 interface Implementation {
   id: string;
@@ -12,6 +13,7 @@ interface Implementation {
 
 /** Implementation in several languages: language tabs + copy-to-clipboard button. */
 export function CodeTabs({ implementations }: { implementations: Implementation[] }) {
+  const { t } = useT();
   const [lang, setLang] = useState(implementations[0].id);
   const [copied, setCopied] = useState(false);
   const activePane = useRef<HTMLDivElement>(null);
@@ -39,7 +41,7 @@ export function CodeTabs({ implementations }: { implementations: Implementation[
         ))}
       </div>
       <button className="code-copy" onClick={copy}>
-        {copied ? <Check size={13} /> : <Copy size={13} />} {copied ? "zkopírováno" : "kopírovat"}
+        {copied ? <Check size={13} /> : <Copy size={13} />} {copied ? t("code.copied") : t("code.copy")}
       </button>
 
       {implementations.map((impl) => (

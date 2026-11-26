@@ -9,10 +9,10 @@ export const graphModel: Model = {
   InputPanel: GraphInputPanel,
   DataMenu: GraphDataMenu,
   legend: {
-    default: { color: "var(--viz-default)", desc: "nenalezený" },
-    frontier: { color: "var(--viz-frontier)", desc: "čeká" },
-    active: { color: "var(--viz-active)", desc: "právě zpracovávaný" },
-    compared: { color: "var(--viz-compared)", desc: "kontrolovaný soused" },
-    done: { color: "var(--viz-done)", desc: "hotovo" },
+    default: { color: "var(--viz-default)", desc: { cs: "nenalezený", en: "not found yet" } },
+    frontier: { color: "var(--viz-frontier)", desc: { cs: "čeká", en: "waiting" } },
+    active: { color: "var(--viz-active)", desc: { cs: "právě zpracovávaný", en: "being processed" } },
+    compared: { color: "var(--viz-compared)", desc: { cs: "kontrolovaný soused", en: "neighbour being checked" } },
+    done: { color: "var(--viz-done)", desc: { cs: "hotovo", en: "done" } },
   },
 };

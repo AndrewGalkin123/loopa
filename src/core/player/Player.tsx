@@ -4,6 +4,7 @@ import { ChevronDown, Pause, Play, RotateCcw, SkipBack, SkipForward } from "luci
 import { useState, type PointerEvent } from "react";
 import { Dropdown } from "@/components/Dropdown";
 import type { PredictionView, Reply } from "@/core/types";
+import { useT } from "@/i18n/client";
 import { pad } from "@/lib/demoSteps";
 import { Note } from "./Note";
 import { usePlayer } from "./PlayerProvider";
@@ -20,6 +21,7 @@ const PROGRESS_TICKS = 24;
  */
 export function Player() {
   const { state, step, dispatch, definition, model } = usePlayer();
+  const { t } = useT();
   const last = state.steps.length - 1;
   const progress = last > 0 ? (state.index / last) * 100 : 0;
 
@@ -65,20 +67,20 @@ export function Player() {
           <div className="title">
             {definition.name}
             {definition.questions && (
-              <div className="mode-switch" role="group" aria-label="Režim přehrávače">
+              <div className="mode-switch" role="group" aria-label={t("player.mode")}>
                 <button
                   className={state.mode === "watch" ? "on" : undefined}
                   aria-pressed={state.mode === "watch"}
                   onClick={() => dispatch({ type: "mode", mode: "watch" })}
                 >
-                  Sleduj
+                  {t("player.watch")}
                 </button>
                 <button
                   className={state.mode === "predict" ? "on" : undefined}
                   aria-pressed={state.mode === "predict"}
                   onClick={() => dispatch({ type: "mode", mode: "predict" })}
                 >
-                  Předpověz
+                  {t("player.predict")}
                 </button>
               </div>
             )}
@@ -86,7 +88,7 @@ export function Player() {
           <div className="status">
             step <span className="accent">{pad(state.index + 1)}</span> / {state.steps.length} &nbsp;·&nbsp;{" "}
             {/* The status line could give the answer away. */}
-            {question && !result ? "čeká na tvou předpověď" : <Note parts={step.note} />}
+            {question && !result ? t("player.waiting") : <Note parts={step.note} />}
           </div>
         </div>
         <div className="head-metrics">
@@ -97,8 +99,8 @@ export function Player() {
             </div>
           ))}
           {state.mode === "predict" && (
-            <div className="metric" title="správné předpovědi / zodpovězené otázky">
-              <span className="k">předpovědi</span>
+            <div className="metric" title={t("player.predictionsTitle")}>
+              <span className="k">{t("player.predictions")}</span>
               <span className="v">
                 {answered.filter((r) => r.correct).length}/{answered.length}
               </span>
@@ -130,7 +132,7 @@ export function Player() {
         className="player-progress"
         role="slider"
         tabIndex={0}
-        aria-label="Průběh algoritmu"
+        aria-label={t("player.progress")}
         aria-valuemin={1}
         aria-valuemax={state.steps.length}
         aria-valuenow={state.index + 1}
@@ -155,8 +157,8 @@ export function Player() {
         <div className="controls-left">
           <button
             className="btn btn-secondary btn-icon btn-sm"
-            aria-label="Reset"
-            title="Na začátek (R)"
+            aria-label={t("player.reset")}
+            title={t("player.resetTitle")}
             disabled={state.index === 0}
             onClick={() => dispatch({ type: "reset" })}
           >
@@ -164,8 +166,8 @@ export function Player() {
           </button>
           <button
             className="btn btn-secondary btn-icon btn-sm"
-            aria-label="Krok zpět"
-            title="Krok zpět (←)"
+            aria-label={t("player.back")}
+            title={t("player.backTitle")}
             disabled={state.index === 0}
             onClick={() => dispatch({ type: "step", delta: -1 })}
           >
@@ -173,16 +175,16 @@ export function Player() {
           </button>
           <button
             className="btn btn-primary btn-icon"
-            aria-label={state.playing ? "Pozastavit" : "Přehrát"}
-            title={state.playing ? "Pozastavit (mezerník)" : "Přehrát (mezerník)"}
+            aria-label={state.playing ? t("player.pause") : t("player.play")}
+            title={state.playing ? t("player.pauseTitle") : t("player.playTitle")}
             onClick={() => dispatch({ type: "toggle" })}
           >
             {state.playing ? <Pause size={16} /> : <Play size={16} />}
           </button>
           <button
             className="btn btn-secondary btn-icon btn-sm"
-            aria-label="Krok vpřed"
-            title="Krok vpřed (→)"
+            aria-label={t("player.forward")}
+            title={t("player.forwardTitle")}
             disabled={state.index === last}
             onClick={() => dispatch({ type: "step", delta: 1 })}
           >
@@ -202,7 +204,7 @@ export function Player() {
               </>
             }
           >
-            <div className="head">rychlost</div>
+            <div className="head">{t("player.speed")}</div>
             {SPEEDS.map((speed) => (
               <button
                 key={speed}

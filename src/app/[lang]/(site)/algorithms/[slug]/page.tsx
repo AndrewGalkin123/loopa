@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Activity, ArrowRight, BarChart2, ChevronDown, Clock } from "lucide-react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CONTENT } from "@/algorithms/content";
 import { ALGORITHMS, findAlgorithm } from "@/algorithms/registry";
@@ -14,6 +13,9 @@ import { Dropdown } from "@/components/Dropdown";
 import { Player } from "@/core/player/Player";
 import { StepStatus } from "@/core/player/StepStatus";
 import { catalogCard } from "@/lib/catalog";
+import { hasTranslation, pick } from "@/i18n/config";
+import { Link } from "@/i18n/Link";
+import { getTranslator } from "@/i18n/server";
 import { MODELS } from "@/models";
 import { AlgorithmProvider } from "./AlgorithmProvider";
 import "./algorithm.css";
@@ -43,7 +45,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function AlgorithmPage({ params }: Props) {
   const definition = findAlgorithm((await params).slug);
   if (!definition) notFound();
-  const content = CONTENT[definition.slug];
+  const { t, tx, locale } = await getTranslator();
+  // The texts in the language of the page, or in Czech until they are translated.
+  const texts = CONTENT[definition.slug];
+  const content = pick(texts, locale);
   const model = MODELS[definition.model];
 
   return (
@@ -68,11 +73,11 @@ export default async function AlgorithmPage({ params }: Props) {
               {/* For now only sorting algorithms can be compared. */}
               {definition.group === "sorting" ? (
                 <Link className="btn btn-secondary btn-sm" href={`/compare?a=${definition.slug}`}>
-                  Porovnat <ArrowRight size={13} />
+                  {t("algo.compare")} <ArrowRight size={13} />
                 </Link>
               ) : (
                 <button className="btn btn-secondary btn-sm">
-                  Porovnat <ChevronDown size={13} />
+                  {t("algo.compare")} <ChevronDown size={13} />
                 </button>
               )}
             </div>
@@ -98,11 +103,11 @@ export default async function AlgorithmPage({ params }: Props) {
                 menuClassName="compare-menu"
                 label={
                   <>
-                    Porovnat <ChevronDown size={14} />
+                    {t("algo.compare")} <ChevronDown size={14} />
                   </>
                 }
               >
-                <div className="head">Porovnat s…</div>
+                <div className="head">{t("algo.compareWith")}</div>
                 {content.compareWith.map((item) => (
                   <Link key={item.name} href={item.href}>
                     {item.name} <span className="c">{item.complexity}</span>
@@ -111,6 +116,7 @@ export default async function AlgorithmPage({ params }: Props) {
               </Dropdown>
             </div>
 
+            {!hasTranslation(texts, locale) && <p className="untranslated">{t("untranslated")}</p>}
             <h1>{definition.name}</h1>
             <p className="lede">{content.lede}</p>
             <div className="meta-row">
@@ -119,15 +125,15 @@ export default async function AlgorithmPage({ params }: Props) {
               </Badge>
               <span className="sep" />
               <span className="item">
-                <Activity /> složitost <span className="val">{definition.complexity}</span>
+                <Activity /> {t("algo.complexity")} <span className="val">{definition.complexity}</span>
               </span>
               <span className="sep" />
               <span className="item">
-                <BarChart2 /> úroveň <span className="val">{definition.level}</span>
+                <BarChart2 /> {t("algo.level")} <span className="val">{definition.level}</span>
               </span>
               <span className="sep" />
               <span className="item">
-                <Clock /> <span className="val">{content.readMinutes} min</span> čtení
+                <Clock /> <span className="val">{content.readMinutes} min</span> {t("algo.read")}
               </span>
             </div>
           </section>
@@ -146,21 +152,21 @@ export default async function AlgorithmPage({ params }: Props) {
           <TaskList />
 
           {/* ───────── TABS + CONTENT ───────── */}
-          <AlgorithmSections content={content} linkedToPlayer />
+          <AlgorithmSections content={content} locale={locale} linkedToPlayer />
 
           {/* ───────── RELATED ───────── */}
           <section className="related">
             <div className="related-head">
               <div>
-                <div className="section-marker">související</div>
+                <div className="section-marker">{t("algo.related")}</div>
                 <h2>
-                  Chcete <em>hlouběji?</em>
+                  {t("algo.deeper")} <em>{t("algo.deeperEm")}</em>
                 </h2>
               </div>
             </div>
             <div className="related-grid">
               {content.related.map((slug) => (
-                <AlgorithmCard key={slug} {...catalogCard(slug)} />
+                <AlgorithmCard key={slug} {...catalogCard(slug)} description={tx(catalogCard(slug).description)} />
               ))}
               <Link className="card arrow-card" href={content.next.href}>
                 <div className="card-top">
@@ -181,7 +187,7 @@ export default async function AlgorithmPage({ params }: Props) {
           </section>
         </main>
 
-        <AiFab label="Zeptej se na&nbsp;tento algoritmus" ariaLabel="Zeptej se na tento algoritmus" collapsible />
+        <AiFab label={t("algo.ask")} ariaLabel={t("algo.askAria")} collapsible />
       </div>
     </AlgorithmProvider>
   );

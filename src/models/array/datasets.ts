@@ -1,3 +1,5 @@
+import type { Text } from "@/i18n/config";
+
 /* Input arrays for the player: generated ones and the user's own. */
 
 /** Kinds of generated arrays (the "array" button of the player). */
@@ -7,11 +9,11 @@ export type DatasetKind = "random" | "nearly" | "sorted" | "reversed";
  * Datasets offered on the "array" button. The hints are neutral; an algorithm can
  * replace them with what the input means for it (AlgorithmDefinition.inputHints).
  */
-export const DATASETS: { id: DatasetKind; label: string; hint: string }[] = [
-  { id: "random", label: "random", hint: "náhodné pořadí" },
-  { id: "nearly", label: "nearly sorted", hint: "téměř seřazené" },
-  { id: "sorted", label: "sorted", hint: "seřazené" },
-  { id: "reversed", label: "reversed", hint: "obrácené pořadí" },
+export const DATASETS: { id: DatasetKind; label: string; hint: Text }[] = [
+  { id: "random", label: "random", hint: { cs: "náhodné pořadí", en: "random order" } },
+  { id: "nearly", label: "nearly sorted", hint: { cs: "téměř seřazené", en: "almost sorted" } },
+  { id: "sorted", label: "sorted", hint: { cs: "seřazené", en: "sorted" } },
+  { id: "reversed", label: "reversed", hint: { cs: "obrácené pořadí", en: "reversed order" } },
 ];
 
 /** Limits of the array size (slider and own input). */
@@ -55,17 +57,22 @@ export function formatArray(values: number[]): string {
 }
 
 /** Reads the user's own input, e.g. "[3, 1, 4]" or "3 1 4". Returns the numbers or an error message. */
-export function parseArray(text: string): { values: number[] } | { error: string } {
+export function parseArray(text: string): { values: number[] } | { error: Text } {
   const parts = text
     .replace(/[[\]]/g, " ")
     .split(/[\s,;]+/)
     .filter(Boolean);
   if (parts.length < MIN_SIZE || parts.length > MAX_SIZE) {
-    return { error: `Zadej ${MIN_SIZE}–${MAX_SIZE} čísel oddělených čárkou.` };
+    return {
+      error: {
+        cs: `Zadej ${MIN_SIZE}–${MAX_SIZE} čísel oddělených čárkou.`,
+        en: `Enter ${MIN_SIZE}–${MAX_SIZE} numbers separated by commas.`,
+      },
+    };
   }
   const values = parts.map(Number);
   if (values.some((v) => !Number.isInteger(v) || v < 0 || v > MAX_VALUE)) {
-    return { error: `Povolená jsou jen celá čísla 0–${MAX_VALUE}.` };
+    return { error: { cs: `Povolená jsou jen celá čísla 0–${MAX_VALUE}.`, en: `Only whole numbers 0–${MAX_VALUE} are allowed.` } };
   }
   return { values };
 }

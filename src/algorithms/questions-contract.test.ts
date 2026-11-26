@@ -27,7 +27,7 @@ test("the four algorithms of the research have questions", () => {
 describe.each(withQuestions)("$slug: questions follow the rules", (definition) => {
   test("asked before the end, in the order of the run, with a text and an explanation", () => {
     for (const { steps } of runs(definition)) {
-      const questions = definition.questions!(steps as never);
+      const questions = definition.questions!(steps as never, "cs");
       questions.forEach((q, i) => {
         expect(q.at).toBeGreaterThanOrEqual(0);
         expect(q.at).toBeLessThan(steps.length - 1);
@@ -40,7 +40,7 @@ describe.each(withQuestions)("$slug: questions follow the rules", (definition) =
 
   test("a click answer names things the picture shows; a pick has at least one right answer", () => {
     for (const { steps, ids } of runs(definition)) {
-      for (const q of definition.questions!(steps as never)) {
+      for (const q of definition.questions!(steps as never, "cs")) {
         if (q.answer.kind === "yes-no") continue;
         for (const id of q.answer.correct) expect(ids).toContain(id);
         if (q.answer.kind === "pick") expect(q.answer.correct.length).toBeGreaterThan(0);
@@ -50,7 +50,7 @@ describe.each(withQuestions)("$slug: questions follow the rules", (definition) =
 
   test("the picture of the question step does not show the answer yet", () => {
     for (const { steps } of runs(definition)) {
-      for (const q of definition.questions!(steps as never)) {
+      for (const q of definition.questions!(steps as never, "cs")) {
         if (q.answer.kind !== "pick") continue;
         const state = steps[q.at].state as Partial<ArrayState & GraphState>;
         // Arrays: the answer is not marked as already sorted; graphs: the vertex is not closed yet.
